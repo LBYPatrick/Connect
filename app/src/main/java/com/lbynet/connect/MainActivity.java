@@ -2,13 +2,11 @@ package com.lbynet.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import com.lbynet.connect.backend.Core;
-import com.lbynet.connect.backend.NetTools;
+import com.lbynet.connect.backend.Pairing;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         String temp = "";
 
-        for(String line : NetTools.getAllDeviceIPs()) {
+        for(String line : Pairing.getAllDeviceIPs()) {
             temp += line + "\n";
         }
 
