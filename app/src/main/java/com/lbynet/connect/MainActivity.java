@@ -17,6 +17,12 @@ public class MainActivity extends AppCompatActivity {
 
         Core.activity = this;
 
+        try {
+            Pairing.start();
+        } catch (Exception e) {
+            Core.printException(e);
+        }
+
         new Thread( () -> {
             try {
             while (true) {

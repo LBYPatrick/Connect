@@ -1,9 +1,5 @@
-package com.lbynet.connect.backend;
+package app;
 
-import android.content.Context;
-import android.net.wifi.WifiManager;
-
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -97,7 +93,7 @@ public class Pairing {
                             }
 
                             if (!isExistingDevice) {
-                                Core.print("Device added " + d.ip);
+                                Core.print("Device added: IP: " + d.ip + "\tName: " + d.name);
                                 pairedDevices_.add(d);
                             }
                         }
@@ -185,7 +181,7 @@ public class Pairing {
 
         try {
             selfIp_ = socket_.getInterface().getHostAddress();
-
+            Core.print("Self IP: " + selfIp_ + "\tName:" + socket_.getInterface().getHostName());
         }catch (Exception e) {
             Core.printException(e);
         }
@@ -200,6 +196,8 @@ public class Pairing {
         }
 
         subnet_ = getSelfAddress().substring(0,getSelfAddress().lastIndexOf("."));
+        Core.print("Subnet: " + subnet_);
+        
 
         return subnet_;
     }
