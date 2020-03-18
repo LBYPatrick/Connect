@@ -17,14 +17,29 @@ public class MainActivity extends AppCompatActivity {
 
         Core.activity = this;
 
-        String temp = "";
+        new Thread( () -> {
+            try {
+            while (true) {
+                String temp = "";
 
-        for(String line : Pairing.getAllDeviceIPs()) {
-            temp += line + "\n";
-        }
+                for (Pairing.Device device : Pairing.getPairedDevices()) {
+                    temp += device.ip + "\t" + device.name + "\n";
+                }
+
+                final String out = temp;
 
 
-        ((TextView)findViewById(R.id.main_content_box)).setText(temp);
+                runOnUiThread( () -> {
+                    ((TextView) findViewById(R.id.main_content_box)).setText(out);
+                });
+
+                Thread.sleep(200);
+            }
+            } catch (Exception e) {
+                Core.printException(e);
+            }
+        }).start();
+
     }
 
 }

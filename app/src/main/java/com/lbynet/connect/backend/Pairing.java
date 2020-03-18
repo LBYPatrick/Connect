@@ -27,7 +27,7 @@ public class Pairing {
                                 BUFFER_LENGTH = 1000;
 
 
-    private static ArrayList<Device> pairedDevices = new ArrayList<>();
+    private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
     private static MulticastSocket socket_;
     private static boolean isStarted = false;
     private static Thread listenThread, sendThread;
@@ -41,20 +41,20 @@ public class Pairing {
             socket_ = new MulticastSocket(MCAST_PORT);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Core.printException(e);
         }
 
     }
 
     /**
-     * 
+     *
      * @throws Exception
      */
     public static void start() throws Exception {
 
         if(isStarted) {
             stop();
-            pairedDevices.clear();
+            pairedDevices_.clear();
         }
 
         socket_.joinGroup(GROUP_ADDR);
@@ -68,7 +68,7 @@ public class Pairing {
                     Thread.sleep(1000);
                 }
             } catch(Exception e) {
-                e.printStackTrace();
+                Core.printException(e);
             }
         });
 
@@ -86,7 +86,7 @@ public class Pairing {
 
                         boolean isExistingDevice = false;
 
-                        for(Device i : pairedDevices) {
+                        for(Device i : pairedDevices_) {
                             if(i.ip == d.ip) {
                                 isExistingDevice = true;
                                 break;
@@ -94,17 +94,21 @@ public class Pairing {
                         }
 
                         if(!isExistingDevice) {
-                            pairedDevices.add(d);
+                            pairedDevices_.add(d);
                         }
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                Core.printException(e);
             }
         });
 
         listenThread.start();
         sendThread.start();
+    }
+
+    public static ArrayList<Device> getPairedDevices() {
+        return pairedDevices_;
     }
 
     public static void stop() throws Exception{

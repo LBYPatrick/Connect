@@ -32,7 +32,7 @@ public class IO {
             br.close();
 
         } catch(Exception e) {
-            e.printStackTrace();
+            Core.printException(e);
             return false;
         }
 
