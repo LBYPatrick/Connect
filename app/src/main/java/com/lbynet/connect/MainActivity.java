@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.lbynet.connect.backend.Core;
+import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Pairing;
 
 public class MainActivity extends AppCompatActivity {
@@ -15,16 +15,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Core.activity = this;
+        SAL.activity = this;
 
         try {
             Pairing.start();
         } catch (Exception e) {
-            Core.printException(e);
+            SAL.printException(e);
         }
 
         new Thread( () -> {
             try {
+
+            TextView view = findViewById(R.id.main_content_box);
+
             while (true) {
                 String temp = "";
 
@@ -34,15 +37,16 @@ public class MainActivity extends AppCompatActivity {
 
                 final String out = temp;
 
+                if(out.compareTo(view.getText().toString()) != 0) {
+                    runOnUiThread(() -> {
+                        view.setText(out);
+                    });
+                }
 
-                runOnUiThread( () -> {
-                    ((TextView) findViewById(R.id.main_content_box)).setText(out);
-                });
-
-                Thread.sleep(200);
+                Thread.sleep(15);
             }
             } catch (Exception e) {
-                Core.printException(e);
+                SAL.printException(e);
             }
         }).start();
 

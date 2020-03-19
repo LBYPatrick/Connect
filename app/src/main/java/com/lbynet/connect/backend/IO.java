@@ -32,7 +32,7 @@ public class IO {
             br.close();
 
         } catch(Exception e) {
-            Core.printException(e);
+            SAL.printException(e);
             return false;
         }
 

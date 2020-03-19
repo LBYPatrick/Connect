@@ -10,20 +10,22 @@ import java.util.Arrays;
 public class Pairing {
 
     public static class Device  {
-        public String ip, name;
+        public String ip, name,uid;
         public Device() {}
 
     }
 
     private static InetAddress GROUP_ADDR;
-    private static byte[] msg = ((String) "S").getBytes();
+    private static String uid;
+    private static byte[] msg;
 
     final private static String MCAST_ADDR = "233.233.233.233";
     final private static int    MCAST_PORT = 2333,
                                 BUFFER_LENGTH = 1000;
 
     private static String subnet_,
-                          selfIp_;
+                          selfIp_,
+                          selfName_;
 
     private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
     private static MulticastSocket socket_;
@@ -37,9 +39,11 @@ public class Pairing {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
             socket_ = new MulticastSocket(MCAST_PORT);
+            uid = Utils.getRandomString(4);
+            msg = uid.getBytes();
 
         } catch (Exception e) {
-            Core.printException(e);
+            SAL.printException(e);
         }
 
     }
@@ -66,7 +70,7 @@ public class Pairing {
                     Thread.sleep(15);
                 }
             } catch(Exception e) {
-                Core.printException(e);
+                SAL.printException(e);
             }
         });
 
@@ -82,7 +86,10 @@ public class Pairing {
                         d.ip = dp.getAddress().getHostAddress();
                         d.name = dp.getAddress().getHostName();
 
-                        if(d.ip.compareTo(getSelfAddress()) != 0) {
+                        d.uid = new String(Utils.getTrimedData(dp.getData(),dp.getOffset(),dp.getLength()));
+
+
+                        if(d.uid.compareTo(uid) != 0) {
                             boolean isExistingDevice = false;
 
                             for (Device i : pairedDevices_) {
@@ -93,14 +100,19 @@ public class Pairing {
                             }
 
                             if (!isExistingDevice) {
-                                Core.print("Device added: IP: " + d.ip + "\tName: " + d.name);
+                                SAL.print("Device added: " + d.name + "@" + d.ip);
                                 pairedDevices_.add(d);
                             }
+                        }
+
+                        else if (selfIp_ == null){
+                            selfIp_ = d.ip;
+                            selfName_ = d.name;
                         }
                     }
                 }
             } catch (Exception e) {
-                Core.printException(e);
+                SAL.printException(e);
             }
         });
 
@@ -172,21 +184,20 @@ public class Pairing {
         return reachable;
     }
 
+    public static String getSelfName() {
 
-    private static String getSelfAddress() {
+        if(selfName_ == null) { return "";}
 
-        if(selfIp_ != null) {
-            return selfIp_;
+        else {
+            return selfName_;
         }
+    }
 
-        try {
-            selfIp_ = socket_.getInterface().getHostAddress();
-            Core.print("Self IP: " + selfIp_ + "\tName:" + socket_.getInterface().getHostName());
-        }catch (Exception e) {
-            Core.printException(e);
+    public static String getSelfAddress() {
+        if(selfIp_ == null) {
+            return "";
         }
-
-        return selfIp_;
+        else return selfIp_;
     }
 
     public static String getSubnetAddr() {
@@ -194,11 +205,13 @@ public class Pairing {
         if(subnet_ != null) {
             return subnet_;
         }
+        else if(getSelfAddress().length() == 0) {
+            return "";
+        }
+        else {
+            subnet_ = getSelfAddress().substring(0,getSelfAddress().lastIndexOf("."));
+            return subnet_;
+        }
 
-        subnet_ = getSelfAddress().substring(0,getSelfAddress().lastIndexOf("."));
-        Core.print("Subnet: " + subnet_);
-        
-
-        return subnet_;
     }
 }
