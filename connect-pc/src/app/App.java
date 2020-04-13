@@ -1,21 +1,16 @@
 package app;
 
+import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.util.Collections;
 
 public class App {
     public static void main(String[] args) throws Exception {
 
-        //SAL.print(Collections.list(NetworkInterface.getByName("wlan2").getInetAddresses()).get(0).getHostAddress());
-        
-        Pairing.start();
-
-        Thread.sleep(500);
-
-        SAL.print("Host: " + Pairing.getSelfName() + "@" + Pairing.getSelfAddress());
+        Socket socket = new Socket(InetAddress.getByName("127.0.0.1"),233);
 
         while(true) {
-            
         }
     }
 }
