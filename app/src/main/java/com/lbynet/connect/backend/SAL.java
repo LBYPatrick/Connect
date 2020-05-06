@@ -13,7 +13,7 @@ public class SAL {
 
     public static void print(String msg) { Log.d("DebugInfo", msg); }
 
-    public static void printException(Exception e) {
+    public static void print(Exception e) {
         Log.d(e.getClass().toString(), e.getStackTrace().toString());
     }
 }

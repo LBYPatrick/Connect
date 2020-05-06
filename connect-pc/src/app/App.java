@@ -8,9 +8,16 @@ import java.util.Collections;
 public class App {
     public static void main(String[] args) throws Exception {
 
-        Socket socket = new Socket(InetAddress.getByName("127.0.0.1"),233);
+        Pairing.start();
 
-        while(true) {
+        Thread.sleep(500);
+
+        for(String i : Pairing.getAllDeviceIPs()) {
+            SAL.print(i);
+        }
+
+        while(true){
+
         }
     }
 }

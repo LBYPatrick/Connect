@@ -3,75 +3,97 @@ package com.lbynet.connect.backend;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.ParcelFileDescriptor;
 
-import java.io.File;
-import java.io.FileDescriptor;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Socket;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
+import java.net.InetAddress;
 
 public class Microphone {
 
-    static MediaRecorder mr = new MediaRecorder();
+    final public static int SOURCE = MediaRecorder.AudioSource.MIC,
+                     SAMPLE_RATE = 44100,
+                     CHANNEL = AudioFormat.CHANNEL_IN_MONO,
+                     RAW_ENCODING = AudioFormat.ENCODING_PCM_16BIT,
+                     BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE,CHANNEL,RAW_ENCODING);
+
+
+    //static MediaRecorder mr = new MediaRecorder();
+    static AudioRecord ar;
     static boolean isTargetConfigured_ = false;
     static boolean isBusy = false;
+    //static MediaCodec codec;
+    static Thread mainThread_;
+    static InetAddress targetIp_;
+    static int port_;
+
 
     static {
+        ar = new AudioRecord(SOURCE,
+                SAMPLE_RATE,
+                CHANNEL,
+                RAW_ENCODING,
+                BUFFER_SIZE);
 
-        mr.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mr.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
-        mr.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        //mr.setOutputFile();
-
-        //mr.setAudioSamplingRate(16000);
     }
 
-    public static void setOutput (FileDescriptor fd) {
-        mr.setOutputFile(fd);
-        isTargetConfigured_ = true;
-    }
-
-    public static void setOutput(String path) {
-        mr.setOutputFile(path);
-        isTargetConfigured_ = true;
-    }
-
-    public static void setOutput (Socket socket) throws Exception {
-
-        mr.setOutputFile(ParcelFileDescriptor.fromSocket(socket).getFileDescriptor());
-        isTargetConfigured_ = true;
-    }
-
-    public static boolean start() {
+    public static void initialize(String targetIp, int port) {
         try {
-            if(!isTargetConfigured_) {
-                setOutput("mic_output.mco");
+            targetIp_ = InetAddress.getByName(targetIp);
+            port_ = port;
+        } catch (Exception e) {
+            SAL.print(e);
+        }
+    }
+
+    public static void start() {
+
+        if(targetIp_ == null || isBusy) {
+            return;
+        }
+
+        isBusy = true;
+
+        mainThread_ = new Thread(() -> {
+            try {
+
+                ar.startRecording();
+
+                byte [] buffer = new byte[BUFFER_SIZE];
+                int dataLength = 0;
+                DatagramSocket socket = new DatagramSocket();
+
+                while(isBusy) {
+
+                    dataLength = ar.read(buffer,0,BUFFER_SIZE);
+
+                    SAL.print(Integer.toString(dataLength));
+
+                    if(dataLength != 0) {
+                        socket.send(new DatagramPacket(buffer,dataLength,targetIp_,port_));
+                    }
+                }
+
+                socket.close();
 
             }
-            SAL.print("Preparing");
-            mr.prepare();
-            SAL.print("Starting");
-            mr.start();
-            SAL.print("Start Successful");
-        } catch (Exception e) {
-            SAL.printException(e);
-            return false;
-        }
-        return true;
+            catch (Exception e) {
+                SAL.print(e);
+            }
+        });
+
+        mainThread_.start();
     }
 
     public static void pause() {
-        mr.pause();
+       //TODO: Implement this
     }
 
     public static void resume() {
-        mr.resume();
+        //TODO: Implement this
     }
 
     public static void stop() {
-        mr.stop();
+        isBusy = false;
     }
 
 }

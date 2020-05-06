@@ -139,7 +139,7 @@ public class Pairing {
     //Brute-force pinging -- doesn't work under some networks
     public static ArrayList<String> getAllDeviceIPs() {
 
-        String gateway = getSubnetAddr();
+        String gateway = "192.168.1";
         ArrayList<String> reachable = new ArrayList<>();
 
         boolean[] status = new boolean[255];
