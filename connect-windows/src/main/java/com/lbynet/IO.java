@@ -1,9 +1,4 @@
-package com.lbynet.connect.backend;
-
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.util.Log;
-
+package com.lbynet;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -37,7 +32,7 @@ public class IO {
 
             byte [] buffer = new byte[(int)file.length()];
 
-            Log.v("readFileAtOnce","Reading File " + path +" with size " + Long.toString(file.length()) + "Bytes");
+            SAL.printVerbose("readFileAtOnce","Reading File " + path +" with size " + Long.toString(file.length()) + "Bytes");
 
             stream.read(buffer,0,buffer.length);
             stream.close();
@@ -45,7 +40,7 @@ public class IO {
             return buffer;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
 
         return null;
@@ -109,7 +104,7 @@ public class IO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
 
         return null;

@@ -1,5 +1,7 @@
 package com.lbynet.connect.backend;
 
+import android.os.Build;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -10,7 +12,7 @@ import java.util.Arrays;
 public class Pairing {
 
     public static class Device {
-        public String ip, name, uid;
+        public String ip, uid;
 
         public Device() {
         }
@@ -18,12 +20,12 @@ public class Pairing {
     }
 
     private static InetAddress GROUP_ADDR;
-    private static String uid;
-    private static byte[] msg;
+    private static String selfUid_;
+    private static byte[] msg_;
 
     final private static String MCAST_ADDR = "233.233.233.233";
     final private static int MCAST_PORT = 2333,
-            BUFFER_LENGTH = 1000;
+            BUFFER_LENGTH = 16384;
 
     private static String subnet_,
             selfIp_,
@@ -41,8 +43,10 @@ public class Pairing {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
             socket_ = new MulticastSocket(MCAST_PORT);
-            uid = Utils.getRandomString(4);
-            msg = uid.getBytes();
+
+            //TODO: Change this when you are porting this to other platforms
+            selfUid_ = Build.BRAND +" " + Build.MODEL + " " + Build.ID;
+            msg_ = selfUid_.getBytes();
 
         } catch (Exception e) {
             SAL.print(e);
@@ -67,8 +71,8 @@ public class Pairing {
         sendThread = new Thread(() -> {
             try {
                 while (isStarted) {
-                    socket_.send(new DatagramPacket(msg, msg.length, GROUP_ADDR, MCAST_PORT));
-                    Thread.sleep(15);
+                    socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
+                    Thread.sleep(100);
                 }
             } catch (Exception e) {
                 SAL.print(e);
@@ -82,31 +86,30 @@ public class Pairing {
                     DatagramPacket dp = new DatagramPacket(new byte[BUFFER_LENGTH], BUFFER_LENGTH);
                     socket_.receive(dp);
 
+                    //Package Received
                     if (dp.getLength() > 0) {
                         Device d = new Device();
                         d.ip = dp.getAddress().getHostAddress();
-                        d.name = dp.getAddress().getHostName();
 
                         d.uid = new String(Utils.getTrimedData(dp.getData(), dp.getOffset(), dp.getLength()));
 
+                        if (d.uid.compareTo(selfUid_) != 0) {
 
-                        if (d.uid.compareTo(uid) != 0) {
                             boolean isExistingDevice = false;
 
                             for (Device i : pairedDevices_) {
-                                if (i.ip.compareTo(d.ip) == 0) {
+                                if (i.uid.equals(d.uid)) {
                                     isExistingDevice = true;
                                     break;
                                 }
                             }
 
                             if (!isExistingDevice) {
-                                SAL.print("Device added: " + d.name + "@" + d.ip);
+                                SAL.print("Device added: " + d.uid + "@" + d.ip);
                                 pairedDevices_.add(d);
                             }
                         } else if (selfIp_ == null) {
                             selfIp_ = d.ip;
-                            selfName_ = d.name;
                         }
                     }
                 }
@@ -211,5 +214,9 @@ public class Pairing {
             return subnet_;
         }
 
+    }
+
+    public static String getSelfUid() {
+        return selfUid_;
     }
 }

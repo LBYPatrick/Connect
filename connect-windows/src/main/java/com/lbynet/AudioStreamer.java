@@ -104,7 +104,7 @@ public class AudioStreamer {
                 speaker.close();
 
             } catch (Exception e) {
-                SAL.printException(e);
+                SAL.print(e);
             }
 
         });

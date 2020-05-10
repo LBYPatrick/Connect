@@ -9,6 +9,9 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+import org.json.JSONObject;
+
+import java.io.File;
 import java.util.Random;
 
 public class Utils {
@@ -22,6 +25,37 @@ public class Utils {
         randomizer = new Random();
     }
 
+
+    public static JSONObject getCompiledFileInfo(String... paths) throws Exception {
+        JSONObject r = new JSONObject();
+
+        for(String path : paths) {
+
+            //Format: "<filename>" : "<file_size>"
+            r.put(Utils.getFilename(path), getFileSize(path));
+        }
+
+        return r;
+    }
+
+    public static long getFileSize(String path) throws SecurityException {
+
+        File file = new File(path);
+        return file.length();
+
+    }
+
+    public static String getFilename(String path) {
+
+        if(!path.contains("/")) {
+            return path;
+        }
+        else {
+            return path.substring(path.lastIndexOf("/") + 1,path.length());
+        }
+
+    }
+
     public static String getRandomString(int size) {
         String out = "";
 
@@ -32,7 +66,16 @@ public class Utils {
         return out;
     }
 
+    public static byte [] getTrimedData(byte[] rawBuffer, int length) {
+        return getTrimedData(rawBuffer,0,length);
+    }
+
     public static byte [] getTrimedData(byte[] rawBuffer, int offset, int length) {
+
+        if(rawBuffer.length == length) {
+            return rawBuffer;
+        }
+
         byte [] r = new byte [length];
 
         for(int i = 0; i < length; ++i) {

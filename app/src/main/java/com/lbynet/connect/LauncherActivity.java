@@ -1,0 +1,81 @@
+package com.lbynet.connect;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.lbynet.connect.backend.Pairing;
+
+public class LauncherActivity extends AppCompatActivity {
+
+    ProgressBar pb;
+    TextView tvDeviceID;
+
+    void grantPermissions() {
+        String[] permissions = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO
+        };
+
+        for (String p : permissions) {
+            if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{p}, 1);
+            }
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        grantPermissions();
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.launcher);
+
+        pb = findViewById(R.id.pb_device_id);
+        tvDeviceID = findViewById(R.id.tv_device_id);
+
+        new LoadDeviceID().execute();
+
+    }
+
+    private class LoadDeviceID extends AsyncTask<Void,Void,Boolean> {
+
+        String id;
+
+        @Override
+        protected void onPreExecute() {
+            pb.setVisibility(View.VISIBLE);
+            tvDeviceID.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            id = Pairing.getSelfUid();
+
+            return (id != null);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+            if(!aBoolean) {
+                tvDeviceID.setText("Failed to obtain device ID, please blame @lbypatrick.");
+            }
+            else {
+                tvDeviceID.setText(id);
+            }
+
+            pb.setVisibility(View.INVISIBLE);
+            tvDeviceID.setVisibility(View.VISIBLE);
+        }
+    }
+
+}

@@ -43,7 +43,7 @@ public class Pairing {
             msg = uid.getBytes();
 
         } catch (Exception e) {
-            SAL.printException(e);
+            SAL.print(e);
         }
 
     }
@@ -70,7 +70,7 @@ public class Pairing {
                     Thread.sleep(15);
                 }
             } catch(Exception e) {
-                SAL.printException(e);
+                SAL.print(e);
             }
         });
 
@@ -112,7 +112,7 @@ public class Pairing {
                     }
                 }
             } catch (Exception e) {
-                SAL.printException(e);
+                SAL.print(e);
             }
         });
 

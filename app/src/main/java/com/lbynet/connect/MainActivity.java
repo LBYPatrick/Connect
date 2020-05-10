@@ -9,24 +9,16 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.lbynet.connect.backend.DataPool;
-import com.lbynet.connect.backend.IO;
+import com.lbynet.connect.backend.networking.FileSender;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,15 +27,15 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivImage;
 
     void grantPermissions() {
-        String [] permissions = {
+        String[] permissions = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.RECORD_AUDIO
         };
 
-        for(String p : permissions) {
-            if(checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String [] {p}, 1);
+        for (String p : permissions) {
+            if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{p}, 1);
             }
         }
     }
@@ -65,19 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        DataPool.timesRun += 1;
-        //new LoadResult(this).execute(getIntent());
-    }
-
-    public class LoadResult extends AsyncTask<Intent,Void, Boolean> {
+    public class LoadResult extends AsyncTask<Intent, Void, Void> {
 
         String msg_ = "";
         Uri image_;
         Context context_;
-
 
 
         public LoadResult(Context context) {
@@ -92,70 +76,62 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(Intent... intents) {
+        protected Void doInBackground(Intent... intents) {
 
             Intent intent = intents[0];
 
-            if(intent.getType() == null) {
+            if (intent.getType() == null) {
 
-                DataPool.timesRun += 1;
+                msg_ = "Share Intent not detected. Do not launch this app directly.";
 
-                msg_ = "Share Intent not detected. Do not launch this app directly." + DataPool.timesRun;
-            } else {
-                msg_ = "Type: " + getIntent().getType() + "\n";
+            } else if (intent.getAction().equals(Intent.ACTION_SEND_MULTIPLE)) {
 
-                //Multiple Files
-                if(intent.getAction().equals(Intent.ACTION_SEND_MULTIPLE)) {
-                    msg_ += "Info:\n";
+                msg_ = "Type: " + getIntent().getType() + "\n\n" +
+                        "Info:\n";
 
-                    ArrayList<Uri> arr = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                String[] paths = new String[uris.size()];
 
-                    for(Uri uri : arr) {
-                        msg_ += "URI: " + uri.toString() + "\n" +
-                                    "\tScheme: " + uri.getScheme() + "\n" +
-                                    "\tReal Path:" + Utils.getPath(context_,uri) + "\n\n";
-                    }
+                for (int i = 0; i < uris.size(); ++i) {
+                    msg_ += "URI: " + uris.get(i).toString() + "\n" +
+                            "\tScheme: " + uris.get(i).getScheme() + "\n" +
+                            "\tReal Path:" + Utils.getPath(context_, uris.get(i)) + "\n\n";
+
+                    paths[i] = Utils.getPath(context_, uris.get(i));
                 }
-                //Single File
-                else {
+                runOnUiThread(() -> {
+                    new FileSender("192.168.1.182", paths).start();
+                });
 
-                    Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            }
+            //Single File
+            else if (intent.getAction().equals(Intent.ACTION_SEND)) {
 
-                    SAL.print("Scheme: " + uri.getScheme() + "\n"
-                            + "Query: " + uri.getQuery() + "\n"
-                            + "Path: " + Utils.getPath(context_,uri));
+                Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
+                SAL.print("Scheme: " + uri.getScheme() + "\n"
+                        + "Query: " + uri.getQuery() + "\n"
+                        + "Path: " + Utils.getPath(context_, uri));
 
-                    if(intent.getType().startsWith("image/")) {
+                runOnUiThread(() -> {
+                    new FileSender("192.168.1.182", Utils.getPath(context_, uri)).start();
+                });
 
-                        image_ = uri;
-                        msg_ = "";
-
-                        return true;
-                    }
-                    else {
-                        msg_ += "URI: " + uri.toString() + "\n" +
-                                "\tScheme: " + uri.getScheme() + "\n" +
-                                "\tReal Path:" + Utils.getPath(context_,uri) + "\n\n";
-                    }
-                }
+                msg_ += "URI: " + uri.toString() + "\n" +
+                        "\tScheme: " + uri.getScheme() + "\n" +
+                        "\tReal Path:" + Utils.getPath(context_, uri) + "\n\n";
             }
 
-            return false;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(Boolean s) {
+        protected void onPostExecute(Void aVoid) {
 
             try {
 
-                if (s.equals(true)) {
-                    ivImage.setImageURI(image_);
-                    ivImage.setVisibility(View.VISIBLE);
-                } else {
-                    tvMime.setText(msg_);
-                    tvMime.setVisibility(View.VISIBLE);
-                }
+                tvMime.setText(msg_);
+                tvMime.setVisibility(View.VISIBLE);
 
                 pb.setVisibility(View.INVISIBLE);
             } catch (Exception e) {
