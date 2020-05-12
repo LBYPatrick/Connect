@@ -1,28 +1,36 @@
-package com.lbynet;
-import netscape.javascript.JSObject;
+package com.lbynet.connect;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
 
+import com.lbynet.connect.backend.*;
+import com.lbynet.connect.backend.networking.*;
+import com.lbynet.connect.backend.networking.Pairing;
 import org.json.*;
 
 public class App {
     public static void main(String[] args) throws Exception {
 
         Socket s;
-
         ServerSocket ss = new ServerSocket();
-        ss.setReuseAddress(true);
 
+        ss.setReuseAddress(true);
         ss.bind(new InetSocketAddress(35678));
 
+        SAL.print("Device ID: " + Pairing.getSelfUid());
+
+        SAL.print("Target Port: " + Utils.getTargetPort(InetAddress.getLocalHost().getHostAddress()));
+
+        Pairing.start();
+
+
         while (true) {
+
             SAL.print("Listening...");
 
             String data = "";
@@ -56,8 +64,6 @@ public class App {
                 }
             }
 
-            SAL.print(data);
-
             JSONArray fileList = new JSONArray(data);
             JSONArray portList = new JSONArray();
 
@@ -65,8 +71,6 @@ public class App {
 
                 String filename = fileList.getString(i);
                 int port = Utils.getTransferPort();
-
-                SAL.print("Filename: " + filename);
 
                 new FileRecvStreamer(filename, "C:/Users/lbypa/Desktop/Connect", port).start();
 

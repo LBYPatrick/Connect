@@ -3,4 +3,7 @@
     <color name="colorPrimary">#7D7D7D</color>
     <color name="colorPrimaryDark">#7D7D7D</color>
     <color name="colorAccent">#03DAC5</color>
+
+    <color name="quarter_white">#10FFFFFF</color>
+    <color name="half_white">#30FFFFFF</color>
 </resources>

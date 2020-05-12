@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.lbynet.connect.backend.frames.ParallelTask;
 import com.lbynet.connect.backend.networking.FileSender;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
@@ -24,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvMime;
     private ProgressBar pb;
-    private ImageView ivImage;
 
     void grantPermissions() {
         String[] permissions = {
@@ -51,45 +51,45 @@ public class MainActivity extends AppCompatActivity {
         tvMime = findViewById(R.id.tv_mime);
         pb = findViewById(R.id.pb_loading);
 
-        ivImage = findViewById(R.id.iv_image);
+        ImageView ivImage = findViewById(R.id.iv_image);
 
-        new LoadResult(this).execute(getIntent());
+        new LoadResult(this,getIntent()).start();
 
     }
 
-    public class LoadResult extends AsyncTask<Intent, Void, Void> {
+    public class LoadResult extends ParallelTask {
 
         String msg_ = "";
         Uri image_;
         Context context_;
 
+        Intent intent_;
 
-        public LoadResult(Context context) {
+
+        public LoadResult(Context context, Intent intent) {
             context_ = context;
+            intent_ = intent;
         }
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        public void preRun() {
             tvMime.setVisibility(View.INVISIBLE);
             pb.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected Void doInBackground(Intent... intents) {
+        public void run() {
 
-            Intent intent = intents[0];
-
-            if (intent.getType() == null) {
+            if (intent_.getType() == null) {
 
                 msg_ = "Share Intent not detected. Do not launch this app directly.";
 
-            } else if (intent.getAction().equals(Intent.ACTION_SEND_MULTIPLE)) {
+            } else if (intent_.getAction().equals(Intent.ACTION_SEND_MULTIPLE)) {
 
                 msg_ = "Type: " + getIntent().getType() + "\n\n" +
                         "Info:\n";
 
-                ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                ArrayList<Uri> uris = intent_.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                 String[] paths = new String[uris.size()];
 
                 for (int i = 0; i < uris.size(); ++i) {
@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
             //Single File
-            else if (intent.getAction().equals(Intent.ACTION_SEND)) {
+            else if (intent_.getAction().equals(Intent.ACTION_SEND)) {
 
-                Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                Uri uri = intent_.getParcelableExtra(Intent.EXTRA_STREAM);
 
                 SAL.print("Scheme: " + uri.getScheme() + "\n"
                         + "Query: " + uri.getQuery() + "\n"
@@ -122,21 +122,22 @@ public class MainActivity extends AppCompatActivity {
                         "\tReal Path:" + Utils.getPath(context_, uri) + "\n\n";
             }
 
-            return null;
+            onPostExecute();
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
+        void onPostExecute() {
 
-            try {
+            runOnUiThread( () -> {
+                try {
 
-                tvMime.setText(msg_);
-                tvMime.setVisibility(View.VISIBLE);
+                    tvMime.setText(msg_);
+                    tvMime.setVisibility(View.VISIBLE);
 
-                pb.setVisibility(View.INVISIBLE);
-            } catch (Exception e) {
-                SAL.print(e);
-            }
+                    pb.setVisibility(View.INVISIBLE);
+                } catch (Exception e) {
+                    SAL.print(e);
+                }
+            });
 
         }
     }

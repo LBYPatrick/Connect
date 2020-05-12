@@ -1,19 +1,11 @@
-package com.lbynet;
+package com.lbynet.connect.backend.networking;
 
 
-import net.sourceforge.jaad.aac.Decoder;
-import net.sourceforge.jaad.aac.SampleBuffer;
-import net.sourceforge.jaad.aac.gain.GainControl;
-import net.sourceforge.jaad.adts.ADTSDemultiplexer;
+import com.lbynet.connect.backend.SAL;
 
 import javax.sound.sampled.*;
-import java.io.DataInputStream;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.ByteBuffer;
 
 public class AudioStreamer {
 

@@ -1,16 +1,9 @@
 package com.lbynet.connect.backend;
 
-import android.os.Build;
-import android.util.Log;
+import java.net.InetAddress;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-/*
-SAL stands for "Software Abstract Layer", a class that mainly addresses differences in operating systems.
- */
+//This is a stub class that simluates whatever that is happening on Android devices
 public class SAL {
-
-    public static AppCompatActivity activity;
 
     public enum MsgType {
         ERROR,
@@ -18,6 +11,7 @@ public class SAL {
         VERBOSE,
         INFO,
         WARN,
+        ASSERT
     }
 
     public static void print(String msg) {
@@ -25,31 +19,41 @@ public class SAL {
     }
 
     public static void print(MsgType type, String tag, String msg) {
+        String s = "";
 
         switch(type) {
             case ERROR:
-                Log.e(tag,msg);
+                s += "E/";
                 break;
             case VERBOSE:
-                Log.v(tag,msg);
+                s += "V/";
                 break;
             case DEBUG:
-                Log.d(tag,msg);
+                s += "D/";
                 break;
             case INFO:
-                Log.i(tag,msg);
+                s += "I/";
                 break;
             case WARN:
-                Log.w(tag,msg);
+                s += "W/";
                 break;
         }
+
+        s += tag + ": " + msg;
+
+        System.out.println(s);
     }
 
     public static String getDeviceName() {
-        return Build.BRAND +" " + Build.MODEL + " " + Build.ID;
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static void print(Exception e) {
-        Log.d(e.getClass().toString(), e.getStackTrace().toString());
+        print(e.getClass().toString() + ": "  + e.getStackTrace().toString());
     }
 }

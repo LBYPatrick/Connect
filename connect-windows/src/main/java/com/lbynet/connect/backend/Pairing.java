@@ -1,7 +1,5 @@
 package com.lbynet.connect.backend;
 
-import android.os.Build;
-
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -11,25 +9,23 @@ import java.util.Arrays;
 //This is a singleton, so do not create instances of this class
 public class Pairing {
 
-    public static class Device {
-        public String ip, uid;
-
-        public Device() {
-        }
+    public static class Device  {
+        public String ip, name,uid;
+        public Device() {}
 
     }
 
     private static InetAddress GROUP_ADDR;
-    private static String selfUid_;
-    private static byte[] msg_;
+    private static String uid;
+    private static byte[] msg;
 
     final private static String MCAST_ADDR = "233.233.233.233";
-    final private static int MCAST_PORT = 2333,
-            BUFFER_LENGTH = 16384;
+    final private static int    MCAST_PORT = 2333,
+                                BUFFER_LENGTH = 1000;
 
     private static String subnet_,
-            selfIp_,
-            selfName_;
+                          selfIp_,
+                          selfName_;
 
     private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
     private static MulticastSocket socket_;
@@ -43,10 +39,8 @@ public class Pairing {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
             socket_ = new MulticastSocket(MCAST_PORT);
-
-            //TODO: Change this when you are porting this to other platforms
-            selfUid_ = Build.BRAND +" " + Build.MODEL + " " + Build.ID;
-            msg_ = selfUid_.getBytes();
+            uid = Utils.getRandomString(4);
+            msg = uid.getBytes();
 
         } catch (Exception e) {
             SAL.print(e);
@@ -55,11 +49,12 @@ public class Pairing {
     }
 
     /**
+     *
      * @throws Exception
      */
     public static void start() throws Exception {
 
-        if (isStarted) {
+        if(isStarted) {
             stop();
             pairedDevices_.clear();
         }
@@ -71,10 +66,10 @@ public class Pairing {
         sendThread = new Thread(() -> {
             try {
                 while (isStarted) {
-                    socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
-                    Thread.sleep(100);
+                    socket_.send(new DatagramPacket(msg, msg.length, GROUP_ADDR, MCAST_PORT));
+                    Thread.sleep(15);
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 SAL.print(e);
             }
         });
@@ -86,30 +81,33 @@ public class Pairing {
                     DatagramPacket dp = new DatagramPacket(new byte[BUFFER_LENGTH], BUFFER_LENGTH);
                     socket_.receive(dp);
 
-                    //Package Received
-                    if (dp.getLength() > 0) {
+                    if(dp.getLength() > 0) {
                         Device d = new Device();
                         d.ip = dp.getAddress().getHostAddress();
+                        d.name = dp.getAddress().getHostName();
 
-                        d.uid = new String(Utils.getTrimedData(dp.getData(), dp.getOffset(), dp.getLength()));
+                        d.uid = new String(Utils.getTrimedData(dp.getData(),dp.getOffset(),dp.getLength()));
 
-                        if (d.uid.compareTo(selfUid_) != 0) {
 
+                        if(d.uid.compareTo(uid) != 0) {
                             boolean isExistingDevice = false;
 
                             for (Device i : pairedDevices_) {
-                                if (i.uid.equals(d.uid)) {
+                                if (i.ip.compareTo(d.ip) == 0) {
                                     isExistingDevice = true;
                                     break;
                                 }
                             }
 
                             if (!isExistingDevice) {
-                                SAL.print("Device added: " + d.uid + "@" + d.ip);
+                                SAL.print("Device added: " + d.name + "@" + d.ip);
                                 pairedDevices_.add(d);
                             }
-                        } else if (selfIp_ == null) {
+                        }
+
+                        else if (selfIp_ == null){
                             selfIp_ = d.ip;
+                            selfName_ = d.name;
                         }
                     }
                 }
@@ -126,15 +124,13 @@ public class Pairing {
         return pairedDevices_;
     }
 
-    public static void stop() throws Exception {
+    public static void stop() throws Exception{
         isStarted = false;
         listenThread.interrupt();
         sendThread.interrupt();
 
         //Block until the thread is dead -- should take no time
-        while (!listenThread.isInterrupted() || !sendThread.isInterrupted()) {
-        }
-        ;
+        while(!listenThread.isInterrupted() || !sendThread.isInterrupted()) {};
 
         socket_.leaveGroup(GROUP_ADDR);
     }
@@ -190,33 +186,32 @@ public class Pairing {
 
     public static String getSelfName() {
 
-        if (selfName_ == null) {
-            return "";
-        } else {
+        if(selfName_ == null) { return "";}
+
+        else {
             return selfName_;
         }
     }
 
     public static String getSelfAddress() {
-        if (selfIp_ == null) {
+        if(selfIp_ == null) {
             return "";
-        } else return selfIp_;
+        }
+        else return selfIp_;
     }
 
     public static String getSubnetAddr() {
 
-        if (subnet_ != null) {
+        if(subnet_ != null) {
             return subnet_;
-        } else if (getSelfAddress().length() == 0) {
+        }
+        else if(getSelfAddress().length() == 0) {
             return "";
-        } else {
-            subnet_ = getSelfAddress().substring(0, getSelfAddress().lastIndexOf("."));
+        }
+        else {
+            subnet_ = getSelfAddress().substring(0,getSelfAddress().lastIndexOf("."));
             return subnet_;
         }
 
-    }
-
-    public static String getSelfUid() {
-        return selfUid_;
     }
 }

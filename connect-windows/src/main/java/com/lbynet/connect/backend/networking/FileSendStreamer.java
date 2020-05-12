@@ -1,7 +1,9 @@
-package com.lbynet;
+package com.lbynet.connect.backend.networking;
+
+import com.lbynet.connect.backend.SAL;
+import com.lbynet.connect.backend.Utils;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class FileSendStreamer extends FileStreamer {
@@ -19,7 +21,7 @@ public class FileSendStreamer extends FileStreamer {
     }
 
     @Override
-    void run() {
+    public void run() {
         try {
 
             socket_ = new Socket(ip_,port_);
@@ -29,13 +31,11 @@ public class FileSendStreamer extends FileStreamer {
             byte [] buffer = new byte[8192];
 
             if(file.length() == 0L) {
-                status = Status.BAD_FILE_INPUT;
+                netStatus = NetStatus.BAD_FILE_INPUT;
                 return;
             }
 
             FileInputStream in  = new FileInputStream(file);
-
-            SAL.print("File " + Utils.getFilename(path_) + " sending...");
 
             while(!socket_.isClosed()) {
 
@@ -45,19 +45,21 @@ public class FileSendStreamer extends FileStreamer {
                     out.write(Utils.getTrimedData(buffer, bytesRead));
                 }
                 else {
-                    status = Status.SUCCESS;
+                    netStatus = NetStatus.SUCCESS;
                     out.close();
                     in.close();
-                    SAL.print("File " + Utils.getFilename(path_) + " sent.");
+                    SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File " + Utils.getFilename(path_) + " sent.");
                     return;
                 }
             }
 
-            status = Status.BAD_NETWORK;
+            netStatus = NetStatus.BAD_NETWORK;
 
         } catch(Exception e) {
-            status = Status.BAD_GENERAL;
+            netStatus = NetStatus.BAD_GENERAL;
             SAL.print(e);
         }
     }
 }
+
+

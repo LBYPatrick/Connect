@@ -11,7 +11,6 @@ public class FileSendStreamer extends FileStreamer {
     final public static int RW_BUFFER_SIZE = 8192;
 
     private String path_, ip_;
-    private Socket socket_;
     private int port_;
 
     public FileSendStreamer(String path,String ip, int port) {
@@ -21,23 +20,21 @@ public class FileSendStreamer extends FileStreamer {
     }
 
     @Override
-    void run() {
+    public void run() {
         try {
 
-            socket_ = new Socket(ip_,port_);
+            Socket socket_ = new Socket(ip_, port_);
             OutputStream out = socket_.getOutputStream();
 
             File file = new File(path_);
             byte [] buffer = new byte[8192];
 
             if(file.length() == 0L) {
-                status = Status.BAD_FILE_INPUT;
+                netStatus = NetStatus.BAD_FILE_INPUT;
                 return;
             }
 
             FileInputStream in  = new FileInputStream(file);
-
-            SAL.print("File " + Utils.getFilename(path_) + " sending...");
 
             while(!socket_.isClosed()) {
 
@@ -47,21 +44,22 @@ public class FileSendStreamer extends FileStreamer {
                     out.write(Utils.getTrimedData(buffer, bytesRead));
                 }
                 else {
-                    status = Status.SUCCESS;
+                    netStatus = NetStatus.SUCCESS;
                     out.close();
                     in.close();
-                    SAL.print("File " + Utils.getFilename(path_) + " sent.");
+                    SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File " + Utils.getFilename(path_) + " sent.");
                     return;
                 }
             }
 
-            status = Status.BAD_NETWORK;
+            netStatus = NetStatus.BAD_NETWORK;
 
         } catch(Exception e) {
-            status = Status.BAD_GENERAL;
+            netStatus = NetStatus.BAD_GENERAL;
             SAL.print(e);
         }
     }
 }
+
 
 

@@ -37,7 +37,7 @@ public class IO {
 
             byte [] buffer = new byte[(int)file.length()];
 
-            Log.v("readFileAtOnce","Reading File " + path +" with size " + Long.toString(file.length()) + "Bytes");
+            SAL.print(SAL.MsgType.VERBOSE,"readFileAtOnce","Reading File " + path +" with size " + file.length() + "Bytes");
 
             stream.read(buffer,0,buffer.length);
             stream.close();

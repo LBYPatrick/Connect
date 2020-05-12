@@ -1,5 +1,4 @@
-package com.lbynet;
-import org.json.JSONObject;
+package com.lbynet.connect.backend;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class IO {
@@ -32,7 +30,7 @@ public class IO {
 
             byte [] buffer = new byte[(int)file.length()];
 
-            SAL.printVerbose("readFileAtOnce","Reading File " + path +" with size " + Long.toString(file.length()) + "Bytes");
+            SAL.print(SAL.MsgType.VERBOSE,"readFileAtOnce","Reading File " + path +" with size " + Long.toString(file.length()) + "Bytes");
 
             stream.read(buffer,0,buffer.length);
             stream.close();

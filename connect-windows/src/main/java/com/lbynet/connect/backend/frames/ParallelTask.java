@@ -1,6 +1,6 @@
 package com.lbynet.connect.backend.frames;
 
-import com.lbynet.connect.backend.SAL;
+import com.lbynet.connect.backend.*;
 
 public abstract class ParallelTask {
 

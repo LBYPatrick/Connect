@@ -1,13 +1,13 @@
 package com.lbynet.connect.backend.networking;
 
-import com.lbynet.connect.backend.SAL;
-import com.lbynet.connect.backend.Utils;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import com.lbynet.connect.backend.SAL;
+import com.lbynet.connect.backend.Utils;
 
 public class FileRecvStreamer extends FileStreamer {
 
@@ -25,12 +25,12 @@ public class FileRecvStreamer extends FileStreamer {
     }
 
     @Override
-    void run() {
+    public void run() {
         try {
 
             socket_ = new ServerSocket(port_).accept();
 
-            status = Status.WORKING;
+            netStatus = NetStatus.WORKING;
 
             InputStream in = socket_.getInputStream();
             File file = new File(targetDirectory_ + "/" + filename_);
@@ -38,7 +38,7 @@ public class FileRecvStreamer extends FileStreamer {
 
             FileOutputStream out = new FileOutputStream(file);
 
-            SAL.print("File " + filename_ + " receiving...");
+            //SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " receiving...");
 
             while(!socket_.isClosed()) {
 
@@ -48,18 +48,18 @@ public class FileRecvStreamer extends FileStreamer {
                     out.write(Utils.getTrimedData(buffer, bytesRead));
                 }
                 else {
-                    status = Status.SUCCESS;
+                    netStatus = NetStatus.SUCCESS;
                     out.close();
                     in.close();
-                    SAL.print("File " + filename_ + " received.");
+                    SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " received.");
                     return;
                 }
             }
 
-            status = Status.BAD_NETWORK;
+            netStatus = NetStatus.BAD_NETWORK;
 
         } catch(Exception e) {
-            status = Status.BAD_GENERAL;
+            netStatus = NetStatus.BAD_GENERAL;
             e.printStackTrace();
         }
     }

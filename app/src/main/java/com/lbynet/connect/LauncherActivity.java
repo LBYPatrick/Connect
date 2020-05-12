@@ -10,7 +10,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lbynet.connect.backend.Pairing;
+import com.lbynet.connect.backend.DataPool;
+import com.lbynet.connect.backend.frames.ParallelTask;
+import com.lbynet.connect.backend.networking.Pairing;
 
 public class LauncherActivity extends AppCompatActivity {
 
@@ -34,47 +36,44 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        grantPermissions();
-
         super.onCreate(savedInstanceState);
+
+        grantPermissions();
         setContentView(R.layout.launcher);
 
         pb = findViewById(R.id.pb_device_id);
         tvDeviceID = findViewById(R.id.tv_device_id);
 
-        new LoadDeviceID().execute();
+        new LoadDeviceID().start();
 
     }
 
-    private class LoadDeviceID extends AsyncTask<Void,Void,Boolean> {
+    private class LoadDeviceID extends ParallelTask {
 
         String id;
 
         @Override
-        protected void onPreExecute() {
+        public void preRun() throws Exception {
             pb.setVisibility(View.VISIBLE);
             tvDeviceID.setVisibility(View.INVISIBLE);
         }
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        public void run() {
             id = Pairing.getSelfUid();
 
-            return (id != null);
-        }
+            runOnUiThread( () -> {
+                if(id == null) {
+                    tvDeviceID.setText("Failed to obtain device ID, please blame @lbypatrick.");
+                }
+                else {
+                    tvDeviceID.setText(id);
+                }
 
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
+                pb.setVisibility(View.INVISIBLE);
+                tvDeviceID.setVisibility(View.VISIBLE);
 
-            if(!aBoolean) {
-                tvDeviceID.setText("Failed to obtain device ID, please blame @lbypatrick.");
-            }
-            else {
-                tvDeviceID.setText(id);
-            }
-
-            pb.setVisibility(View.INVISIBLE);
-            tvDeviceID.setVisibility(View.VISIBLE);
+            });
         }
     }
 

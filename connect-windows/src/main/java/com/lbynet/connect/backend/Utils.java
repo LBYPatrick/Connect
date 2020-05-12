@@ -1,10 +1,8 @@
-package com.lbynet;
+package com.lbynet.connect.backend;
 
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.InputStream;
-import java.net.Socket;
 import java.util.Random;
 
 public class Utils {
@@ -86,6 +84,25 @@ public class Utils {
         int r = 40000 + numPortsRequested;
 
         numPortsRequested += 1;
+
+        return r;
+    }
+
+    public static int getTargetPort(String ip) {
+        int r = 0;
+
+        for(char i : ip.toCharArray()) {
+            r += (int)i;
+        }
+
+        //Bound checks
+        while(r < 30000) {
+            r += 1000;
+        }
+
+        while(r >= 65536) {
+            r -= 10000;
+        }
 
         return r;
     }
