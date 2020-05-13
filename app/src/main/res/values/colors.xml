@@ -5,5 +5,6 @@
     <color name="colorAccent">#03DAC5</color>
 
     <color name="quarter_white">#10FFFFFF</color>
-    <color name="half_white">#30FFFFFF</color>
+    <color name="half_white">#50FFFFFF</color>
+    <color name="clear">#00FFFFFF</color>
 </resources>

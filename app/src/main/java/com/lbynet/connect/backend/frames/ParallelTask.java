@@ -4,14 +4,14 @@ import com.lbynet.connect.backend.SAL;
 
 public abstract class ParallelTask {
 
-    enum Status {
+    public enum ThreadStatus {
         IDLE,
         WORKING,
         GOOD,
         BAD
     }
 
-    private Status status = Status.IDLE;
+    private ThreadStatus threadStatus = ThreadStatus.IDLE;
 
     final public void start() {
 
@@ -19,30 +19,30 @@ public abstract class ParallelTask {
             preRun();
         } catch (Exception e) {
             e.printStackTrace();
-            status = Status.BAD;
+            threadStatus = ThreadStatus.BAD;
         }
 
-        if(status == Status.BAD) {
+        if(threadStatus == ThreadStatus.BAD) {
             return;
         }
 
         new Thread( () -> {
 
             try {
-                status = Status.WORKING;
+                threadStatus = ThreadStatus.WORKING;
                 run();
-                status = Status.GOOD;
+                threadStatus = ThreadStatus.GOOD;
 
             } catch (Exception e) {
                 SAL.print(e);
-                status = Status.BAD;
+                threadStatus = ThreadStatus.BAD;
             }
 
         }).start();
     }
 
-    final public Status getStatus() {
-        return status;
+    final public ThreadStatus getThreadStatus() {
+        return threadStatus;
     }
 
     public abstract void run() throws Exception;

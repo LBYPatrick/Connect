@@ -20,4 +20,12 @@ public abstract class FileStreamer extends ParallelTask {
         return netStatus;
     }
 
+    public boolean isGood() {
+        return netStatus == NetStatus.SUCCESS;
+    }
+
+    public boolean isBad() {
+        return !(netStatus == NetStatus.IDLE || netStatus == NetStatus.WORKING || netStatus == NetStatus.SUCCESS);
+    }
+
 }

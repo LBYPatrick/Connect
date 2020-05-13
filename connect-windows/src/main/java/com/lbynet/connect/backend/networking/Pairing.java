@@ -15,8 +15,25 @@ public class Pairing {
 
     public static class Device {
         public String ip, uid;
+        private Timer t;
 
         public Device() {
+            t = new Timer();
+            t.start();
+        }
+
+        public Device(String ip, String uid) {
+            this();
+            this.ip = ip;
+            this.uid = uid;
+        }
+
+        public long getFreshness() {
+            return t.getElaspedTimeInMs();
+        }
+
+        public void refresh() {
+            t.start();
         }
 
     }
@@ -24,7 +41,6 @@ public class Pairing {
     private static InetAddress GROUP_ADDR;
     private static String selfUid_;
     private static byte[] msg_;
-    private static Timer refreshTimer = new Timer("Pairing");
 
     final private static String MCAST_ADDR = "233.233.233.233";
     final private static int MCAST_PORT = 2333,
@@ -37,6 +53,7 @@ public class Pairing {
     private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
     private static MulticastSocket socket_;
     private static boolean isStarted = false;
+    private static boolean isBusy = false;
     private static Thread listenThread, sendThread;
 
     //Eager Initialization
@@ -75,7 +92,7 @@ public class Pairing {
             try {
                 while (isStarted) {
                     socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 }
             } catch (Exception e) {
                 SAL.print(e);
@@ -84,8 +101,6 @@ public class Pairing {
 
         listenThread = new Thread(() -> {
             try {
-
-                refreshTimer.start();
 
                 while (isStarted) {
 
@@ -96,7 +111,6 @@ public class Pairing {
                     if (dp.getLength() > 0) {
                         Device d = new Device();
                         d.ip = dp.getAddress().getHostAddress();
-
                         d.uid = new String(Utils.getTrimedData(dp.getData(), dp.getOffset(), dp.getLength()));
 
                         if (d.uid.compareTo(selfUid_) != 0) {
@@ -106,6 +120,8 @@ public class Pairing {
                             for (Device i : pairedDevices_) {
                                 if (i.uid.equals(d.uid)) {
                                     isExistingDevice = true;
+                                    i.ip = d.ip;
+                                    i.refresh();
                                     break;
                                 }
                             }
@@ -135,12 +151,6 @@ public class Pairing {
                             selfIp_ = d.ip;
                         }
                     }
-
-                    if(refreshTimer.getElaspedTimeInMs() > 2000) {
-
-                        pairedDevices_.clear();
-                        refreshTimer.start();
-                    }
                 }
             } catch (Exception e) {
                 SAL.print(e);
@@ -153,9 +163,6 @@ public class Pairing {
 
     public static ArrayList<Device> getPairedDevices() {
 
-        //Block inquiry when the data is clearly not reliable (Because beacon interval is 50ms)
-        while(refreshTimer.getElaspedTimeInMs() < 500) { }
-
         return pairedDevices_;
     }
 
@@ -167,7 +174,6 @@ public class Pairing {
         //Block until the thread is dead -- should take no time
         while (!listenThread.isInterrupted() || !sendThread.isInterrupted()) {
         }
-        ;
 
         socket_.leaveGroup(GROUP_ADDR);
     }

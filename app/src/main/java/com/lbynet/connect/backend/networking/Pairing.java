@@ -54,6 +54,7 @@ public class Pairing {
     private static MulticastSocket socket_;
     private static boolean isStarted = false;
     private static boolean isBusy = false;
+    private static boolean isInvisible_ = false;
     private static Thread listenThread, sendThread;
 
     //Eager Initialization
@@ -91,7 +92,9 @@ public class Pairing {
         sendThread = new Thread(() -> {
             try {
                 while (isStarted) {
-                    socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
+                    if (!isInvisible_) {
+                        socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
+                    }
                     Thread.sleep(50);
                 }
             } catch (Exception e) {
@@ -132,8 +135,8 @@ public class Pairing {
 
                                 boolean isDeviceAdded = false;
                                 //Put the device in the right spot of the queue
-                                for(int i = 1; i < pairedDevices_.size(); ++i) {
-                                    if(d.uid.compareTo(pairedDevices_.get(i).uid) <= 0) {
+                                for (int i = 1; i < pairedDevices_.size(); ++i) {
+                                    if (d.uid.compareTo(pairedDevices_.get(i).uid) <= 0) {
                                         pairedDevices_.add(i - 1, d);
                                         isDeviceAdded = true;
                                         break;
@@ -141,7 +144,7 @@ public class Pairing {
                                 }
 
                                 //If the device belongs to the bottom of the queue...
-                                if(!isDeviceAdded) {
+                                if (!isDeviceAdded) {
                                     pairedDevices_.add(d);
                                 }
 
@@ -257,5 +260,9 @@ public class Pairing {
 
     public static String getSelfUid() {
         return selfUid_;
+    }
+
+    public static void setInvisible(boolean isInvisible) {
+        isInvisible_ = isInvisible;
     }
 }

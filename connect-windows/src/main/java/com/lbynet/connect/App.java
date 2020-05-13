@@ -20,7 +20,7 @@ public class App {
         ServerSocket ss = new ServerSocket();
 
         ss.setReuseAddress(true);
-        ss.bind(new InetSocketAddress(35678));
+        ss.bind(new InetSocketAddress(Utils.getTargetPort(InetAddress.getLocalHost().getHostAddress())));
 
         SAL.print("Device ID: " + Pairing.getSelfUid());
 
