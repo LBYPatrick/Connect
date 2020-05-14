@@ -1,5 +1,6 @@
 package com.lbynet.connect.backend.networking;
 
+import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
@@ -64,10 +65,7 @@ public class Pairing {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
             socket_ = new MulticastSocket(MCAST_PORT);
-
-            //TODO: Change this when you are porting this to other platforms
             selfUid_ = SAL.getDeviceName();
-            msg_ = selfUid_.getBytes();
 
         } catch (Exception e) {
             SAL.print(e);
@@ -81,9 +79,10 @@ public class Pairing {
     public static void start() throws Exception {
 
         if (isStarted) {
-            stop();
-            pairedDevices_.clear();
+            return;
         }
+
+        msg_ = selfUid_.getBytes();
 
         socket_.joinGroup(GROUP_ADDR);
 
@@ -95,7 +94,12 @@ public class Pairing {
                     if (!isInvisible_) {
                         socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
                     }
-                    Thread.sleep(50);
+                    if(DataPool.isPowerSavingMode) {
+                        Thread.sleep(2000);
+                    }
+                    else {
+                        Thread.sleep(50);
+                    }
                 }
             } catch (Exception e) {
                 SAL.print(e);
@@ -174,6 +178,8 @@ public class Pairing {
         listenThread.interrupt();
         sendThread.interrupt();
 
+        pairedDevices_.clear();
+
         //Block until the thread is dead -- should take no time
         while (!listenThread.isInterrupted() || !sendThread.isInterrupted()) {
         }
@@ -181,6 +187,21 @@ public class Pairing {
         socket_.leaveGroup(GROUP_ADDR);
     }
 
+    public static void setUid(String newName) throws Exception {
+        if(newName == null || newName.equals(selfUid_)) {
+            return;
+        }
+
+        selfUid_ = newName;
+        restart();
+    }
+
+    public static void restart() throws Exception{
+        if(isStarted) {
+            stop();
+        }
+        start();
+    }
 
     //Brute-force pinging -- doesn't work under some networks
     public static ArrayList<String> getAllDeviceIPs() {
@@ -241,7 +262,7 @@ public class Pairing {
 
     public static String getSelfAddress() {
         if (selfIp_ == null) {
-            return "";
+            return null;
         } else return selfIp_;
     }
 

@@ -2,7 +2,6 @@ package com.lbynet.connect;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -10,8 +9,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lbynet.connect.backend.DataPool;
 import com.lbynet.connect.backend.frames.ParallelTask;
+import com.lbynet.connect.backend.networking.FileListener;
 import com.lbynet.connect.backend.networking.Pairing;
 
 public class LauncherActivity extends AppCompatActivity {
@@ -44,7 +43,15 @@ public class LauncherActivity extends AppCompatActivity {
         pb = findViewById(R.id.pb_device_id);
         tvDeviceID = findViewById(R.id.tv_device_id);
 
+        try {
+            Pairing.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        FileListener.start();
         new LoadDeviceID().start();
+
 
     }
 

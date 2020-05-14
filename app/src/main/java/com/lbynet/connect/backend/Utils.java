@@ -26,6 +26,7 @@ public class Utils {
 
     final private static String LETTER_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static Utils instance = new Utils();
+    private static int numPortsRequested = 0;
 
     private static Random randomizer;
 
@@ -269,4 +270,15 @@ public class Utils {
         return r;
     }
 
+    public static int getTransferPort() {
+        int r = 40000 + numPortsRequested;
+
+        numPortsRequested += 1;
+
+        return r;
+    }
+
+    public static String getOutputPath() {
+        return "/storage/emulated/0/Download/";
+    }
 }

@@ -17,11 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
-import com.lbynet.connect.backend.DataPool;
+import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.frames.ParallelTask;
+import com.lbynet.connect.backend.networking.FileListener;
 import com.lbynet.connect.backend.networking.FileSender;
 import com.lbynet.connect.backend.networking.Pairing;
 
@@ -36,6 +38,7 @@ public class SendActivity extends AppCompatActivity {
     ArrayList<FrameLayout> deviceHolders = new ArrayList<>();
     ArrayList<Pairing.Device> devices = new ArrayList<>();
     LoadTargets targetLoader;
+    boolean isBkgrBlurred = false;
 
     void grantPermissions() {
         String[] permissions = {
@@ -60,23 +63,29 @@ public class SendActivity extends AppCompatActivity {
 
         try {
             Pairing.start();
+            FileListener.start();
         } catch (Exception e) {
-            //Shhhh
+            e.printStackTrace();
         }
 
         grantPermissions();
         setContentView(R.layout.send);
 
         ImageView background = findViewById(R.id.iv_bkgnd);
-        Blurry.with(this).radius(50).sampling(8).color(Color.argb(30, 0, 0, 0)).from(Utils.getWallpaper(this)).into(background);
+
+
+        if(!isBkgrBlurred) {
+            Blurry.with(this).radius(20).sampling(5).color(Color.argb(30, 0, 0, 0)).animate(200).from(Utils.getWallpaper(this)).into(background);
+            isBkgrBlurred = true;
+        }
 
         //Make Placeholders
         selectList = findViewById(R.id.ll_select);
         LinearLayout linearSelect = (LinearLayout) findViewById(R.id.ll_select);
 
         for (int i = 0; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {
-            FrameLayout v = (FrameLayout) getLayoutInflater().inflate(R.layout.target_button, null);
-            v.setOnClickListener((View view) -> onTargetSelected(view));
+            CardView v =(CardView) getLayoutInflater().inflate(R.layout.target_button,null);
+            v.setOnClickListener(v1 -> onTargetSelected(v1));
             v.setVisibility(View.GONE);
             selectList.addView(v);
             deviceHolders.add(v);
@@ -102,17 +111,19 @@ public class SendActivity extends AppCompatActivity {
         }
     }
 
-    boolean onTargetSelected(View v) {
+    void onTargetSelected(View v) {
 
         String targetUid = ((TextView) v.findViewById(R.id.tv_uid)).getText().toString();
         String targetIp = "";
         ProgressBar pb = v.findViewById(R.id.pb_status);
 
-        if(v.getForeground().getAlpha() == 0) {
-            return true;
+        if(!v.isClickable()) {
+            SAL.print("Button is busy");
+            return;
         }
 
-        v.getForeground().setAlpha(0);
+        v.setClickable(false);
+
         targetLoader.setPause(true);
 
         for (Pairing.Device i : devices) {
@@ -124,7 +135,7 @@ public class SendActivity extends AppCompatActivity {
 
         if (targetIp.length() == 0) {
             SAL.print(SAL.MsgType.ERROR, "onTargetSelected", "Failed to find target IP in paired device list.");
-            return true;
+            return;
         }
 
 
@@ -140,6 +151,7 @@ public class SendActivity extends AppCompatActivity {
             for (Parcelable n : this.getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM)) {
 
                 String path = Utils.getPath(this, (Uri) n);
+                SAL.print("Path: " + path);
 
                 if (path != null) {
                     filePaths.add(path);
@@ -150,6 +162,7 @@ public class SendActivity extends AppCompatActivity {
         else {
             Uri uri = this.getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
             String path = Utils.getPath(this,uri);
+            SAL.print("Path: " + path);
 
             if(path != null) {
                 filePaths.add(path);
@@ -158,7 +171,7 @@ public class SendActivity extends AppCompatActivity {
 
         if(filePaths.size() == 0) {
             SAL.print(SAL.MsgType.ERROR,"onTargetSelected","None of the files are valid");
-            return true;
+            return;
         }
 
 
@@ -209,8 +222,6 @@ public class SendActivity extends AppCompatActivity {
         }).start();
 
         //TODO: Finish this
-
-        return true;
     }
 
     class LoadTargets extends ParallelTask {
@@ -254,13 +265,13 @@ public class SendActivity extends AppCompatActivity {
                     if(needReset) {
                         runOnUiThread( ()-> {
                             SAL.print("Resetting...");
-                            parent.getForeground().setAlpha(255);
+                            parent.setClickable(true);
                             parent.findViewById(R.id.pb_status).setVisibility(View.INVISIBLE);
                         });
                     }
 
                     //If the object is fresh enough
-                    if (i < devices.size() && devices.get(i).getFreshness() < 500) {
+                    if (i < devices.size() && devices.get(i).getFreshness() < 2500) {
 
                         nTotalDevices++;
 
