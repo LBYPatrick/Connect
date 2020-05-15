@@ -17,7 +17,7 @@ public class FileSender extends ParallelTask {
     private String[] filePaths_;
     private NetStatus netStatus = NetStatus.IDLE;
     private ArrayList<FileSendStreamer> queue = new ArrayList<>();
-    private int numDone = 0;
+    private double percentDone = 0;
     private int numFiles = 0;
 
     public FileSender(String ip, String... filePaths) {
@@ -83,23 +83,18 @@ public class FileSender extends ParallelTask {
             ArrayList<Integer> skipList = new ArrayList<>();
 
             //Wait till everything is done
-            while(numDone < queue.size()) {
+            while(percentDone < 1) {
+
+                double temp = 0;
+
                 for(int i = 0; i < queue.size(); ++i) {
-                    boolean isChecked = false;
 
-                    for(int n : skipList) {
-                        if (i == n) {
-                            isChecked = true;
-                            break;
-                        }
-                    }
-                    if(isChecked) continue;
-
-                    if(queue.get(i).isBad() || queue.get(i).isGood()) {
-                        skipList.add(i);
-                        numDone += 1;
-                    }
+                    temp += (queue.get(i).getProgress() / numFiles);
                 }
+
+                percentDone = temp;
+
+                Thread.sleep(50);
             }
 
         } catch (Exception e) {
@@ -124,12 +119,7 @@ public class FileSender extends ParallelTask {
 
     public double getPercentDone() {
 
-        double numerator = numDone;
-        double denominator = (numFiles == 0)? 1 : numFiles;
-
-        SAL.print(numerator + "/" + denominator +"=" + numerator/denominator);
-
-        return numerator / denominator;
+        return percentDone;
     }
 
     public NetStatus getNetStatus() {

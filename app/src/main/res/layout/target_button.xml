@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:progressTint="#4CAF50"
         android:visibility="invisible"
         android:alpha="0.6"
         android:scaleY="100"

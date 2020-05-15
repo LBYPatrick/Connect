@@ -4,6 +4,8 @@ import com.lbynet.connect.backend.frames.ParallelTask;
 
 public abstract class FileStreamer extends ParallelTask {
 
+    final public static int RW_BUFFER_SIZE = 16777216;
+
     enum NetStatus {
         IDLE,
         WORKING,

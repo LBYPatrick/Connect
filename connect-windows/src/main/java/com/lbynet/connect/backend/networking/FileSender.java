@@ -9,12 +9,16 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class FileSender extends ParallelTask {
 
     private String ip_ = "";
     private String[] filePaths_;
     private NetStatus netStatus = NetStatus.IDLE;
+    private ArrayList<FileSendStreamer> queue = new ArrayList<>();
+    private double percentDone = 0;
+    private int numFiles = 0;
 
     public FileSender(String ip, String... filePaths) {
         ip_ = ip;
@@ -24,13 +28,13 @@ public class FileSender extends ParallelTask {
     public enum NetStatus {
         IDLE,
         INIT_FAIL,
-        HANDSHAKE_SUCCESS,
+        TRANSFERRING,
         HANDSHAKE_REJECTED,
         HANDSHAKE_TIMEOUT,
-        TRANSFERRING,
         INTERRUPTED,
         DONE
     }
+
 
     public void run() {
 
@@ -51,7 +55,7 @@ public class FileSender extends ParallelTask {
             }
 
             //Send file info to target
-            Socket socket = new Socket(ip_, 35678);
+            Socket socket = new Socket(ip_, Utils.getTargetPort(ip_));
             InputStream input = socket.getInputStream();
 
             socket.getOutputStream().write((fileList.toString() + "<EOF>").getBytes(StandardCharsets.UTF_8));
@@ -63,14 +67,34 @@ public class FileSender extends ParallelTask {
                 SAL.print(SAL.MsgType.VERBOSE,"FileSender", "File Transfer Ports: " + receivedData);
             }
 
-            netStatus = NetStatus.HANDSHAKE_SUCCESS;
+            netStatus = NetStatus.TRANSFERRING;
 
             //Parse Response (Which contains an array of ports)
             JSONArray ports = new JSONArray(receivedData);
 
             //Send Actual Data
             for(int i = 0; i < filePaths_.length; ++i) {
-                new FileSendStreamer(filePaths_[i],ip_,ports.getInt(i)).start();
+                FileSendStreamer fss = new FileSendStreamer(filePaths_[i],ip_,ports.getInt(i));
+                queue.add(fss);
+                fss.start();
+            }
+
+            numFiles = queue.size();
+            ArrayList<Integer> skipList = new ArrayList<>();
+
+            //Wait till everything is done
+            while(percentDone < 1) {
+
+                double temp = 0;
+
+                for(int i = 0; i < queue.size(); ++i) {
+
+                    temp += (queue.get(i).getProgress() / numFiles);
+                }
+
+                percentDone = temp;
+
+                Thread.sleep(50);
             }
 
         } catch (Exception e) {
@@ -91,6 +115,11 @@ public class FileSender extends ParallelTask {
 
         netStatus = NetStatus.DONE;
         return;
+    }
+
+    public double getPercentDone() {
+
+        return percentDone;
     }
 
     public NetStatus getNetStatus() {

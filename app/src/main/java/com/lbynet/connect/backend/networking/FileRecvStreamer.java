@@ -11,8 +11,6 @@ import com.lbynet.connect.backend.Utils;
 
 public class FileRecvStreamer extends FileStreamer {
 
-    final public static int RW_BUFFER_SIZE = 8192;
-
     private String filename_,
             targetDirectory_;
     private Socket socket_;
@@ -34,7 +32,7 @@ public class FileRecvStreamer extends FileStreamer {
 
             InputStream in = socket_.getInputStream();
             File file = new File(targetDirectory_ + "/" + filename_);
-            byte [] buffer = new byte[8192];
+            byte [] buffer = new byte[RW_BUFFER_SIZE];
 
             FileOutputStream out = new FileOutputStream(file);
 
