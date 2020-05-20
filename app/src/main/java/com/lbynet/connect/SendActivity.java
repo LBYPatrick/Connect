@@ -75,10 +75,11 @@ public class SendActivity extends AppCompatActivity {
 
         ImageView background = findViewById(R.id.iv_bkgnd);
 
+        //background.setImageBitmap(Utils.getWallpaper(this));
 
         if (!isBkgrBlurred) {
-            Blurry.with(this).radius(20).sampling(5).color(Color.argb(30, 0, 0, 0)).animate(200).from(Utils.getWallpaper(this)).into(background);
-            isBkgrBlurred = true;
+                Blurry.with(this).async().radius(30).sampling(5).color(Color.argb(30, 0, 0, 0)).animate(200).from(Utils.getWallpaper(this)).into(background);
+                isBkgrBlurred = true;
         }
 
         //Make Placeholders
@@ -251,6 +252,11 @@ public class SendActivity extends AppCompatActivity {
             SAL.print(e);
         }
         //TODO: Finish this
+    }
+
+    public void onSettingsButtonClicked(View view) {
+
+
     }
 
     class LoadTargets extends ParallelTask {

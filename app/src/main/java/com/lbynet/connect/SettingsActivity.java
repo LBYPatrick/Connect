@@ -1,5 +1,6 @@
 package com.lbynet.connect;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.widget.ImageView;
@@ -19,7 +20,9 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        //((ImageView)findViewById(R.id.iv_bkgnd)).setImageBitmap(Utils.getWallpaper(this));
+        ImageView bkgr = findViewById(R.id.iv_bkgnd);
+
+        ((ImageView)findViewById(R.id.iv_bkgnd)).setImageBitmap(Utils.getWallpaper(this));
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -31,7 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Blurry.with(this).radius(100).sampling(1).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_bkgnd));
+        Blurry.with(this).async().radius(30).sampling(5).color(Color.argb(30, 0, 0, 0)).from(Utils.getWallpaper(this)).into(bkgr);
 
     }
 
