@@ -38,27 +38,37 @@ public class FileRecvStreamer extends FileStreamer {
 
             //SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " receiving...");
 
+            boolean isSuccess = false;
+
             while(!socket_.isClosed()) {
 
                 int bytesRead = in.read(buffer);
 
-                if(bytesRead != -1) {
-                    out.write(Utils.getTrimedData(buffer, bytesRead));
+                if(bytesRead == -1) {
+                    isSuccess = true;
+                    SAL.print("-1");
+                    break;
                 }
                 else {
-                    netStatus = NetStatus.SUCCESS;
-                    out.close();
-                    in.close();
-                    SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " received.");
-                    return;
+                    out.write(Utils.getTrimedData(buffer, bytesRead));
                 }
             }
 
-            netStatus = NetStatus.BAD_NETWORK;
+            out.close();
+            in.close();
+
+            if(isSuccess) {
+                netStatus = NetStatus.SUCCESS;
+                SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " received.");
+                return;
+            }
+            else {
+                netStatus = NetStatus.BAD_NETWORK;
+            }
 
         } catch(Exception e) {
             netStatus = NetStatus.BAD_GENERAL;
-            e.printStackTrace();
+            SAL.print(e);
         }
     }
 }

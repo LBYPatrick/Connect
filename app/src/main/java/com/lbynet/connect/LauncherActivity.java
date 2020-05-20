@@ -1,6 +1,7 @@
 package com.lbynet.connect;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.frames.ParallelTask;
 import com.lbynet.connect.backend.networking.FileListener;
@@ -50,12 +52,13 @@ public class LauncherActivity extends AppCompatActivity {
         try {
             Pairing.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
 
         FileListener.start();
         new LoadDeviceID().start();
 
+        //startActivity(new Intent(this,SettingsActivity.class));
 
     }
 

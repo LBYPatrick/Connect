@@ -2,23 +2,26 @@ package com.lbynet.connect.backend.frames;
 
 import com.lbynet.connect.backend.SAL;
 
-public abstract class ParallelTask {
+public class ParallelTask {
 
     public enum ThreadStatus {
         IDLE,
         WORKING,
         GOOD,
+        INTERRUPTED,
         BAD
     }
 
     private ThreadStatus threadStatus = ThreadStatus.IDLE;
+
+    Thread t_;
 
     final public void start() {
 
         try {
             preRun();
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
             threadStatus = ThreadStatus.BAD;
         }
 
@@ -26,7 +29,8 @@ public abstract class ParallelTask {
             return;
         }
 
-        new Thread( () -> {
+
+        t_ = new Thread( () -> {
 
             try {
                 threadStatus = ThreadStatus.WORKING;
@@ -38,14 +42,23 @@ public abstract class ParallelTask {
                 threadStatus = ThreadStatus.BAD;
             }
 
-        }).start();
+        });
+
+        t_.start();
     }
 
     final public ThreadStatus getThreadStatus() {
         return threadStatus;
     }
 
-    public abstract void run() throws Exception;
+    public void run() throws Exception {
+
+    };
+
+    final public void stop() {
+        t_.interrupt();
+        threadStatus = ThreadStatus.INTERRUPTED;
+    }
 
     public void preRun() throws Exception { }
 

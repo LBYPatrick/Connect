@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class IO {
 
-    final public static int RECV_BUFFER_SIZE = 2048;
+    final public static int RECV_BUFFER_SIZE = 8192;
 
     public static ArrayList<String> readFile(String filePath) {
         ArrayList<String> buffer = new ArrayList<>();
@@ -45,7 +45,7 @@ public class IO {
             return buffer;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
 
         return null;
@@ -75,6 +75,22 @@ public class IO {
         return true;
     }
 
+    public static boolean sendDataToRemote(Socket s, String msg) {
+
+        if(s.isClosed()) {
+            return false;
+        }
+
+        try {
+            s.getOutputStream().write(msg.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            SAL.print(e);
+            return false;
+        }
+
+        return true;
+    }
+
     public static String getDataFromRemote(Socket s, long timeoutInMs) {
         try {
 
@@ -89,27 +105,30 @@ public class IO {
 
             timer.start();
 
-            while(true) {
+            while(!s.isClosed()) {
+
                 int bytesRead = stream.read(buffer);
 
-                switch (bytesRead){
-                    case 0:
-                        break;
-                    default:
-                        data += new String(Utils.getTrimedData(buffer,bytesRead));
-                        break;
+                if(bytesRead == -1) {
+                    return data;
+                }
+                else if (bytesRead < RECV_BUFFER_SIZE) {
+                    data += new String(Utils.getTrimedData(buffer,bytesRead));
+                    return data;
+                }
+                else {
+                    data += new String(Utils.getTrimedData(buffer,bytesRead));
                 }
 
-                if(data.lastIndexOf("<EOF>") != -1) {
-                    return data.substring(0,data.length()-5);
-                }
-                else if(data.length() == 0 && timer.getElaspedTimeInMs() >= timeoutInMs) {
-                    return null;
+                if(data.length() == 0 && timer.getElaspedTimeInMs() >= timeoutInMs) {
+                        return null;
                 }
             }
 
+            SAL.print("here");
+
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
 
         return null;

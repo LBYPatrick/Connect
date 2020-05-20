@@ -1,39 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="150dp"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="20dp"
-    app:cardBackgroundColor="@color/half_white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?android:attr/selectableItemBackground"
     android:outlineAmbientShadowColor="@color/clear"
     android:outlineSpotShadowColor="@color/clear"
-    android:foreground="?android:attr/selectableItemBackground">
+    app:cardBackgroundColor="@color/half_white"
+    app:cardCornerRadius="15dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp">
 
     <ProgressBar
         android:id="@+id/pb_status"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:progressTint="#4CAF50"
-        android:visibility="invisible"
         android:alpha="0.6"
-        android:scaleY="100"
         android:progress="100"
-        />
+        android:progressTint="#4CAF50"
+        android:scaleY="100"
+        android:visibility="invisible" />
+
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="20dp"
-        android:layout_gravity="center"
-        android:autoSizeTextType="uniform"
-        android:gravity="center"
-        android:id="@+id/tv_uid"
-        android:textColor="#FFFFFFFF"
-        android:textStyle="bold"
-        android:text="target_placeholder"
-        />
+            android:id="@+id/tv_uid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:layout_margin="20dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="target_placeholder"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="normal" />
+
+    </FrameLayout>
 
 </androidx.cardview.widget.CardView>

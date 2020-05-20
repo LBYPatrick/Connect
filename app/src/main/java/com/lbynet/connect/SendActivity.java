@@ -22,11 +22,13 @@ import androidx.cardview.widget.CardView;
 import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.frames.FileInfo;
 import com.lbynet.connect.backend.frames.ParallelTask;
 import com.lbynet.connect.backend.networking.FileListener;
 import com.lbynet.connect.backend.networking.FileSender;
 import com.lbynet.connect.backend.networking.Pairing;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import jp.wasabeef.blurry.Blurry;
@@ -65,7 +67,7 @@ public class SendActivity extends AppCompatActivity {
             Pairing.start();
             FileListener.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
 
         grantPermissions();
@@ -74,7 +76,7 @@ public class SendActivity extends AppCompatActivity {
         ImageView background = findViewById(R.id.iv_bkgnd);
 
 
-        if(!isBkgrBlurred) {
+        if (!isBkgrBlurred) {
             Blurry.with(this).radius(20).sampling(5).color(Color.argb(30, 0, 0, 0)).animate(200).from(Utils.getWallpaper(this)).into(background);
             isBkgrBlurred = true;
         }
@@ -84,7 +86,7 @@ public class SendActivity extends AppCompatActivity {
         LinearLayout linearSelect = (LinearLayout) findViewById(R.id.ll_select);
 
         for (int i = 0; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {
-            CardView v =(CardView) getLayoutInflater().inflate(R.layout.target_button,null);
+            CardView v = (CardView) getLayoutInflater().inflate(R.layout.target_button, null);
             v.setOnClickListener(v1 -> onTargetSelected(v1));
             v.setVisibility(View.GONE);
             selectList.addView(v);
@@ -106,121 +108,148 @@ public class SendActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         SAL.print("onResume");
-        if(targetLoader != null) {
+        if (targetLoader != null) {
             targetLoader.requestReset(true);
         }
     }
 
     void onTargetSelected(View v) {
 
-        String targetUid = ((TextView) v.findViewById(R.id.tv_uid)).getText().toString();
-        String targetIp = "";
-        ProgressBar pb = v.findViewById(R.id.pb_status);
+        try {
 
-        if(!v.isClickable()) {
-            SAL.print("Button is busy");
-            return;
-        }
+            TextView uidView = v.findViewById(R.id.tv_uid);
+            String targetUid = uidView.getText().toString();
+            String targetIp = "";
+            ProgressBar pb = v.findViewById(R.id.pb_status);
+            String trimmedUid;
 
-        v.setClickable(false);
-
-        targetLoader.setPause(true);
-
-        for (Pairing.Device i : devices) {
-            if (targetUid.equals(i.uid)) {
-                targetIp = i.ip;
-                break;
+            if(targetUid.length() > 15) {
+                trimmedUid = targetUid.substring(0,16) + "...";
             }
-        }
-
-        if (targetIp.length() == 0) {
-            SAL.print(SAL.MsgType.ERROR, "onTargetSelected", "Failed to find target IP in paired device list.");
-            return;
-        }
+            else {
+                trimmedUid = targetUid;
+            }
 
 
-        ArrayList<String> filePaths = new ArrayList<>();
+            if (!v.isClickable()) {
+                SAL.print("Button is busy");
+                return;
+            }
 
-        String action = this.getIntent().getAction();
+            v.setClickable(false);
 
-        //SEND_MULTIPLE
-        if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
-
-            int i = 0;
-
-            for (Parcelable n : this.getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM)) {
-
-                String path = Utils.getPath(this, (Uri) n);
-                SAL.print("Path: " + path);
-
-                if (path != null) {
-                    filePaths.add(path);
+            for (Pairing.Device i : devices) {
+                if (targetUid.equals(i.uid)) {
+                    targetIp = i.ip;
+                    break;
                 }
             }
-        }
-        //SEND
-        else {
-            Uri uri = this.getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-            String path = Utils.getPath(this,uri);
-            SAL.print("Path: " + path);
 
-            if(path != null) {
-                filePaths.add(path);
+            if (targetIp.length() == 0) {
+                SAL.print(SAL.MsgType.ERROR, "onTargetSelected", "Failed to find target IP in paired device list.");
+                return;
             }
-        }
-
-        if(filePaths.size() == 0) {
-            SAL.print(SAL.MsgType.ERROR,"onTargetSelected","None of the files are valid");
-            return;
-        }
 
 
-        FileSender sender = new FileSender(targetIp, filePaths.stream().toArray(String[]::new));
-        sender.start();
+            ArrayList<FileInfo> infos = new ArrayList<>();
+            ArrayList<InputStream> streams = new ArrayList<>();
+            String action = this.getIntent().getAction();
 
-        new Thread(() -> {
-            try {
-                while (true) {
+            //SEND_MULTIPLE
+            if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
 
-                    FileSender.NetStatus status = sender.getNetStatus();
+                int i = 0;
 
-                    //In Progress
-                    if (status == FileSender.NetStatus.TRANSFERRING || status == FileSender.NetStatus.DONE) {
-                        //TODO: Do something to notify user
-                        if(pb.getVisibility() == View.INVISIBLE) {
-                            runOnUiThread( ()-> {
-                                Utils.showView(pb,100);
+                for (Parcelable n : this.getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM)) {
+
+                    SAL.printUri((Uri) n, getContentResolver());
+
+                    infos.add(Utils.getFileInfo((Uri) n, getContentResolver()));
+                    streams.add(getContentResolver().openInputStream((Uri) n));
+                }
+            }
+            //SEND
+            else {
+                Uri uri = this.getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+
+                SAL.printUri(uri, getContentResolver());
+
+                infos.add(Utils.getFileInfo(uri, getContentResolver()));
+                streams.add(getContentResolver().openInputStream(uri));
+
+            }
+
+            if (infos.size() == 0) {
+                SAL.print(SAL.MsgType.ERROR, "onTargetSelected", "None of the files are valid");
+                return;
+            }
+
+
+            FileSender sender = new FileSender(targetIp, infos, streams);
+            sender.start();
+
+            new Thread(() -> {
+                try {
+                    while (true) {
+
+                        FileSender.NetStatus status = sender.getNetStatus();
+
+                        //In Progress
+                        if (status == FileSender.NetStatus.TRANSFERRING || status == FileSender.NetStatus.DONE) {
+                            //TODO: Do something to notify user
+                            if (pb.getVisibility() == View.INVISIBLE) {
+                                runOnUiThread(() -> {
+                                    Utils.showView(pb, 200);
+                                });
+                            }
+
+                            runOnUiThread(() -> {
+
+                                String text = trimmedUid + " | ";
+
+                                double rawSpeed = sender.getSpeedInKilobytesPerSec();
+
+                                if(rawSpeed < 1024) {
+                                    text += Utils.numToString(rawSpeed,0) + " KB/s";
+                                }
+                                //MBps
+                                else {
+                                    text += Utils.numToString(rawSpeed / 1024,2) + " MB/s";
+                                }
+
+                                pb.setProgress((int) (sender.getPercentDone() * 100), true);
+                                uidView.setText(text);
+
+                                if(sender.getPercentDone() == 1) {
+                                    uidView.setText(trimmedUid + " | " + " Done");
+                                }
                             });
+
+                            if (status == FileSender.NetStatus.DONE) {
+                                SAL.print("File transfer complete.");
+                                break;
+                            }
                         }
-
-                        runOnUiThread( ()-> {
-                            pb.setProgress((int)(sender.getPercentDone() * 100),true);
-                            SAL.print("Progress: " + sender.getPercentDone() * 100);
-                        });
-
-                        if(status == FileSender.NetStatus.DONE) {
-                            SAL.print("File transfer complete.");
+                        //Failure
+                        else if (status != FileSender.NetStatus.IDLE) {
+                            //TODO: Do something to notify user
+                            SAL.print("File transfer failed.");
+                            Toast.makeText(this, "Failed to establish connection with target.", Toast.LENGTH_SHORT).show();
                             break;
                         }
-                    }
-                    //Failure
-                    else if (status != FileSender.NetStatus.IDLE) {
-                        //TODO: Do something to notify user
-                        SAL.print("File transfer failed.");
-                        Toast.makeText(this,"Failed to establish connection with target.",Toast.LENGTH_SHORT).show();
-                        break;
+
+                        //Don't update UI too fast
+                        Thread.sleep(100);
                     }
 
-                    Thread.sleep(50);
+                } catch (Exception e) {
+                    SAL.print(e);
                 }
+            }).start();
 
-                targetLoader.setPause(false);
-
-            } catch (Exception e) {
-                SAL.print(e);
-            }
-        }).start();
-
+        } catch (Exception e) {
+            SAL.print(e);
+        }
         //TODO: Finish this
     }
 
@@ -239,7 +268,7 @@ public class SendActivity extends AppCompatActivity {
             this.isPaused = isPaused;
         }
 
-        public void requestReset(boolean value)  {
+        public void requestReset(boolean value) {
             needReset = value;
         }
 
@@ -252,7 +281,7 @@ public class SendActivity extends AppCompatActivity {
 
                 Thread.sleep(200);
 
-                if(isPaused) continue;
+                if (isPaused) continue;
 
                 devices = Pairing.getPairedDevices();
 
@@ -262,8 +291,8 @@ public class SendActivity extends AppCompatActivity {
 
                     FrameLayout parent = deviceHolders.get(i);
 
-                    if(needReset) {
-                        runOnUiThread( ()-> {
+                    if (needReset) {
+                        runOnUiThread(() -> {
                             SAL.print("Resetting...");
                             parent.setClickable(true);
                             parent.findViewById(R.id.pb_status).setVisibility(View.INVISIBLE);
@@ -276,6 +305,10 @@ public class SendActivity extends AppCompatActivity {
                         nTotalDevices++;
 
                         TextView tv = parent.findViewById(R.id.tv_uid);
+
+                        if(!needReset && tv.getText().toString().contains("|")) {
+                            continue;
+                        }
 
                         String text = devices.get(i).uid;
                         runOnUiThread(() -> {
@@ -305,7 +338,6 @@ public class SendActivity extends AppCompatActivity {
                         Utils.hideView(pb, false, 500);
                     }
                 });
-
 
 
             }

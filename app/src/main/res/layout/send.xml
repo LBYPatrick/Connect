@@ -27,13 +27,12 @@
             android:layout_marginBottom="20dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
+            android:textStyle="bold"
             android:text="Select a target"
             android:textColor="#C0FFFFFF"/>
 
-        <!--Container for both menus-->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+
+        <!-- Container for the list of devices -->
 
             <FrameLayout
                 android:id="@+id/fl_select"
@@ -48,7 +47,7 @@
                         android:id="@+id/ll_select"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:divider="@drawable/divider"
+                        android:divider="@drawable/divider_devicelist"
                         android:orientation="vertical"
                         android:showDividers="middle" />
                 </ScrollView>
@@ -63,22 +62,6 @@
 
 
             </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/fl_status"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:divider="@drawable/divider"
-                    android:showDividers="middle">
-
-                </ScrollView>
-
-            </FrameLayout>
-        </FrameLayout>
     </LinearLayout>
 
 </FrameLayout>

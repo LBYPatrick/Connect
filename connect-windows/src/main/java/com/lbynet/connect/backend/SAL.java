@@ -48,12 +48,23 @@ public class SAL {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
         }
         return null;
     }
 
     public static void print(Exception e) {
-        print(e.getClass().toString() + ": "  + e.getStackTrace().toString());
+
+        String msg = "";
+
+        msg += "Exception: " + e.toString() + "\n"
+                + "Message: " + e.getMessage() + "\n"
+                + "Location: " + "\n";
+
+        for(StackTraceElement i : e.getStackTrace()) {
+            msg += "\t" + i.getClassName() + "." + i.getMethodName() + "(Line " + i.getLineNumber() + ")\n";
+        }
+
+        print(MsgType.ERROR,"Exception", msg);
     }
 }

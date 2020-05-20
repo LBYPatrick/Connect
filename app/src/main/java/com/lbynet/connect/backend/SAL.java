@@ -1,9 +1,15 @@
 package com.lbynet.connect.backend;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.OpenableColumns;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.net.InetAddress;
 
 /*
 SAL stands for "Software Abstract Layer", a class that mainly addresses differences in operating systems.
@@ -46,10 +52,42 @@ public class SAL {
     }
 
     public static String getDeviceName() {
+
         return Build.BRAND +" " + Build.MODEL + " " + Build.ID;
     }
 
     public static void print(Exception e) {
-        Log.d(e.getClass().toString(), e.getStackTrace().toString());
+
+        String msg = "";
+
+        msg += "Exception: " + e.toString() + "\n"
+                + "Message: " + e.getMessage() + "\n"
+                + "Location: " + "\n";
+
+        for(StackTraceElement i : e.getStackTrace()) {
+            msg += "\t" + i.getClassName() + "." + i.getMethodName() + "(Line " + i.getLineNumber() + ")\n";
+        }
+
+        Log.e("Exception", msg);
+    }
+
+    public static void printUri(Uri uri, ContentResolver resolver) {
+
+        Cursor query = resolver.query(uri,null,null,null,null,null);
+
+        query.moveToFirst();
+
+        SAL.print(MsgType.VERBOSE,
+                "printUri",
+                "Scheme: " + uri.getScheme() + "\n" +
+                "Path: " + uri.getPath() + "\n" +
+                "Authority: " + uri.getAuthority() + "\n" +
+                "Query: " + uri.getQuery() + "\n" +
+                "Type: " + resolver.getType(uri) + "\n");
+
+
+        SAL.print(MsgType.VERBOSE,
+                "printUri",
+                "Filename (by query): " + query.getString(query.getColumnIndex(OpenableColumns.DISPLAY_NAME)));
     }
 }

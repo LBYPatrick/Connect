@@ -1,7 +1,7 @@
 package com.lbynet.connect.backend.networking;
 
 import com.lbynet.connect.backend.SAL;
-import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -12,11 +12,24 @@ public class FileSendStreamer extends FileStreamer {
     private int port_;
     private long numCyclesRead_ = 0;
     private long fileSize_ = 0;
+    private InputStream in_;
+    private OutputStream out_;
 
-    public FileSendStreamer(String path,String ip, int port) {
+    //For showing speed
+    Timer timer = new Timer("FileSendStreamer");
+    private long lastCycleCount = 0;
+
+    public FileSendStreamer(String path, String ip, int port) {
         path_ = path;
         port_ = port;
         ip_ = ip;
+    }
+
+    public FileSendStreamer(InputStream input, long fileSize, String ip, int port) {
+        in_ = input;
+        fileSize_ = fileSize;
+        ip_ = ip;
+        port_ = port;
     }
 
     @Override
@@ -26,58 +39,96 @@ public class FileSendStreamer extends FileStreamer {
             netStatus = NetStatus.WORKING;
 
             Socket socket_ = new Socket(ip_, port_);
-            OutputStream out = socket_.getOutputStream();
+            byte[] buffer = new byte[RW_BUFFER_SIZE];
 
-            File file = new File(path_);
-            byte [] buffer = new byte[RW_BUFFER_SIZE];
+            SAL.print("Send Port Open");
+            out_ = socket_.getOutputStream();
 
-            if(file.length() == 0L) {
-                netStatus = NetStatus.BAD_FILE_INPUT;
-                return;
-            }else {
-                fileSize_ = file.length();
+            //Legacy by-path mode
+            if (path_ != null) {
+
+                File file = new File(path_);
+
+                if (file.length() == 0L) {
+                    netStatus = NetStatus.BAD_FILE_INPUT;
+                    return;
+                } else {
+                    fileSize_ = file.length();
+                }
+
+                in_ = new FileInputStream(file);
             }
 
-            FileInputStream in  = new FileInputStream(file);
+            timer.start();
 
-            while(!socket_.isClosed()) {
+            boolean isSuccess = false;
 
-                int bytesRead = in.read(buffer);
+            //Start Looping and send data
+            while (!socket_.isClosed()) {
+
+                int bytesRead = in_.read(buffer);
 
                 numCyclesRead_ += 1;
 
-                if(bytesRead != -1) {
-                    out.write(Utils.getTrimedData(buffer, bytesRead));
+                if(bytesRead == -1) {
+                    isSuccess = true;
+                    break;
+                }
+                else if(bytesRead < RW_BUFFER_SIZE) {
+                    out_.write(Utils.getTrimedData(buffer, bytesRead));
+                    isSuccess = true;
+                    break;
                 }
                 else {
-                    out.close();
-                    in.close();
-                    netStatus = NetStatus.SUCCESS;
-                    SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File " + Utils.getFilename(path_) + " sent.");
-                    return;
+                    out_.write(Utils.getTrimedData(buffer, bytesRead));
                 }
             }
 
-            netStatus = NetStatus.BAD_NETWORK;
+            out_.close();
+            in_.close();
 
-        } catch(Exception e) {
+            if(isSuccess) {
+                netStatus = NetStatus.SUCCESS;
+                SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File sent.");
+                return;
+            }
+            else {
+                netStatus = NetStatus.BAD_NETWORK;
+            }
+
+        } catch (Exception e) {
             netStatus = NetStatus.BAD_GENERAL;
             SAL.print(e);
         }
     }
 
     public double getProgress() {
-        if(netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
+        if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
             return 1;
-        }
-        else {
+        } else {
             double bottom = (fileSize_ == 0) ? 1 : fileSize_;
             double top = RW_BUFFER_SIZE * numCyclesRead_;
-
             double result = top / bottom;
 
             return result > 1 ? 0.99 : result;
         }
+    }
+
+    /**
+     * Calculate transfer speed in kilobytes per second
+     * @return
+     */
+    public long getAverageSpeedInKbps() {
+
+        //If file transfer has just started/ended
+        if(numCyclesRead_ == lastCycleCount) {
+            return 0;
+        }
+
+        float dataTransferred = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024;
+
+        return (long)(dataTransferred / timer.getElaspedTimeInMs() * 1000);
+
     }
 }
 

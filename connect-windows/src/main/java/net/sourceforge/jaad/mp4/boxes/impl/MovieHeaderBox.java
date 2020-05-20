@@ -116,7 +116,7 @@ public class MovieHeaderBox extends FullBox {
 	 * V: height angle
 	 * X: position from left
 	 * Y: position from top
-	 * W: divider scale (restricted to 1.0)
+	 * W: divider_devicelist scale (restricted to 1.0)
 	 *
 	 * The normal values for scale are 1.0 and for rotate 0.0.
 	 * The angles are restricted to 0.0.

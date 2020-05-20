@@ -1,5 +1,8 @@
 package com.lbynet.connect.backend;
 
+
+import com.lbynet.connect.backend.frames.FileInfo;
+
 import org.json.JSONObject;
 
 import java.io.File;
@@ -16,6 +19,7 @@ public class Utils {
     private Utils() {
         randomizer = new Random();
     }
+
 
     public static JSONObject getCompiledFileInfo(String... paths) throws Exception {
         JSONObject r = new JSONObject();
@@ -63,27 +67,15 @@ public class Utils {
 
     public static byte [] getTrimedData(byte[] rawBuffer, int offset, int length) {
 
-        if(rawBuffer.length <= 0) {
-            return rawBuffer;
-        }
-
         if(rawBuffer.length == length) {
             return rawBuffer;
         }
 
-        byte [] r = new byte[length];
+        byte [] r = new byte [length];
 
         for(int i = 0; i < length; ++i) {
             r[i] = rawBuffer[offset + i];
         }
-
-        return r;
-    }
-
-    public static int getTransferPort() {
-        int r = 40000 + numPortsRequested;
-
-        numPortsRequested += 1;
 
         return r;
     }
@@ -105,5 +97,17 @@ public class Utils {
         }
 
         return r;
+    }
+
+    public static int getTransferPort() {
+        int r = 40000 + numPortsRequested;
+
+        numPortsRequested += 1;
+
+        return r;
+    }
+
+    public static String getOutputPath() {
+        return "C:/users/lbypa/Desktop/Connect";
     }
 }

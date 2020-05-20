@@ -1,8 +1,11 @@
 package com.lbynet.connect.backend.networking;
 
+import com.lbynet.connect.backend.frames.FileInfo;
 import com.lbynet.connect.backend.frames.ParallelTask;
 import com.lbynet.connect.backend.*;
+
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,15 +17,18 @@ import java.util.ArrayList;
 public class FileSender extends ParallelTask {
 
     private String ip_ = "";
-    private String[] filePaths_;
+    private ArrayList<FileInfo> fileInfos_;
+    private ArrayList<InputStream> fileStreams_;
     private NetStatus netStatus = NetStatus.IDLE;
     private ArrayList<FileSendStreamer> queue = new ArrayList<>();
     private double percentDone = 0;
+    private long speedInKilobytesPerSec = 0;
     private int numFiles = 0;
 
-    public FileSender(String ip, String... filePaths) {
+    public FileSender(String ip, ArrayList<FileInfo> fileInfos, ArrayList<InputStream> fileStreams) {
         ip_ = ip;
-        filePaths_ = filePaths;
+        fileInfos_ = fileInfos;
+        fileStreams_ = fileStreams;
     }
 
     public enum NetStatus {
@@ -38,7 +44,7 @@ public class FileSender extends ParallelTask {
 
     public void run() {
 
-        if (ip_.length() == 0 || filePaths_.length == 0) {
+        if (ip_.length() == 0 || fileInfos_.size() == 0) {
 
             SAL.print(SAL.MsgType.ERROR,"FileSender", "Failed to initialize FileSender because of malformed parameter");
             netStatus = NetStatus.INIT_FAIL;
@@ -48,20 +54,22 @@ public class FileSender extends ParallelTask {
         try {
 
             //Build file info in JSON
-            JSONArray fileList = new JSONArray();
+            JSONObject json = new JSONObject();
 
-            for(String path : filePaths_) {
-                fileList.put(Utils.getFilename(path));
+            for(FileInfo file : fileInfos_) {
+                json.put(file.name, file.size);
             }
+
 
             //Send file info to target
             Socket socket = new Socket(ip_, Utils.getTargetPort(ip_));
-            InputStream input = socket.getInputStream();
 
-            socket.getOutputStream().write((fileList.toString() + "<EOF>").getBytes(StandardCharsets.UTF_8));
+            IO.sendDataToRemote(socket,json.toString());
 
             //Retrive file transferring port from target
             String receivedData = IO.getDataFromRemote(socket, 5000);
+
+            SAL.print(receivedData);
 
             if (receivedData != null) {
                 SAL.print(SAL.MsgType.VERBOSE,"FileSender", "File Transfer Ports: " + receivedData);
@@ -73,32 +81,37 @@ public class FileSender extends ParallelTask {
             JSONArray ports = new JSONArray(receivedData);
 
             //Send Actual Data
-            for(int i = 0; i < filePaths_.length; ++i) {
-                FileSendStreamer fss = new FileSendStreamer(filePaths_[i],ip_,ports.getInt(i));
+            for(int i = 0; i < ports.length(); ++i) {
+
+                FileSendStreamer fss = new FileSendStreamer(fileStreams_.get(i),fileInfos_.get(i).size,ip_,ports.getInt(i));
                 queue.add(fss);
                 fss.start();
             }
 
             numFiles = queue.size();
-            ArrayList<Integer> skipList = new ArrayList<>();
 
             //Wait till everything is done
             while(percentDone < 1) {
 
-                double temp = 0;
+                double tempPercent = 0;
+                long tempSpeed = 0;
 
+                //Iterate through every task
                 for(int i = 0; i < queue.size(); ++i) {
 
-                    temp += (queue.get(i).getProgress() / numFiles);
+                    tempPercent += (queue.get(i).getProgress() / numFiles);
+                    tempSpeed += queue.get(i).getAverageSpeedInKbps();
+
                 }
 
-                percentDone = temp;
+                percentDone = tempPercent;
+                speedInKilobytesPerSec = tempSpeed;
 
-                Thread.sleep(50);
+                Thread.sleep(100);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            SAL.print(e);
 
             if (e instanceof SecurityException) {
                 netStatus = NetStatus.INIT_FAIL;
@@ -113,6 +126,7 @@ public class FileSender extends ParallelTask {
             return;
         }
 
+        SAL.print("All Done");
         netStatus = NetStatus.DONE;
         return;
     }
@@ -121,6 +135,13 @@ public class FileSender extends ParallelTask {
 
         return percentDone;
     }
+
+    public long getSpeedInKilobytesPerSec() {
+
+        return speedInKilobytesPerSec;
+    }
+
+
 
     public NetStatus getNetStatus() {
         return netStatus;
