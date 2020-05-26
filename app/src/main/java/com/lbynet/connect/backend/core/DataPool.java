@@ -1,6 +1,11 @@
 package com.lbynet.connect.backend.core;
 
 import android.content.Context;
+import android.net.Uri;
+
+import java.util.ArrayList;
+
+import jp.wasabeef.blurry.Blurry;
 
 public class DataPool {
 
@@ -8,5 +13,11 @@ public class DataPool {
 
     public static boolean isPowerSavingMode = false;
     public static boolean isInvisibleMode = false;
+
+    public static ArrayList<Uri> uris;
+
+    public static Blurry.BitmapComposer background;
+
+    public static Context context;
 
 }

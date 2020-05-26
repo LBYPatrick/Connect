@@ -1,8 +1,9 @@
 package com.lbynet.connect;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.ActionBar;
@@ -10,19 +11,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.core.DataPool;
 
 import jp.wasabeef.blurry.Blurry;
 
 public class SettingsActivity extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        ImageView bkgr = findViewById(R.id.iv_bkgnd);
-
-        ((ImageView)findViewById(R.id.iv_bkgnd)).setImageBitmap(Utils.getWallpaper(this));
+        DataPool.context = this;
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -34,7 +36,17 @@ public class SettingsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Blurry.with(this).async().radius(30).sampling(5).color(Color.argb(30, 0, 0, 0)).from(Utils.getWallpaper(this)).into(bkgr);
+        ((ImageView)findViewById(R.id.iv_bkgnd_clear)).setImageBitmap(Utils.getWallpaper(this));
+
+        ImageView bkgr = findViewById(R.id.iv_bkgnd_blur);
+        View master = findViewById(R.id.master);
+
+        //Utils.getBackground(this).into(bkgr);
+
+        Utils.showView(this,bkgr,500);
+
+        Utils.hideView(master,false,0);
+        Utils.showView(master,500);
 
     }
 

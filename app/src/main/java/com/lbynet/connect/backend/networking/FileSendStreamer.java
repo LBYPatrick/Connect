@@ -14,6 +14,7 @@ public class FileSendStreamer extends FileStreamer {
     private long fileSize_ = 0;
     private InputStream in_;
     private OutputStream out_;
+    private long lastSpeed = 0;
 
     //For showing speed
     Timer timer = new Timer("FileSendStreamer");
@@ -105,12 +106,15 @@ public class FileSendStreamer extends FileStreamer {
     public double getProgress() {
         if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
             return 1;
-        } else {
+        }
+        else if(netStatus == NetStatus.SUCCESS) {
+            return 1;
+        }
+        else {
             double bottom = (fileSize_ == 0) ? 1 : fileSize_;
             double top = RW_BUFFER_SIZE * numCyclesRead_;
             double result = top / bottom;
-
-            return result > 1 ? 0.99 : result;
+            return result;
         }
     }
 
@@ -122,12 +126,23 @@ public class FileSendStreamer extends FileStreamer {
 
         //If file transfer has just started/ended
         if(numCyclesRead_ == lastCycleCount) {
-            return 0;
+            return lastSpeed;
         }
 
-        float dataTransferred = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024;
+        if(timer.getElaspedTimeInMs() < 1000) {
+            return lastSpeed;
+        }
 
-        return (long)(dataTransferred / timer.getElaspedTimeInMs() * 1000);
+        float speedRate = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024 / timer.getElaspedTimeInMs() * 1000;
+
+        timer.start();
+        lastCycleCount = numCyclesRead_;
+
+        if(speedRate != 0) {
+            lastSpeed = (long) speedRate;
+        }
+
+        return lastSpeed;
 
     }
 }

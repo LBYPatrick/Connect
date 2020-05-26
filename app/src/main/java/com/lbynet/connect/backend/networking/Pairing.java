@@ -90,9 +90,21 @@ public class Pairing {
 
         sendThread = new Thread(() -> {
             try {
-                while (isStarted) {
+
+                while(!isStarted) {
+                    Utils.sleepFor(200);
+                }
+
+                while (true) {
+
+                    if(socket_.isClosed()) {
+                        socket_.leaveGroup(GROUP_ADDR);
+                        socket_.joinGroup(GROUP_ADDR);
+                    }
+
                     if (!isInvisible_) {
                         socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
+
                     }
                     if(DataPool.isPowerSavingMode) {
                         Thread.sleep(2000);
@@ -109,7 +121,16 @@ public class Pairing {
         listenThread = new Thread(() -> {
             try {
 
-                while (isStarted) {
+                while(!isStarted) {
+                    Utils.sleepFor(200);
+                }
+
+                while (true) {
+
+                    if(socket_.isClosed()) {
+                        socket_.leaveGroup(GROUP_ADDR);
+                        socket_.joinGroup(GROUP_ADDR);
+                    }
 
                     DatagramPacket dp = new DatagramPacket(new byte[BUFFER_LENGTH], BUFFER_LENGTH);
                     socket_.receive(dp);

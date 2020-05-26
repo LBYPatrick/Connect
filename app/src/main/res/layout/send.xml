@@ -3,21 +3,35 @@
     android:id="@+id/ll_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
 
     <!-- Background image (Wallpaper) -->
+
     <ImageView
+        android:id="@+id/iv_bkgnd_clear"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/iv_bkgnd_blur"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/iv_bkgnd"/>
+        android:visibility="invisible"/>
+
+    <View
+        android:id="@+id/v_bkgnd_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
     <!-- The REAL layout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:orientation="vertical"
+        android:layout_marginTop="30dp"
+        android:id="@+id/master"
         android:padding="50dp">
 
         <TextView
@@ -27,49 +41,45 @@
             android:layout_marginBottom="20dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
-            android:textStyle="bold"
             android:text="Select a target"
-            android:textColor="#C0FFFFFF"/>
+            android:id="@+id/tv_target_select_prompt"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
 
 
         <!-- Container for the list of devices -->
 
-            <FrameLayout
-                android:id="@+id/fl_select"
+        <FrameLayout
+            android:id="@+id/fl_select"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <ScrollView
+                <LinearLayout
+                    android:id="@+id/ll_select"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:divider="@drawable/divider_devicelist"
+                    android:orientation="vertical"
+                    android:showDividers="middle" />
+            </ScrollView>
 
-                    <LinearLayout
-                        android:id="@+id/ll_select"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:divider="@drawable/divider_devicelist"
-                        android:orientation="vertical"
-                        android:showDividers="middle" />
-                </ScrollView>
+            <ProgressBar
+                android:id="@+id/pb_targets"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="invisible"/>
 
-                <ProgressBar
-                    android:id="@+id/pb_targets"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="invisible"
-                    />
-
-
-            </FrameLayout>
+        </FrameLayout>
     </LinearLayout>
 
-    <Button
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginRight="10dp"
-        android:onClick="onSettingsButtonClicked"
-        android:layout_gravity="right"/>
+    <FrameLayout android:id="@+id/master_overlay"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        />
 
 </FrameLayout>

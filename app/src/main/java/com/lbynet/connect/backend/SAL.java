@@ -32,6 +32,8 @@ public class SAL {
 
     public static void print(MsgType type, String tag, String msg) {
 
+        msg = "[CONNECT]" + msg;
+
         switch(type) {
             case ERROR:
                 Log.e(tag,msg);
@@ -58,7 +60,7 @@ public class SAL {
 
     public static void print(Exception e) {
 
-        String msg = "";
+        String msg = "[Connect]";
 
         msg += "Exception: " + e.toString() + "\n"
                 + "Message: " + e.getMessage() + "\n"

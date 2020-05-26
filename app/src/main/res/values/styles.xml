@@ -1,16 +1,23 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
 
         <!-- Settings for non-rectangular screens (Notch, punch-hole, teardrop, etc.)  -->
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
 
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <!--
+        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+        -->
+
+        <item name="colorPrimary">#000000</item>
+        <item name="colorPrimaryDark">#005CA1</item>
+        <item name="colorAccent">#0092FF</item>
+
     </style>
 
 </resources>

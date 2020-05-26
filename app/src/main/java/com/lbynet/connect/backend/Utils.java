@@ -12,6 +12,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.ContactsContract;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -19,6 +21,9 @@ import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.frames.FileInfo;
 
 import org.json.JSONObject;
@@ -26,6 +31,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Random;
+
+import jp.wasabeef.blurry.Blurry;
 
 public class Utils {
 
@@ -114,7 +121,18 @@ public class Utils {
         return ((BitmapDrawable)(WallpaperManager.getInstance(context).getDrawable())).getBitmap();
     }
 
+    public static void hideView(AppCompatActivity activity, View v, boolean isGone, int durationInMs) {
+        activity.runOnUiThread( () -> {
+            hideView(v,isGone,durationInMs);
+        });
+    }
+
     public static void hideView(View v, boolean isGone, int durationInMs) {
+
+        if(v.getVisibility() == View.GONE) {
+            return;
+        }
+
         v.animate()
                 .alpha(0f)
                 .setDuration(durationInMs)
@@ -126,7 +144,17 @@ public class Utils {
                 });
     }
 
+    public static void showView(AppCompatActivity activity,View v, int durationInMs) {
+        activity.runOnUiThread( () -> {
+            showView(v,durationInMs);
+        });
+    }
+
     public static void showView(View v, int durationInMs) {
+
+        if(v.getVisibility() == View.VISIBLE) {
+            return;
+        }
 
         //Make it not "GONE" so that the view occupies the space it needs
         v.setAlpha(0f);
@@ -165,6 +193,14 @@ public class Utils {
         return r;
     }
 
+    public static void sleepFor(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (Exception e) {
+            SAL.print(e);
+        }
+    }
+
     public static String numToString(double in, int digits) {
         NumberFormat fmt = NumberFormat.getInstance();
 
@@ -174,7 +210,42 @@ public class Utils {
 
     }
 
+    public static void playTickVibration(Context context) {
+        Vibrator v =  (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+
+        if(v != null) {
+                v.vibrate(VibrationEffect.createOneShot(10,VibrationEffect.DEFAULT_AMPLITUDE));
+        }
+        else {
+            SAL.print("Failed to vibrate because no vibrator is available.");
+        }
+    }
+
+    public static void playDoubleClickAnimation(Context context) {
+        Vibrator v =  (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+
+        if(v != null) {
+            new Thread( () -> {
+                v.vibrate(VibrationEffect.createOneShot(100,200));
+                sleepFor(200);
+                v.vibrate(VibrationEffect.createOneShot(100,200));
+            }).start();
+        }
+        else {
+            SAL.print("Failed to vibrate because no vibrator is available.");
+        }
+    }
+
+    public static Blurry.BitmapComposer getBackground(Context context) {
+        if(DataPool.background == null) {
+            DataPool.background = Blurry.with(context).async().sampling(3).radius(60).from(Utils.getWallpaper(context));
+        }
+
+        return DataPool.background;
+    }
+
     public static String getOutputPath() {
-        return "/storage/emulated/0/Download/";
+
+        return "/storage/emulated/0/Download";
     }
 }

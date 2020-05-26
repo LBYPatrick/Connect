@@ -77,6 +77,8 @@ public class FileSender extends ParallelTask {
 
             netStatus = NetStatus.TRANSFERRING;
 
+            Utils.sleepFor(200);
+
             //Parse Response (Which contains an array of ports)
             JSONArray ports = new JSONArray(receivedData);
 
@@ -91,7 +93,7 @@ public class FileSender extends ParallelTask {
             numFiles = queue.size();
 
             //Wait till everything is done
-            while(percentDone < 1) {
+            while(true) {
 
                 double tempPercent = 0;
                 long tempSpeed = 0;
@@ -107,7 +109,11 @@ public class FileSender extends ParallelTask {
                 percentDone = tempPercent;
                 speedInKilobytesPerSec = tempSpeed;
 
-                Thread.sleep(100);
+                if(percentDone >= 1) {
+                    break;
+                }
+
+                Thread.sleep(300);
             }
 
         } catch (Exception e) {

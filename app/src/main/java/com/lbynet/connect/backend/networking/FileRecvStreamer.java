@@ -2,7 +2,9 @@ package com.lbynet.connect.backend.networking;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -26,9 +28,26 @@ public class FileRecvStreamer extends FileStreamer {
     public void run() {
         try {
 
-            socket_ = new ServerSocket(port_).accept();
+
+            ServerSocket ss = new ServerSocket();
+
+            ss.setReuseAddress(true);
+
+            try {
+                ss.bind(new InetSocketAddress(port_));
+            } catch (IOException e) {
+                SAL.print(e);
+            }
+
+            socket_ = ss.accept();
 
             netStatus = NetStatus.WORKING;
+
+            File tempDir = new File(targetDirectory_);
+
+            SAL.print("Creating directory " + targetDirectory_);
+
+            tempDir.mkdirs();
 
             InputStream in = socket_.getInputStream();
             File file = new File(targetDirectory_ + "/" + filename_);
@@ -52,6 +71,8 @@ public class FileRecvStreamer extends FileStreamer {
                     out.write(Utils.getTrimedData(buffer, bytesRead));
                 }
             }
+
+            Utils.sleepFor(50);
 
             out.close();
             in.close();

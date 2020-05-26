@@ -4,10 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
-    android:outlineAmbientShadowColor="@color/clear"
     android:outlineSpotShadowColor="@color/clear"
-    app:cardBackgroundColor="@color/half_white"
-    app:cardCornerRadius="15dp">
+    app:cardCornerRadius="10dp"
+    >
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -36,9 +35,16 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="target_placeholder"
-            android:textColor="#FFFFFFFF"
+            android:textColor="#FFFFFF"
             android:textStyle="normal" />
 
     </FrameLayout>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/hidden_ip"
+        android:text=""
+        />
 
 </androidx.cardview.widget.CardView>
