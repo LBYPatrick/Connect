@@ -1,5 +1,7 @@
 package com.lbynet.connect.backend.networking;
 
+import android.bluetooth.BluetoothHidDeviceAppQosSettings;
+
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.*;
 
@@ -64,12 +66,11 @@ public class FileSendStreamer extends FileStreamer {
 
             boolean isSuccess = false;
 
+
             //Start Looping and send data
             while (!socket_.isClosed()) {
 
                 int bytesRead = in_.read(buffer);
-
-                numCyclesRead_ += 1;
 
                 if(bytesRead == -1) {
                     isSuccess = true;
@@ -83,8 +84,9 @@ public class FileSendStreamer extends FileStreamer {
                 else {
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                 }
-            }
 
+                numCyclesRead_ += 1;
+            }
             out_.close();
             in_.close();
 
@@ -124,7 +126,7 @@ public class FileSendStreamer extends FileStreamer {
      */
     public long getAverageSpeedInKbps() {
 
-        if(timer.getElaspedTimeInMs() < 1000 && getProgress() > 0.10) {
+        if(timer.getElaspedTimeInMs() < 300 && getProgress() > 0.10) {
             return lastSpeed;
         }
 
@@ -133,9 +135,13 @@ public class FileSendStreamer extends FileStreamer {
         timer.start();
         lastCycleCount = numCyclesRead_;
 
+        lastSpeed = ((long) speedRate + lastSpeed) / 2;
+
+        /*
         if(speedRate != 0) {
             lastSpeed = (long) speedRate;
         }
+         */
 
         return lastSpeed;
 
