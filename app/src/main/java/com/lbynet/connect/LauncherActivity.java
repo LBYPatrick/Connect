@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -65,9 +66,19 @@ public class LauncherActivity extends AppCompatActivity {
 
         DataPool.activity = this;
 
+
+        //Splash Screen
+        View splashScreen = getLayoutInflater().inflate(R.layout.splash_screen,null);
+        ((FrameLayout)findViewById(R.id.screen)).addView(splashScreen);
+
         //Configuration
         grantPermissions();
         configureDarkMode();
+
+        new Thread( ()-> {
+            Utils.sleepFor(500);
+            Utils.hideView(splashScreen,true,200);
+        }).start();
 
         try {
             Pairing.start();
@@ -78,28 +89,7 @@ public class LauncherActivity extends AppCompatActivity {
 
         LinearLayout main = findViewById(R.id.master);
 
-        ((ImageView)findViewById(R.id.iv_master_background)).setImageBitmap(Utils.getWallpaper(this));
-
-
-        //Add buttons
-        if((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {
-            main.addView(makeMainButton(getDrawable(R.drawable.ic_description_black_24dp), "Select from file..."));
-            main.addView(makeMainButton(getDrawable(R.drawable.ic_info_black_24dp), "Info"));
-            main.addView(makeMainButton(getDrawable(R.drawable.ic_settings_black_24dp), "Settings"));
-        }
-        else {
-            main.addView(makeMainButton(getDrawable(R.drawable.ic_description_white_24dp), "Select from file..."));
-            main.addView(makeMainButton(getDrawable(R.drawable.ic_info_white_24dp), "Info"));
-            main.addView(makeMainButton(getDrawable(R.drawable.ic_settings_white_24dp), "Settings"));
-        }
-
-        new Thread( () -> {
-            for (int i = 0; i < main.getChildCount(); ++i) {
-                Utils.showView(this,main.getChildAt(i),100);
-                Utils.sleepFor(100);
-            }
-        }).start();
-
+        Blurry.with(this).sampling(3).radius(60).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
 
     }
 
@@ -110,18 +100,17 @@ public class LauncherActivity extends AppCompatActivity {
         ((ImageView)r.findViewById(R.id.avatar)).setImageDrawable(avatar);
         ((TextView)r.findViewById(R.id.text)).setText(text);
 
-        r.setVisibility(View.INVISIBLE);
-
-        r.setOnClickListener(v1 -> onMainButtonClicked(v1));
+        r.setOnClickListener(this::onMainButtonClicked);
 
         return r;
 
     }
 
-    public void onMainButtonClicked(View v) {
+    public boolean onMainButtonClicked(View v) {
         if(((TextView)v.findViewById(R.id.text)).getText() == "Settings") {
             startActivityForResult(new Intent(this,SettingsActivity.class),0);
         }
+        return true;
     }
 
     public void onSettingsButtonClicked(View view) {

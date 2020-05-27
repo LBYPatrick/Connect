@@ -11,21 +11,80 @@
         android:layout_height="match_parent" />
 
     <View
-    android:id="@+id/v_bkgnd_mask"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="invisible"/>
+        android:id="@+id/iv_bkgnd_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:foreground="#FF000000"
+        android:alpha="0.3"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="30dp"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        android:layout_margin="20dp"
-        android:divider="@drawable/divider_devicelist"
-        android:showDividers="middle"
-        android:id="@+id/master">
+        android:orientation="vertical">
+        
+        <View
+            android:layout_width="131.89dp"
+            android:layout_height="122.67dp"
+            android:foreground="@drawable/ic_connect_logo_v3_round"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="30dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="40dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/white_100"
+            android:textStyle="bold"
+            android:text="Connect"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/white_75"
+            android:textStyle="normal"
+            android:text="by LBYPatrick"
+            />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="30dp"
+        android:layout_marginHorizontal="20dp"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24dp"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:textColor="@color/white_75"
+            android:textStyle="normal"
+            android:text="Please invoke this app through &quot;Share&quot; function in other apps."
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:autoSizeTextType="uniform"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/white_100"
+            android:text="*Do not close this app while transferring data"/>
+
+    </LinearLayout>
+
+
+
 
 </FrameLayout>

@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Random;
 
 import jp.wasabeef.blurry.Blurry;
@@ -120,6 +121,10 @@ public class Utils {
         return new FileInfo(query.getString(query.getColumnIndex(OpenableColumns.DISPLAY_NAME)),
                             Long.parseLong(query.getString(query.getColumnIndex(OpenableColumns.SIZE))));
 
+    }
+
+    public static boolean isSimplifiedChinese() {
+        return Resources.getSystem().getConfiguration().getLocales().get(0).equals(Locale.SIMPLIFIED_CHINESE);
     }
 
     public static Bitmap getWallpaper(Context context) {

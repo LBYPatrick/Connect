@@ -4,9 +4,9 @@
     android:background="@color/white_100">
 
     <View
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="131.89dp"
+        android:layout_height="122.67dp"
         android:layout_gravity="center"
-        android:foreground="@drawable/ic_connect_logo_v2" />
+        android:foreground="@drawable/ic_connect_logo_v3_round" />
 
 </FrameLayout>

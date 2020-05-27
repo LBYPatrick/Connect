@@ -23,6 +23,8 @@ import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.TargetLoader;
 
 import java.util.ArrayList;
+import java.util.Locale;
+
 import com.lbynet.connect.backend.Timer;
 
 import jp.wasabeef.blurry.Blurry;
@@ -69,8 +71,8 @@ public class SendActivity extends AppCompatActivity {
 
         SAL.print("onCreate");
 
+        //Splash Screen
         View splashScreen = getLayoutInflater().inflate(R.layout.splash_screen,null);
-
         ((FrameLayout)findViewById(R.id.master_overlay)).addView(splashScreen);
 
         Utils.showView(splashScreen,0);
@@ -112,12 +114,23 @@ public class SendActivity extends AppCompatActivity {
             targetLoader.setUris(uris);
         }
 
+        String titleText;
+        String subtitle;
+
+        if(Utils.isSimplifiedChinese()) {
+            titleText = "发送" + uris.size() + "个文件至...";
+            subtitle = "轻触设备名称以发送文件";
+        }
+        //See, English is more complex
+        else {
+            titleText = "Send " + uris.size() + " " + (uris.size() > 1 ? "files" : "file") + " to...";
+            subtitle = "Tap device name(s) to send";
+        }
+
+
         //Set Target Select Prompt
-        ((TextView)findViewById(R.id.tv_send_main_title)).setText("Send "
-                                                                       + uris.size()
-                                                                       + " "
-                                                                       + (uris.size() > 1 ? "files" : "file")
-                                                                       + " to...");
+        ((TextView)findViewById(R.id.tv_send_main_title)).setText(titleText);
+        ((TextView)findViewById(R.id.tv_send_subtitle)).setText(subtitle);
 
         //Blur background
         Blurry.with(this).sampling(3).radius(60).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_bkgnd_blur));
@@ -125,12 +138,12 @@ public class SendActivity extends AppCompatActivity {
 
 
         //Hide Splash screen
-        if(elapsedTime.getElaspedTimeInMs() > 1000) {
+        if(elapsedTime.getElaspedTimeInMs() > 500) {
             Utils.hideView(this,splashScreen,true,200);
         }
         else {
 
-            final long remainingTime = 1000 - elapsedTime.getElaspedTimeInMs();
+            final long remainingTime = 500 - elapsedTime.getElaspedTimeInMs();
             new Thread(() -> {
                 Utils.sleepFor(remainingTime);
                 Utils.hideView(this,splashScreen,true,200);

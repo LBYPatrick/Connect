@@ -8,7 +8,7 @@
     android:outlineAmbientShadowColor="@color/clear"
     android:outlineSpotShadowColor="@color/clear"
     app:cardBackgroundColor="@color/white_25"
-    app:cardCornerRadius="5dp"
+    app:cardCornerRadius="10dp"
     >
 
     <FrameLayout
