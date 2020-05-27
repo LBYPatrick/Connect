@@ -26,7 +26,7 @@
         android:progressTint="@color/white_50"
         android:progressBackgroundTint="@color/clear"
         android:scaleY="100"
-        android:visibility="visible" />
+        android:visibility="invisible" />
 
 
     <TextView
