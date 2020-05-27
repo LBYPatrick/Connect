@@ -5,6 +5,7 @@ import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -64,13 +65,22 @@ public class Pairing {
     private Pairing() {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
-            socket_ = new MulticastSocket(MCAST_PORT);
+            //socket_ = new MulticastSocket(MCAST_PORT);
             selfUid_ = SAL.getDeviceName();
 
         } catch (Exception e) {
             SAL.print(e);
         }
 
+    }
+
+    public static void joinGroup() {
+        try {
+            socket_ = new MulticastSocket(MCAST_PORT);
+            socket_.joinGroup(GROUP_ADDR);
+        } catch (Exception e) {
+            SAL.print(e);
+        }
     }
 
     /**
@@ -84,42 +94,34 @@ public class Pairing {
 
         msg_ = selfUid_.getBytes();
 
-        socket_.joinGroup(GROUP_ADDR);
+        joinGroup();
 
         isStarted = true;
 
         sendThread = new Thread(() -> {
-            try {
-
                 while(!isStarted) {
                     Utils.sleepFor(200);
                 }
 
                 while (true) {
 
-                    if(socket_.isClosed()) {
-                        socket_.leaveGroup(GROUP_ADDR);
-                        socket_.joinGroup(GROUP_ADDR);
-                    }
-
                     if (!isInvisible_) {
-                        socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
-
+                        try {
+                            socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
+                        } catch (Exception e) {
+                            SAL.print(e);
+                        }
                     }
                     if(DataPool.isPowerSavingMode) {
-                        Thread.sleep(2000);
+                        Utils.sleepFor(2000);
                     }
                     else {
-                        Thread.sleep(50);
+                        Utils.sleepFor(300);
                     }
                 }
-            } catch (Exception e) {
-                SAL.print(e);
-            }
         });
 
         listenThread = new Thread(() -> {
-            try {
 
                 while(!isStarted) {
                     Utils.sleepFor(200);
@@ -127,13 +129,18 @@ public class Pairing {
 
                 while (true) {
 
-                    if(socket_.isClosed()) {
-                        socket_.leaveGroup(GROUP_ADDR);
-                        socket_.joinGroup(GROUP_ADDR);
-                    }
+                    boolean isPackageGood = true;
 
                     DatagramPacket dp = new DatagramPacket(new byte[BUFFER_LENGTH], BUFFER_LENGTH);
-                    socket_.receive(dp);
+
+                    try {
+                        socket_.receive(dp);
+                    } catch (Exception e) {
+                        SAL.print(e);
+                        isPackageGood = false;
+                    }
+
+                    if(!isPackageGood) continue;
 
                     //Package Received
                     if (dp.getLength() > 0) {
@@ -180,9 +187,6 @@ public class Pairing {
                         }
                     }
                 }
-            } catch (Exception e) {
-                SAL.print(e);
-            }
         });
 
         listenThread.start();

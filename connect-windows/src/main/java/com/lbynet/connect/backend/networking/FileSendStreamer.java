@@ -14,6 +14,7 @@ public class FileSendStreamer extends FileStreamer {
     private long fileSize_ = 0;
     private InputStream in_;
     private OutputStream out_;
+    private long lastSpeed = 0;
 
     //For showing speed
     Timer timer = new Timer("FileSendStreamer");
@@ -63,12 +64,11 @@ public class FileSendStreamer extends FileStreamer {
 
             boolean isSuccess = false;
 
+
             //Start Looping and send data
             while (!socket_.isClosed()) {
 
                 int bytesRead = in_.read(buffer);
-
-                numCyclesRead_ += 1;
 
                 if(bytesRead == -1) {
                     isSuccess = true;
@@ -82,14 +82,19 @@ public class FileSendStreamer extends FileStreamer {
                 else {
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                 }
+
+                numCyclesRead_ += 1;
             }
+
+            socket_.shutdownOutput();
+            socket_.shutdownInput();
 
             out_.close();
             in_.close();
 
             if(isSuccess) {
                 netStatus = NetStatus.SUCCESS;
-                SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File sent.");
+                SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File sent. Progress: " + getProgress());
                 return;
             }
             else {
@@ -105,12 +110,15 @@ public class FileSendStreamer extends FileStreamer {
     public double getProgress() {
         if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
             return 1;
-        } else {
+        }
+        else if(netStatus == NetStatus.SUCCESS) {
+            return 1;
+        }
+        else {
             double bottom = (fileSize_ == 0) ? 1 : fileSize_;
             double top = RW_BUFFER_SIZE * numCyclesRead_;
             double result = top / bottom;
-
-            return result > 1 ? 0.99 : result;
+            return result;
         }
     }
 
@@ -120,14 +128,18 @@ public class FileSendStreamer extends FileStreamer {
      */
     public long getAverageSpeedInKbps() {
 
-        //If file transfer has just started/ended
-        if(numCyclesRead_ == lastCycleCount) {
-            return 0;
+        if(timer.getElaspedTimeInMs() < 300 && getProgress() > 0.10) {
+            return lastSpeed;
         }
 
-        float dataTransferred = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024;
+        float speedRate = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024 / timer.getElaspedTimeInMs() * 1000;
 
-        return (long)(dataTransferred / timer.getElaspedTimeInMs() * 1000);
+        timer.start();
+        lastCycleCount = numCyclesRead_;
+
+        lastSpeed = ((long) speedRate + lastSpeed) / 2;
+
+        return lastSpeed;
 
     }
 }

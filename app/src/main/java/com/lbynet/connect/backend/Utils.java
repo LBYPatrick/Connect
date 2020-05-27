@@ -45,6 +45,7 @@ public class Utils {
     final private static String LETTER_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static Utils instance = new Utils();
     private static int numPortsRequested = 0;
+    private static int numIntRequested = 0;
 
     private static Random randomizer;
 
@@ -52,6 +53,10 @@ public class Utils {
         randomizer = new Random();
     }
 
+    public static int getUniqueInt() {
+        numIntRequested += 1;
+        return 114513 + numIntRequested;
+    }
 
     public static JSONObject getCompiledFileInfo(String... paths) throws Exception {
         JSONObject r = new JSONObject();
@@ -123,8 +128,13 @@ public class Utils {
 
     }
 
-    public static boolean isSimplifiedChinese() {
-        return Resources.getSystem().getConfiguration().getLocales().get(0).equals(Locale.SIMPLIFIED_CHINESE);
+    public static boolean isChinese() {
+
+        Locale language = Resources.getSystem().getConfiguration().getLocales().get(0);
+
+        SAL.print("Locale:" + language.toLanguageTag());
+
+        return language.toLanguageTag().equals("zh-CN") || language.toLanguageTag().equals("zh-Hans-CN") || language.toLanguageTag().equals("zh-TW");
     }
 
     public static Bitmap getWallpaper(Context context) {

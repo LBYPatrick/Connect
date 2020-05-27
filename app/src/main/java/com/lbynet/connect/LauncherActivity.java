@@ -1,15 +1,13 @@
 package com.lbynet.connect;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,14 +16,19 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
-import com.lbynet.connect.backend.frames.ParallelTask;
-import com.lbynet.connect.backend.networking.FileListener;
+import com.lbynet.connect.backend.networking.FileReceiver;
+import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.Pairing;
+import com.lbynet.connect.frontend.Visualizer;
+
+import java.util.ArrayList;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -82,7 +85,12 @@ public class LauncherActivity extends AppCompatActivity {
 
         try {
             Pairing.start();
-            FileListener.start();
+
+            FileReceiver.setOnReceiveListener((senderName,streams) -> {
+                Visualizer.showReceiveProgress(this,senderName,streams);
+            });
+
+            FileReceiver.start();
         } catch (Exception e) {
             SAL.print(e);
         }

@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -18,12 +16,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
-import com.lbynet.connect.backend.networking.FileListener;
+import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.TargetLoader;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import com.lbynet.connect.backend.Timer;
 
@@ -81,7 +78,7 @@ public class SendActivity extends AppCompatActivity {
 
         try {
             Pairing.start();
-            FileListener.start();
+            FileReceiver.start();
         } catch (Exception e) {
             SAL.print(e);
         }
@@ -117,7 +114,7 @@ public class SendActivity extends AppCompatActivity {
         String titleText;
         String subtitle;
 
-        if(Utils.isSimplifiedChinese()) {
+        if(Utils.isChinese()) {
             titleText = "发送" + uris.size() + "个文件至...";
             subtitle = "轻触设备名称以发送文件";
         }

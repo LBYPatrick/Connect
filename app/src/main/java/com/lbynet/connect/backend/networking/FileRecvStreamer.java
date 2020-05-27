@@ -11,6 +11,7 @@ import java.net.Socket;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.frames.FileReceiveListener;
 
 public class FileRecvStreamer extends FileStreamer {
 
@@ -21,6 +22,7 @@ public class FileRecvStreamer extends FileStreamer {
     private int port_;
     private long fileSize_;
     private Timer timer = new Timer("FileRecvStreamer");
+
 
     public FileRecvStreamer(String filename,String targetDirectory, int port,long fileSize) {
         filename_ = filename;
@@ -75,7 +77,8 @@ public class FileRecvStreamer extends FileStreamer {
                 }
             }
 
-            Utils.sleepFor(50);
+            socket_.shutdownOutput();
+            socket_.shutdownInput();
 
             out.close();
             in.close();
@@ -93,6 +96,14 @@ public class FileRecvStreamer extends FileStreamer {
             netStatus = NetStatus.BAD_GENERAL;
             SAL.print(e);
         }
+    }
+
+    public String getFilename() {
+        return filename_;
+    }
+
+    public String getTargetDirectory_() {
+        return targetDirectory_;
     }
 
     public double getProgress() {
@@ -116,12 +127,7 @@ public class FileRecvStreamer extends FileStreamer {
      */
     public long getAverageSpeedInKbps() {
 
-        //If file transfer has just started/ended
-        if(numCyclesRead_ == lastCycleCount) {
-            return lastSpeed;
-        }
-
-        if(timer.getElaspedTimeInMs() < 1000) {
+        if(timer.getElaspedTimeInMs() < 300 && getProgress() > 0.10) {
             return lastSpeed;
         }
 
@@ -130,12 +136,9 @@ public class FileRecvStreamer extends FileStreamer {
         timer.start();
         lastCycleCount = numCyclesRead_;
 
-        if(speedRate != 0) {
-            lastSpeed = (long) speedRate;
-        }
+        lastSpeed = ((long) speedRate + lastSpeed) / 2;
 
         return lastSpeed;
-
     }
 }
 

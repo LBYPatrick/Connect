@@ -78,7 +78,8 @@ public class IO {
         }
 
         try {
-            s.getOutputStream().write((msg + "<EOF>").getBytes(StandardCharsets.UTF_8));
+            s.getOutputStream().write(msg.getBytes(StandardCharsets.UTF_8));
+            s.shutdownOutput();
         } catch (Exception e) {
             SAL.print(e);
             return false;
@@ -101,25 +102,21 @@ public class IO {
 
             timer.start();
 
-            while(!s.isClosed()) {
+            while(true) {
 
                 int bytesRead = stream.read(buffer);
 
-                if(bytesRead != -1) {
-                    data += new String(Utils.getTrimedData(buffer,bytesRead));
-                }
-
-                if(data.length() > 5  && data.substring(data.length()-5, data.length()).contains("<EOF>")) {
-                    SAL.print("EOF reached");
+                if(bytesRead == -1) {
                     return data;
+                }
+                else {
+                    data += new String(Utils.getTrimedData(buffer,bytesRead));
                 }
 
                 if(data.length() == 0 && timer.getElaspedTimeInMs() >= timeoutInMs) {
                     return null;
                 }
             }
-
-            SAL.print("here");
 
         } catch (Exception e) {
             SAL.print(e);
