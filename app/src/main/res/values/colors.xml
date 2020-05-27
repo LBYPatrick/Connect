@@ -3,6 +3,12 @@
 
     <color name="quarter_white">#10FFFFFF</color>
     <color name="half_white">#50FFFFFF</color>
+
     <color name="clear">#00FFFFFF</color>
+
+    <color name="white_25">#40FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_75">#BFFFFFFF</color>
+    <color name="white_100">#FFFFFFFF</color>
 
 </resources>

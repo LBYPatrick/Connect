@@ -52,22 +52,12 @@ public class TargetLoader extends ParallelTask {
 
         activity_.runOnUiThread( () -> {
 
-            final int BUTTON_ALPHA = 128;
-            final int MIN_BRIGHTNESS = 50;
-
             for (int i = 0; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {
 
-                CardView v = (CardView) activity_.getLayoutInflater().inflate(R.layout.target_button, null);
+                FrameLayout v = (FrameLayout) activity_.getLayoutInflater().inflate(R.layout.target_button, null);
                 v.setOnClickListener(this::onTargetSelected);
                 v.setVisibility(View.GONE);
 
-                int colorIndex = MIN_BRIGHTNESS;
-
-                if(i <= 5) {
-                    colorIndex = (int)(-(220 - MIN_BRIGHTNESS) / 5 * (double)i + 255);
-                }
-
-                v.setCardBackgroundColor(Color.argb(BUTTON_ALPHA,colorIndex,colorIndex,colorIndex));
 
                 ((LinearLayout) rootView_.findViewById(R.id.ll_select)).addView(v);
                 deviceHolders.add(v);
@@ -192,7 +182,7 @@ public class TargetLoader extends ParallelTask {
                         }
 
                         //Don't update UI too fast
-                        Thread.sleep(100);
+                        Thread.sleep(30);
                     }
 
                 } catch (Exception e) {
@@ -233,7 +223,7 @@ public class TargetLoader extends ParallelTask {
 
                 if(i.getFreshness() < 2500 && nTotalDevices < DataPool.NUM_TARGET_PLACEHOLDERS) {
 
-                    CardView parent = (CardView) deviceHolders.get(nTotalDevices);
+                    FrameLayout parent = deviceHolders.get(nTotalDevices);
                     TextView uid = parent.findViewById(R.id.tv_uid);
                     TextView ip = parent.findViewById(R.id.hidden_ip);
                     ProgressBar pbar = parent.findViewById(R.id.pb_status);
@@ -260,7 +250,7 @@ public class TargetLoader extends ParallelTask {
 
             for(int i = nTotalDevices; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {
 
-                CardView parent = (CardView) deviceHolders.get(i);
+                FrameLayout parent = deviceHolders.get(i);
                 ProgressBar pbar = parent.findViewById(R.id.pb_status);
 
                 if(pbar.getProgress() != 0 && pbar.getProgress() != 100) {
@@ -271,6 +261,8 @@ public class TargetLoader extends ParallelTask {
                     Utils.hideView(activity_,parent,true,100);
                 }
             }
+
+            SAL.print("Active Devices: " + nTotalDevices);
 
             if(nTotalDevices == 0) {
                 Utils.showView(activity_,pb,100);

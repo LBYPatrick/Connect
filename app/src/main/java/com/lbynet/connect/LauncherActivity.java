@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
@@ -44,21 +47,27 @@ public class LauncherActivity extends AppCompatActivity {
         }
     }
 
+    void configureDarkMode() {
+
+        boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+
+        //Do things here if you need
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         SAL.print("OnCreate");
-
         setContentView(R.layout.launcher);
 
-        DataPool.context = this;
+        DataPool.activity = this;
 
-        //Get permissions
+        //Configuration
         grantPermissions();
-
-        ((ImageView)findViewById(R.id.iv_master_background)).setImageBitmap(Utils.getWallpaper(this));
+        configureDarkMode();
 
         try {
             Pairing.start();
@@ -69,7 +78,7 @@ public class LauncherActivity extends AppCompatActivity {
 
         LinearLayout main = findViewById(R.id.master);
 
-
+        ((ImageView)findViewById(R.id.iv_master_background)).setImageBitmap(Utils.getWallpaper(this));
 
 
         //Add buttons

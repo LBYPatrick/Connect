@@ -6,8 +6,10 @@ import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -19,7 +21,10 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -118,7 +123,36 @@ public class Utils {
     }
 
     public static Bitmap getWallpaper(Context context) {
-        return ((BitmapDrawable)(WallpaperManager.getInstance(context).getDrawable())).getBitmap();
+
+        if(DataPool.wallpaper != null) {
+            return DataPool.wallpaper;
+        }
+
+        Bitmap wp = ((BitmapDrawable)(WallpaperManager.getInstance(context).getDrawable())).getBitmap();
+
+        final Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Point displayInfo = new Point();
+
+        display.getRealSize(displayInfo);
+
+        final double wpRatio = (double)wp.getHeight() / wp.getWidth();
+        final double dpRatio = (double)displayInfo.y / (double)displayInfo.x;
+
+        //Wallpaper being taller than screen
+        if(wpRatio > dpRatio) {
+            final int height = (int)(wp.getWidth() * dpRatio);
+            DataPool.wallpaper = Bitmap.createBitmap(wp,0,0,wp.getWidth(),height);
+        }
+        //Wallpaper shorter than screen
+        else if(wpRatio < dpRatio) {
+            final int width = (int)(wp.getHeight() / dpRatio);
+            DataPool.wallpaper = Bitmap.createBitmap(wp,0,0,width,wp.getHeight());
+        }
+        else {
+            DataPool.wallpaper = wp;
+        }
+
+        return DataPool.wallpaper;
     }
 
     public static void hideView(AppCompatActivity activity, View v, boolean isGone, int durationInMs) {
@@ -234,14 +268,6 @@ public class Utils {
         else {
             SAL.print("Failed to vibrate because no vibrator is available.");
         }
-    }
-
-    public static Blurry.BitmapComposer getBackground(Context context) {
-        if(DataPool.background == null) {
-            DataPool.background = Blurry.with(context).async().sampling(3).radius(60).from(Utils.getWallpaper(context));
-        }
-
-        return DataPool.background;
     }
 
     public static String getOutputPath() {

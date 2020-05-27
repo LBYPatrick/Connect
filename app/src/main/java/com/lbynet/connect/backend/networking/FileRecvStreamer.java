@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import com.lbynet.connect.backend.SAL;
+import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
 
 public class FileRecvStreamer extends FileStreamer {
@@ -16,12 +17,16 @@ public class FileRecvStreamer extends FileStreamer {
     private String filename_,
             targetDirectory_;
     private Socket socket_;
+    private long numCyclesRead_ = 0, lastCycleCount = 0,lastSpeed = 0;
     private int port_;
+    private long fileSize_;
+    private Timer timer = new Timer("FileRecvStreamer");
 
-    public FileRecvStreamer(String filename,String targetDirectory, int port) {
+    public FileRecvStreamer(String filename,String targetDirectory, int port,long fileSize) {
         filename_ = filename;
         targetDirectory_ = targetDirectory;
         port_ = port;
+        fileSize_ = fileSize;
     }
 
     @Override
@@ -45,10 +50,6 @@ public class FileRecvStreamer extends FileStreamer {
 
             File tempDir = new File(targetDirectory_);
 
-            SAL.print("Creating directory " + targetDirectory_);
-
-            tempDir.mkdirs();
-
             InputStream in = socket_.getInputStream();
             File file = new File(targetDirectory_ + "/" + filename_);
             byte [] buffer = new byte[RW_BUFFER_SIZE];
@@ -62,6 +63,8 @@ public class FileRecvStreamer extends FileStreamer {
             while(!socket_.isClosed()) {
 
                 int bytesRead = in.read(buffer);
+
+                numCyclesRead_ += 1;
 
                 if(bytesRead == -1) {
                     isSuccess = true;
@@ -90,6 +93,49 @@ public class FileRecvStreamer extends FileStreamer {
             netStatus = NetStatus.BAD_GENERAL;
             SAL.print(e);
         }
+    }
+
+    public double getProgress() {
+        if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
+            return 1;
+        }
+        else if(netStatus == NetStatus.SUCCESS) {
+            return 1;
+        }
+        else {
+            double bottom = (fileSize_ == 0) ? 1 : fileSize_;
+            double top = RW_BUFFER_SIZE * numCyclesRead_;
+            double result = top / bottom;
+            return result;
+        }
+    }
+
+    /**
+     * Calculate transfer speed in kilobytes per second
+     * @return
+     */
+    public long getAverageSpeedInKbps() {
+
+        //If file transfer has just started/ended
+        if(numCyclesRead_ == lastCycleCount) {
+            return lastSpeed;
+        }
+
+        if(timer.getElaspedTimeInMs() < 1000) {
+            return lastSpeed;
+        }
+
+        float speedRate = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024 / timer.getElaspedTimeInMs() * 1000;
+
+        timer.start();
+        lastCycleCount = numCyclesRead_;
+
+        if(speedRate != 0) {
+            lastSpeed = (long) speedRate;
+        }
+
+        return lastSpeed;
+
     }
 }
 

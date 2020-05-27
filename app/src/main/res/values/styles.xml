@@ -9,10 +9,7 @@
 
         <!-- Settings for non-rectangular screens (Notch, punch-hole, teardrop, etc.)  -->
         <item name="android:windowTranslucentStatus">true</item>
-
-        <!--
-        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
-        -->
+        <item name="android:windowTranslucentNavigation">true</item>
 
         <item name="colorPrimary">#000000</item>
         <item name="colorPrimaryDark">#005CA1</item>

@@ -90,7 +90,7 @@ public class FileSendStreamer extends FileStreamer {
 
             if(isSuccess) {
                 netStatus = NetStatus.SUCCESS;
-                SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File sent.");
+                SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File sent. Progress: " + getProgress());
                 return;
             }
             else {
@@ -124,12 +124,7 @@ public class FileSendStreamer extends FileStreamer {
      */
     public long getAverageSpeedInKbps() {
 
-        //If file transfer has just started/ended
-        if(numCyclesRead_ == lastCycleCount) {
-            return lastSpeed;
-        }
-
-        if(timer.getElaspedTimeInMs() < 1000) {
+        if(timer.getElaspedTimeInMs() < 1000 && getProgress() > 0.10) {
             return lastSpeed;
         }
 

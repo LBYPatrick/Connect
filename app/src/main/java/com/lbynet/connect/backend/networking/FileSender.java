@@ -101,15 +101,16 @@ public class FileSender extends ParallelTask {
                 //Iterate through every task
                 for(int i = 0; i < queue.size(); ++i) {
 
-                    tempPercent += (queue.get(i).getProgress() / numFiles);
+                    tempPercent += (queue.get(i).getProgress());
                     tempSpeed += queue.get(i).getAverageSpeedInKbps();
 
                 }
 
-                percentDone = tempPercent;
+                percentDone = tempPercent / numFiles;
                 speedInKilobytesPerSec = tempSpeed;
 
                 if(percentDone >= 1) {
+                    SAL.print("Getting out...");
                     break;
                 }
 

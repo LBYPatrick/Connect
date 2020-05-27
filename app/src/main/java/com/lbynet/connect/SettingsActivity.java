@@ -24,7 +24,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        DataPool.context = this;
+        DataPool.activity = this;
 
         getSupportFragmentManager()
                 .beginTransaction()

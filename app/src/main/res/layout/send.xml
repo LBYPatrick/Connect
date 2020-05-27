@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ll_background"
+    android:id="@+id/screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <!-- Background image (Wallpaper) -->
-
-    <ImageView
-        android:id="@+id/iv_bkgnd_clear"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/iv_bkgnd_blur"
@@ -19,10 +14,14 @@
         android:visibility="invisible"/>
 
     <View
-        android:id="@+id/v_bkgnd_mask"
+        android:id="@+id/iv_bkgnd_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"/>
+
+        android:foreground="#FF000000"
+        android:alpha="0.3"
+        />
+
 
     <!-- The REAL layout -->
     <LinearLayout
@@ -30,29 +29,51 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:layout_marginTop="30dp"
-        android:id="@+id/master"
-        android:padding="50dp">
+        android:layout_marginTop="50dp"
+        android:id="@+id/master">
 
-        <TextView
+        <!-- Title bar -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp"
-            android:autoSizeTextType="uniform"
-            android:gravity="center"
-            android:text="Select a target"
-            android:id="@+id/tv_target_select_prompt"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+
+                android:autoSizeTextType="uniform"
+                android:maxLines="1"
+                android:gravity="left"
+                android:text="SEND_MAIN_TITLE"
+                android:id="@+id/tv_send_main_title"
+                android:textColor="@color/white_100"
+                android:textStyle="bold" />
+            
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:autoSizeTextType="uniform"
+                android:maxLines="1"
+                android:textColor="@color/white_75"
+                android:id="@+id/tv_send_subtitle"
+                android:text="Tap device names to send"
+                android:textStyle="normal"/>
 
 
+
+        </LinearLayout>
         <!-- Container for the list of devices -->
 
         <FrameLayout
             android:id="@+id/fl_select"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:padding="20dp"
+            >
 
             <ScrollView
                 android:layout_width="match_parent"

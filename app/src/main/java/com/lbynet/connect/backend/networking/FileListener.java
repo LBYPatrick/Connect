@@ -81,7 +81,7 @@ public class FileListener {
 
                         SAL.print(SAL.MsgType.VERBOSE,"FileListener", "Filename: " + file + "\t" + "Port: " + port);
 
-                        new FileRecvStreamer(file, Utils.getOutputPath(), port).start();
+                        new FileRecvStreamer(file, Utils.getOutputPath(), port,receivedData.getLong(file)).start();
 
                         portList.put(port);
                     }

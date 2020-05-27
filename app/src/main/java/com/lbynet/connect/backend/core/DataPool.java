@@ -1,6 +1,8 @@
 package com.lbynet.connect.backend.core;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -16,8 +18,8 @@ public class DataPool {
 
     public static ArrayList<Uri> uris;
 
-    public static Blurry.BitmapComposer background;
+    public static Bitmap wallpaper;
 
-    public static Context context;
+    public static Activity activity;
 
 }

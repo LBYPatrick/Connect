@@ -1,18 +1,17 @@
 package com.lbynet.connect;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -48,14 +47,25 @@ public class SendActivity extends AppCompatActivity {
         }
     }
 
+    void configureDarkMode() {
+
+        boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+
+        //Do things here if you need
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        grantPermissions();
+
         setContentView(R.layout.send);
 
-        DataPool.context = this;
+        grantPermissions();
+        configureDarkMode();
+
+
+        DataPool.activity = this;
 
         SAL.print("onCreate");
 
@@ -73,9 +83,6 @@ public class SendActivity extends AppCompatActivity {
         } catch (Exception e) {
             SAL.print(e);
         }
-
-        //Configure clear background
-        ((ImageView)findViewById(R.id.iv_bkgnd_clear)).setImageBitmap(Utils.getWallpaper(this));
 
 
         //Configure URI
@@ -106,7 +113,7 @@ public class SendActivity extends AppCompatActivity {
         }
 
         //Set Target Select Prompt
-        ((TextView)findViewById(R.id.tv_target_select_prompt)).setText("Send "
+        ((TextView)findViewById(R.id.tv_send_main_title)).setText("Send "
                                                                        + uris.size()
                                                                        + " "
                                                                        + (uris.size() > 1 ? "files" : "file")
@@ -141,6 +148,15 @@ public class SendActivity extends AppCompatActivity {
 
     public void onSettingsButtonClicked(View view) {
 
+    }
+
+    public boolean onFEClicked(View view) {
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setDataAndType(Uri.parse(Utils.getOutputPath()),"*/*");
+
+        startActivity(intent);
+        return true;
     }
 
 }

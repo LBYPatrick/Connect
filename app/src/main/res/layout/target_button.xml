@@ -4,8 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
+    android:background="@color/clear"
+    android:outlineAmbientShadowColor="@color/clear"
     android:outlineSpotShadowColor="@color/clear"
-    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@color/white_25"
+    app:cardCornerRadius="5dp"
     >
 
     <FrameLayout
@@ -20,9 +23,10 @@
         android:layout_gravity="bottom"
         android:alpha="0.6"
         android:progress="100"
-        android:progressTint="#4CAF50"
+        android:progressTint="@color/white_50"
+        android:progressBackgroundTint="@color/clear"
         android:scaleY="100"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 
 
     <TextView
@@ -31,11 +35,12 @@
             android:layout_height="match_parent"
             android:autoSizeTextType="uniform"
             android:maxLines="1"
-            android:layout_margin="20dp"
+            android:layout_marginVertical="20dp"
+            android:layout_marginHorizontal="30dp"
             android:layout_gravity="center"
             android:gravity="center"
             android:text="target_placeholder"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white_100"
             android:textStyle="normal" />
 
     </FrameLayout>

@@ -16,8 +16,6 @@ SAL stands for "Software Abstract Layer", a class that mainly addresses differen
  */
 public class SAL {
 
-    public static AppCompatActivity activity;
-
     public enum MsgType {
         ERROR,
         DEBUG,
