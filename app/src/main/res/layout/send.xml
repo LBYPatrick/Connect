@@ -8,10 +8,10 @@
     <!-- Background image (Wallpaper) -->
 
     <ImageView
-        android:id="@+id/iv_bkgnd_blur"
+        android:id="@+id/iv_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:visibility="visible"/>
 
     <View
         android:id="@+id/iv_bkgnd_mask"
@@ -97,10 +97,5 @@
 
         </FrameLayout>
     </LinearLayout>
-
-    <FrameLayout android:id="@+id/master_overlay"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        />
 
 </FrameLayout>

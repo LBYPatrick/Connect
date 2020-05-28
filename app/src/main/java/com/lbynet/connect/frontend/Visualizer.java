@@ -28,27 +28,46 @@ public class Visualizer {
             int numFiles = streams.size();
             double speedInKilobytesPerSec = 0;
 
-            //Create channel
+            //Create channel (When needed)
             if(!isChannelCreated) {
+
                 CharSequence name = "Connect Receive";
                 int importance = NotificationManager.IMPORTANCE_HIGH;
+                String description = "Notifications for showing file receive status";
+
+                if(Utils.isChinese()) {
+                    description = "显示文件接收状态的通知";
+                    name = "Connect 传输状态展示";
+                }
+
                 NotificationChannel channel = new NotificationChannel("connect_receive", name, importance);
+                channel.setDescription(description);
+
                 ((NotificationManager) context.getSystemService(NotificationManager.class)).createNotificationChannel(channel);
                 isChannelCreated = true;
             }
 
-            NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+            String title = "Receiving " + numFiles + "file" + (numFiles > 1 ? "s" : "") + "...";
+            String subtitle = "From " + senderName;
 
+            if(Utils.isChinese()) {
+                title = "正在接收" + numFiles + "个文件...";
+                subtitle = "来自" + senderName;
+            }
+
+            //Build notification and setup notification manager
+            NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "connect_receive")
-                    .setContentTitle("Receiving " + numFiles + " files...")
+                    .setContentTitle(title)
                     .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
-                    .setContentText("From " + senderName + "")
+                    .setContentText(subtitle)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setOngoing(true)
                     .setProgress(100, 0, false);
 
             int notificationId = Utils.getUniqueInt();
 
+            //Progress update
             while(true) {
 
                 double tempPercent = 0;
@@ -77,7 +96,7 @@ public class Visualizer {
 
                 if(percentDone >= 1) {
                     percentDone = 1;
-                    info = "Done";
+                    info = Utils.isChinese()? "完成" : "Done";
                 }
 
                 builder.setSubText(info);
@@ -92,14 +111,22 @@ public class Visualizer {
                 Utils.sleepFor(200);
             }
 
-            //At this point the file transfer is done.
+            //Finish data transfer (cancel the notification)
             manager.cancel(notificationId);
 
-            //Construct a new notification for checking the files out
+            title = numFiles + "file" + (numFiles > 1? "s" : "") + "received";
+            subtitle = "Tap to check";
+
+            if(Utils.isChinese()) {
+                title = numFiles + "个文件已接收";
+                subtitle = "轻触以查看";
+            }
+
+            //Construct a new notification prompting the user to check the files out
             builder = new NotificationCompat.Builder(context, "connect_receive")
-                    .setContentTitle(numFiles + " files received")
+                    .setContentTitle(title)
                     .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
-                    .setContentText("Tap to check.")
+                    .setContentText(subtitle)
                     .setPriority(NotificationCompat.PRIORITY_HIGH);
 
             manager.notify(Utils.getUniqueInt(),builder.build());

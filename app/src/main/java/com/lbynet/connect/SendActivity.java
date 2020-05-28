@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,10 +18,9 @@ import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.TargetLoader;
+import com.lbynet.connect.frontend.Visualizer;
 
 import java.util.ArrayList;
-
-import com.lbynet.connect.backend.Timer;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -30,7 +28,6 @@ public class SendActivity extends AppCompatActivity {
 
 
     TargetLoader targetLoader;
-    Timer elapsedTime = new Timer("Splash Screen Timer");
 
     void grantPermissions() {
         String[] permissions = {
@@ -56,6 +53,7 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.send);
@@ -63,22 +61,19 @@ public class SendActivity extends AppCompatActivity {
         grantPermissions();
         configureDarkMode();
 
+        Utils.hideView(findViewById(R.id.screen),false,0);
 
         DataPool.activity = this;
 
         SAL.print("onCreate");
-
-        //Splash Screen
-        View splashScreen = getLayoutInflater().inflate(R.layout.splash_screen,null);
-        ((FrameLayout)findViewById(R.id.master_overlay)).addView(splashScreen);
-
-        Utils.showView(splashScreen,0);
-
-        elapsedTime.start();
-
         try {
             Pairing.start();
             FileReceiver.start();
+
+            FileReceiver.setOnReceiveListener((senderName,streams) -> {
+                Visualizer.showReceiveProgress(this,senderName,streams);
+            });
+
         } catch (Exception e) {
             SAL.print(e);
         }
@@ -90,9 +85,6 @@ public class SendActivity extends AppCompatActivity {
 
         if(action == Intent.ACTION_SEND_MULTIPLE) {
             for (Parcelable n : this.getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM)) {
-
-                //SAL.printUri((Uri) n, getContentResolver());
-
                 uris.add((Uri)n);
             }
         }
@@ -130,23 +122,10 @@ public class SendActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.tv_send_subtitle)).setText(subtitle);
 
         //Blur background
-        Blurry.with(this).sampling(3).radius(60).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_bkgnd_blur));
-        Utils.showView(this,findViewById(R.id.iv_bkgnd_blur),0);
+        Blurry.with(this).sampling(5).radius(60).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background));
 
-
-        //Hide Splash screen
-        if(elapsedTime.getElaspedTimeInMs() > 500) {
-            Utils.hideView(this,splashScreen,true,200);
-        }
-        else {
-
-            final long remainingTime = 500 - elapsedTime.getElaspedTimeInMs();
-            new Thread(() -> {
-                Utils.sleepFor(remainingTime);
-                Utils.hideView(this,splashScreen,true,200);
-            }).start();
-        }
-
+        //Show everything
+        Utils.showView(findViewById(R.id.screen),200);
 
     }
 

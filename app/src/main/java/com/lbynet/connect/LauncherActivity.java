@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.icu.util.UniversalTimeScale;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -63,25 +64,18 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         SAL.print("OnCreate");
         setContentView(R.layout.launcher);
 
         DataPool.activity = this;
 
-
-        //Splash Screen
-        View splashScreen = getLayoutInflater().inflate(R.layout.splash_screen,null);
-        ((FrameLayout)findViewById(R.id.screen)).addView(splashScreen);
+        FrameLayout main = findViewById(R.id.screen);
 
         //Configuration
         grantPermissions();
         configureDarkMode();
-
-        new Thread( ()-> {
-            Utils.sleepFor(500);
-            Utils.hideView(splashScreen,true,200);
-        }).start();
 
         try {
             Pairing.start();
@@ -95,9 +89,12 @@ public class LauncherActivity extends AppCompatActivity {
             SAL.print(e);
         }
 
-        LinearLayout main = findViewById(R.id.master);
+        runOnUiThread( () -> {
+            Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+        });
 
-        Blurry.with(this).sampling(3).radius(60).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+        Utils.hideView(main,false,0);
+        Utils.showView(main,300);
 
     }
 

@@ -182,6 +182,11 @@ public class Utils {
             return;
         }
 
+        if(durationInMs == 0) {
+            v.setAlpha(0);
+            v.setVisibility(isGone? View.GONE : View.INVISIBLE);
+        }
+
         v.animate()
                 .alpha(0f)
                 .setDuration(durationInMs)
@@ -203,6 +208,11 @@ public class Utils {
 
         if(v.getVisibility() == View.VISIBLE) {
             return;
+        }
+
+        if(durationInMs == 0) {
+            v.setAlpha(1);
+            v.setVisibility(View.VISIBLE);
         }
 
         //Make it not "GONE" so that the view occupies the space it needs

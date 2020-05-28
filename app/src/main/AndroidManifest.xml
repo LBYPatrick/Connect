@@ -22,7 +22,9 @@
             android:label="@string/title_activity_settings"></activity>
 
 
-        <activity android:name=".LauncherActivity" android:screenOrientation="sensorPortrait">
+        <activity android:name=".LauncherActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.Splash">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +33,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SendActivity" android:screenOrientation="sensorPortrait">
+        <activity android:name=".SendActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 

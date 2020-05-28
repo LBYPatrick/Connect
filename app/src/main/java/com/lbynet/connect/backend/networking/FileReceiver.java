@@ -36,6 +36,8 @@ public class FileReceiver {
             return;
         }
 
+        isBusy_ = true;
+
         t_ = new Thread( () -> {
 
             try {
@@ -54,8 +56,6 @@ public class FileReceiver {
                 ss_.bind(new InetSocketAddress(Utils.getTargetPort(selfIp)));
 
                 SAL.print(SAL.MsgType.VERBOSE,"FileListener","Initiated with ip " + selfIp + " and port " + Utils.getTargetPort(selfIp));
-
-                isBusy_ = true;
 
                 while(isBusy_) {
 

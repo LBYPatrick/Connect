@@ -106,6 +106,10 @@ public class FileRecvStreamer extends FileStreamer {
         return targetDirectory_;
     }
 
+    public long getFileSize_() {
+        return fileSize_;
+    }
+
     public double getProgress() {
         if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
             return 1;

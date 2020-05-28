@@ -3,7 +3,6 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->
-
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 
@@ -15,6 +14,10 @@
         <item name="colorPrimaryDark">#005CA1</item>
         <item name="colorAccent">#0092FF</item>
 
+    </style>
+
+    <style name="AppTheme.Splash">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
 </resources>

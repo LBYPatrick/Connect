@@ -1,7 +1,5 @@
 package com.lbynet.connect;
 
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,8 +10,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
-
-import jp.wasabeef.blurry.Blurry;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -38,7 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         ((ImageView)findViewById(R.id.iv_bkgnd_clear)).setImageBitmap(Utils.getWallpaper(this));
 
-        ImageView bkgr = findViewById(R.id.iv_bkgnd_blur);
+        ImageView bkgr = findViewById(R.id.iv_background);
         View master = findViewById(R.id.master);
 
         //Utils.getBackground(this).into(bkgr);
