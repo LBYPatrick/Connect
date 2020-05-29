@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_author_text">LBYPatrick 出品</string>
+
+    <string name="settings_tile">设置</string>
+
+    <string name="sendto_main_title">发送%d个文件至...</string>
+    <string name="sendto_subtitle">点击设备名称以发送</string>
+
+    <string name="sendto_snackbar_fail_text">发生错误，文件无法发送至%s</string>
+    <string name="sendto_snackbar_success_text">文件成功发送至%s</string>
+
+    <string name="notif_recv_working_title">正在接收%d个文件...</string>
+    <string name="notif_recv_working_subtitle">来自%s</string>
+
+    <string name="notif_recv_finished_percent">完成</string>
+
+    <string name="notif_recv_channel_name">文件接收状态显示</string>
+    <string name="notif_recv_channel_description">显示文件接收进度和完成接收的通知</string>
+
+    <string name="notif_recv_finished_title">成功接收%d个文件</string>
+    <string name="notif_recv_finished_subtitle">点击来查看</string>
+
+    <string name="launcher_connet_good">已连接</string>
+    <string name="launcher_connet_bad">未连接</string>
+
+</resources>

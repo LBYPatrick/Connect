@@ -40,7 +40,7 @@
             android:gravity="center_horizontal"
             android:textColor="@color/white_100"
             android:textStyle="bold"
-            android:text="Connect"/>
+            android:text="@string/app_name"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -49,38 +49,29 @@
             android:gravity="center_horizontal"
             android:textColor="@color/white_75"
             android:textStyle="normal"
-            android:text="by LBYPatrick"
+            android:text="@string/app_author_text"
             />
 
-    </LinearLayout>
+        <!-- ConNET status-->
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="30dp"
-        android:layout_marginHorizontal="20dp"
-        android:orientation="vertical"
-        >
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="24dp"
-            android:layout_gravity="bottom"
-            android:gravity="center"
-            android:textColor="@color/white_75"
-            android:textStyle="normal"
-            android:text="Please invoke this app through &quot;Share&quot; function in other apps."
-            />
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:autoSizeTextType="uniform"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:textColor="@color/white_100"
-            android:text="*Do not close this app while transferring data"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="60dp"
+                android:text="@string/launcher_connet"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/cv_connet_status"
+                />
+
+        </LinearLayout>
 
     </LinearLayout>
 

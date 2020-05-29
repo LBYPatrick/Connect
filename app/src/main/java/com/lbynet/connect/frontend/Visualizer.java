@@ -31,14 +31,9 @@ public class Visualizer {
             //Create channel (When needed)
             if(!isChannelCreated) {
 
-                CharSequence name = "Connect Receive";
+                CharSequence name = context.getString(R.string.notif_recv_channel_name);
                 int importance = NotificationManager.IMPORTANCE_HIGH;
-                String description = "Notifications for showing file receive status";
-
-                if(Utils.isChinese()) {
-                    description = "显示文件接收状态的通知";
-                    name = "Connect 传输状态展示";
-                }
+                String description = context.getString(R.string.notif_recv_channel_description);
 
                 NotificationChannel channel = new NotificationChannel("connect_receive", name, importance);
                 channel.setDescription(description);
@@ -47,13 +42,9 @@ public class Visualizer {
                 isChannelCreated = true;
             }
 
-            String title = "Receiving " + numFiles + "file" + (numFiles > 1 ? "s" : "") + "...";
-            String subtitle = "From " + senderName;
 
-            if(Utils.isChinese()) {
-                title = "正在接收" + numFiles + "个文件...";
-                subtitle = "来自" + senderName;
-            }
+            String title = String.format(context.getString(R.string.notif_recv_working_title),numFiles);
+            String subtitle = String.format(context.getString(R.string.notif_recv_working_subtitle),senderName);
 
             //Build notification and setup notification manager
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
@@ -96,7 +87,7 @@ public class Visualizer {
 
                 if(percentDone >= 1) {
                     percentDone = 1;
-                    info = Utils.isChinese()? "完成" : "Done";
+                    info = context.getString(R.string.notif_recv_finished_percent);
                 }
 
                 builder.setSubText(info);
@@ -111,16 +102,12 @@ public class Visualizer {
                 Utils.sleepFor(200);
             }
 
+            Utils.sleepFor(300);
             //Finish data transfer (cancel the notification)
             manager.cancel(notificationId);
 
-            title = numFiles + "file" + (numFiles > 1? "s" : "") + "received";
-            subtitle = "Tap to check";
-
-            if(Utils.isChinese()) {
-                title = numFiles + "个文件已接收";
-                subtitle = "轻触以查看";
-            }
+            title = String.format(context.getString(R.string.notif_recv_finished_title),numFiles);
+            subtitle = String.format(context.getString(R.string.notif_recv_finished_subtitle));
 
             //Construct a new notification prompting the user to check the files out
             builder = new NotificationCompat.Builder(context, "connect_receive")

@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.lbynet.connect.R;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
@@ -177,7 +179,6 @@ public class TargetLoader extends ParallelTask {
                         else if (status != FileSender.NetStatus.IDLE) {
                             //TODO: Do something to notify user
                             SAL.print("File transfer failed.");
-                            Toast.makeText((Context)activity_, "Failed to establish connection with target.", Toast.LENGTH_SHORT).show();
                             break;
                         }
 
@@ -189,10 +190,19 @@ public class TargetLoader extends ParallelTask {
                     SAL.print(e);
                 }
 
-                final String promptText = "File transfer with " + targetUid + " " +  (isSuccessful? "succeeded." : "failed.");
+
+                final boolean isGood = isSuccessful;
 
                 activity_.runOnUiThread( () -> {
-                    Toast.makeText(activity_,promptText,Toast.LENGTH_LONG).show();
+
+                    Snackbar.make(activity_.findViewById(R.id.screen),
+                                    String.format(
+                                            isGood? activity_.getString(R.string.sendto_snackbar_success_text)
+                                                    : activity_.getString(R.string.sendto_snackbar_fail_text),
+                                            targetUid
+                                    ), BaseTransientBottomBar.LENGTH_LONG)
+                            .show();
+
                     v.setClickable(true);
                 });
 

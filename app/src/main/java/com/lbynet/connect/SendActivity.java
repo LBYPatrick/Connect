@@ -103,19 +103,8 @@ public class SendActivity extends AppCompatActivity {
             targetLoader.setUris(uris);
         }
 
-        String titleText;
-        String subtitle;
-
-        if(Utils.isChinese()) {
-            titleText = "发送" + uris.size() + "个文件至...";
-            subtitle = "轻触设备名称以发送文件";
-        }
-        //See, English is more complex
-        else {
-            titleText = "Send " + uris.size() + " " + (uris.size() > 1 ? "files" : "file") + " to...";
-            subtitle = "Tap device name(s) to send";
-        }
-
+        String titleText = String.format(getString(R.string.sendto_main_title),uris.size());
+        String subtitle = getString(R.string.sendto_subtitle);
 
         //Set Target Select Prompt
         ((TextView)findViewById(R.id.tv_send_main_title)).setText(titleText);

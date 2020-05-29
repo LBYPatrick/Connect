@@ -17,10 +17,6 @@
         android:roundIcon="@drawable/ic_connect_logo_v3_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-
 
         <activity android:name=".LauncherActivity"
             android:screenOrientation="sensorPortrait"

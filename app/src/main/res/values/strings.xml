@@ -1,6 +1,32 @@
-<resources>
-    <string name="app_name">Connect</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="title_activity_settings">Settings</string>
+    <string name="app_name" translatable="false">
+       Connect
+    </string>
 
+    <string name="app_author_text">By LBYPatrick</string>
+
+    <string name="settings_tile">Settings</string>
+
+    <string name="sendto_main_title">Send %d file(s) to...</string>
+    <string name="sendto_subtitle">Click on device name(s) to send</string>
+
+    <string name="sendto_snackbar_fail_text">Failed to send file(s) to %s due to unknown error</string>
+
+    <string name="sendto_snackbar_success_text">File(s) successfully sent to %s</string>
+
+    <string name="notif_recv_working_title">Receiving %d file(s)...</string>
+    <string name="notif_recv_working_subtitle">From %s</string>
+
+    <string name="notif_recv_finished_title">%d file(s) received</string>
+    <string name="notif_recv_finished_subtitle">Tap to check</string>
+
+    <string name="notif_recv_finished_percent">Done</string>
+
+    <string name="notif_recv_channel_name">Receive status</string>
+    <string name="notif_recv_channel_description">Notifications for showing file receive status</string>
+
+    <string name="launcher_connet" translatable="false">ConNET</string>
+    <string name="launcher_connet_good">Ready</string>
+    <string name="launcher_connet_bad">Unavailable</string>
 </resources>

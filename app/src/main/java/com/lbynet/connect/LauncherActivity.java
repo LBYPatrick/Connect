@@ -15,8 +15,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -27,11 +30,18 @@ import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.Pairing;
+import com.lbynet.connect.frontend.UIConfig;
 import com.lbynet.connect.frontend.Visualizer;
 
 import java.util.ArrayList;
 
 import jp.wasabeef.blurry.Blurry;
+
+//TODO: Chinese Language Switching
+//TODO: values-<qualifier>
+//TODO: File Explorer layout & activity
+//TODO: Permission activity
+
 
 public class LauncherActivity extends AppCompatActivity {
 
@@ -39,17 +49,14 @@ public class LauncherActivity extends AppCompatActivity {
     TextView tvDeviceID;
 
     void grantPermissions() {
+
         String[] permissions = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO
         };
 
-        for (String p : permissions) {
-            if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{p}, 1);
-            }
-        }
+        requestPermissions(permissions,1);
+
     }
 
     void configureDarkMode() {
@@ -59,22 +66,45 @@ public class LauncherActivity extends AppCompatActivity {
         //Do things here if you need
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
+        SAL.print("Got result");
+
+        for(int i = 0; i < grantResults.length; ++i) {
+
+            boolean isGranted = (grantResults[i] == android.content.pm.PackageManager.PERMISSION_GRANTED);
+
+            SAL.print("Permission: " + permissions[i] + "\tGrant status: " + isGranted);
+
+            if(!isGranted) {
+                Utils.printToast(this,"Failed to obtain necessary permissions, please try again.",true);
+                finish();
+                return;
+            }
+        }
+
+        continueWork();
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        setTheme(R.style.AppTheme);
+        grantPermissions();
+
         super.onCreate(savedInstanceState);
         SAL.print("OnCreate");
-        setContentView(R.layout.launcher);
 
         DataPool.activity = this;
+    }
 
+    public void continueWork() {
+
+        setTheme(R.style.AppTheme);
+        setContentView(R.layout.launcher);
         FrameLayout main = findViewById(R.id.screen);
-
         //Configuration
-        grantPermissions();
         configureDarkMode();
 
         try {
@@ -90,12 +120,11 @@ public class LauncherActivity extends AppCompatActivity {
         }
 
         runOnUiThread( () -> {
-            Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+            Blurry.with(this).sampling(3).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         });
 
         Utils.hideView(main,false,0);
         Utils.showView(main,300);
-
     }
 
     public CardView makeMainButton(Drawable avatar, String text) {

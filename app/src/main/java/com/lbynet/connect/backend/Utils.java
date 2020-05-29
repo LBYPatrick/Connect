@@ -2,6 +2,7 @@ package com.lbynet.connect.backend;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -14,6 +15,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.ContactsContract;
@@ -25,6 +27,7 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -293,6 +296,12 @@ public class Utils {
         else {
             SAL.print("Failed to vibrate because no vibrator is available.");
         }
+    }
+
+    public static void printToast(Activity activity, String msg, boolean isLongTime) {
+        activity.runOnUiThread( () -> {
+            Toast.makeText(activity, msg, isLongTime ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
+        });
     }
 
     public static String getOutputPath() {

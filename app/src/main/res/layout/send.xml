@@ -48,7 +48,7 @@
                 android:autoSizeTextType="uniform"
                 android:maxLines="1"
                 android:gravity="left"
-                android:text="SEND_MAIN_TITLE"
+                android:text="@string/sendto_main_title"
                 android:id="@+id/tv_send_main_title"
                 android:textColor="@color/white_100"
                 android:textStyle="bold" />
@@ -60,7 +60,7 @@
                 android:maxLines="1"
                 android:textColor="@color/white_75"
                 android:id="@+id/tv_send_subtitle"
-                android:text="Tap device names to send"
+                android:text="@string/sendto_subtitle"
                 android:textStyle="normal"/>
 
 
@@ -97,5 +97,4 @@
 
         </FrameLayout>
     </LinearLayout>
-
 </FrameLayout>
