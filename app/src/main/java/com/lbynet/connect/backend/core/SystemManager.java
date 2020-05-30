@@ -36,19 +36,14 @@ public class SystemManager {
                     public void onAvailable(@NonNull Network network) {
                         super.onAvailable(network);
 
-                        if(DataPool.wifiStatus == null) {
-                            DataPool.wifiStatus = DataPool.WifiStatus.CONNECTED;
-                        }
-                        else if(DataPool.wifiStatus == DataPool.WifiStatus.IDLE) {
-                            DataPool.wifiStatus = DataPool.WifiStatus.CONNECTED;
-                            FileReceiver.restartLater();
+                        DataPool.wifiStatus = DataPool.WifiStatus.CONNECTED;
+                        FileReceiver.restartLater();
 
-                            try {
-                                Pairing.restart();
-                                SAL.print("Pairing restarted");
-                            } catch (Exception e) {
-                                //Shhhh
-                            }
+                        try {
+                            Pairing.restart();
+                            SAL.print("Pairing restarted");
+                        } catch (Exception e) {
+                            //Shhhh
                         }
                     }
 

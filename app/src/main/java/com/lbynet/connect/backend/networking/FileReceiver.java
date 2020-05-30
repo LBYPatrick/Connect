@@ -50,7 +50,13 @@ public class FileReceiver {
                 ss_ = new ServerSocket();
 
                 ss_.setReuseAddress(true);
-                ss_.bind(new InetSocketAddress(Utils.getTargetPort(selfIp)));
+                if(!ss_.isBound()) {
+                    ss_.bind(new InetSocketAddress(Utils.getTargetPort(selfIp)));
+                }
+
+                if(s_ != null && !s_.isClosed()) {
+                    s_.close();
+                }
 
                 SAL.print(SAL.MsgType.VERBOSE,"FileListener","Initiated with ip " + selfIp + " and port " + Utils.getTargetPort(selfIp));
 

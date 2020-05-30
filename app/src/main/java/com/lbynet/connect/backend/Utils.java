@@ -259,7 +259,7 @@ public class Utils {
         try {
             Thread.sleep(milliseconds);
         } catch (Exception e) {
-            SAL.print(e);
+            //Shhhh
         }
     }
 

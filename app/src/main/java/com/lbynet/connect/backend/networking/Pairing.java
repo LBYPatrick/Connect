@@ -238,22 +238,32 @@ public class Pairing {
         return pairedDevices_;
     }
 
-    public static void stop() throws Exception {
+    public static void stop() {
 
         isStarted = false;
 
         notifyChange();
 
-        listenThread.interrupt();
-        sendThread.interrupt();
+        try {
+            listenThread.interrupt();
+            sendThread.interrupt();
+        } catch (Exception e) {
+
+            if(e instanceof InterruptedException) {
+                SAL.print("Pairing Interrupted");
+            }
+            else {
+                SAL.print(e);
+            }
+
+        }
+
 
         pairedDevices_.clear();
 
         //Block until the thread is dead -- should take no time
         while (!listenThread.isInterrupted() || !sendThread.isInterrupted()) {
         }
-
-        socket_.leaveGroup(GROUP_ADDR);
     }
 
     public static void setUid(String newName) throws Exception {
@@ -267,11 +277,16 @@ public class Pairing {
         restart();
     }
 
-    public static void restart() throws Exception{
-        if(isStarted) {
+    public static void restart() {
+
+        if (isStarted) {
             stop();
         }
-        start();
+        try {
+            start();
+        } catch (Exception e) {
+            SAL.print(e);
+        }
     }
 
     //Brute-force pinging -- doesn't work under some networks

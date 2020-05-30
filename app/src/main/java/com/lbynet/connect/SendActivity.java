@@ -54,8 +54,6 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        SystemManager.registerReceivers(this);
-
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
@@ -81,6 +79,7 @@ public class SendActivity extends AppCompatActivity {
             SAL.print(e);
         }
 
+        SystemManager.registerReceivers(this);
 
         //Configure URI
         String action = this.getIntent().getAction();

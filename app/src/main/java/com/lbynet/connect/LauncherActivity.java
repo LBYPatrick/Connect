@@ -90,7 +90,6 @@ public class LauncherActivity extends AppCompatActivity {
 
     public void continueWork() {
 
-        SystemManager.registerReceivers(this);
 
         setTheme(R.style.AppTheme);
         setContentView(R.layout.launcher);
@@ -107,11 +106,11 @@ public class LauncherActivity extends AppCompatActivity {
             });
 
             FileReceiver.start();
-
-            FileReceiver.restart();
         } catch (Exception e) {
             SAL.print(e);
         }
+
+        SystemManager.registerReceivers(this);
 
         runOnUiThread( () -> {
             Blurry.with(this).sampling(3).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
