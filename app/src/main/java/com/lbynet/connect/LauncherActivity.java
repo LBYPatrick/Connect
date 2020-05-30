@@ -1,39 +1,28 @@
 package com.lbynet.connect;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.icu.util.UniversalTimeScale;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
+import com.lbynet.connect.backend.core.SystemManager;
 import com.lbynet.connect.backend.networking.FileReceiver;
-import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.Pairing;
-import com.lbynet.connect.frontend.UIConfig;
 import com.lbynet.connect.frontend.Visualizer;
-
-import java.util.ArrayList;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -41,7 +30,7 @@ import jp.wasabeef.blurry.Blurry;
 //TODO: values-<qualifier>
 //TODO: File Explorer layout & activity
 //TODO: Permission activity
-
+//TODO: FileRecvStreamer improvement: create directories, delete file if the connection is interrupted
 
 public class LauncherActivity extends AppCompatActivity {
 
@@ -101,6 +90,8 @@ public class LauncherActivity extends AppCompatActivity {
 
     public void continueWork() {
 
+        SystemManager.registerReceivers(this);
+
         setTheme(R.style.AppTheme);
         setContentView(R.layout.launcher);
         FrameLayout main = findViewById(R.id.screen);
@@ -108,6 +99,7 @@ public class LauncherActivity extends AppCompatActivity {
         configureDarkMode();
 
         try {
+
             Pairing.start();
 
             FileReceiver.setOnReceiveListener((senderName,streams) -> {
@@ -115,6 +107,8 @@ public class LauncherActivity extends AppCompatActivity {
             });
 
             FileReceiver.start();
+
+            FileReceiver.restart();
         } catch (Exception e) {
             SAL.print(e);
         }
@@ -122,6 +116,23 @@ public class LauncherActivity extends AppCompatActivity {
         runOnUiThread( () -> {
             Blurry.with(this).sampling(3).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         });
+
+        new Thread( () -> {
+            boolean isGood = false;
+
+            while(true) {
+
+                boolean temp = (DataPool.wifiStatus == DataPool.WifiStatus.CONNECTED);
+
+                if(temp != isGood) {
+                    isGood = temp;
+                    Visualizer.updateFsnStatusOnLauncher(this,isGood);
+                }
+
+                Utils.sleepFor(500);
+            }
+
+        }).start();
 
         Utils.hideView(main,false,0);
         Utils.showView(main,300);
@@ -140,6 +151,12 @@ public class LauncherActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DataPool.isLauncherActivity = true;
+    }
+
     public boolean onMainButtonClicked(View v) {
         if(((TextView)v.findViewById(R.id.text)).getText() == "Settings") {
             startActivityForResult(new Intent(this,SettingsActivity.class),0);
@@ -151,6 +168,5 @@ public class LauncherActivity extends AppCompatActivity {
 
         startActivityForResult(new Intent(this,SettingsActivity.class),0);
     }
-
 
 }

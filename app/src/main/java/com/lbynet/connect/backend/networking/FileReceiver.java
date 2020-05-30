@@ -9,19 +9,16 @@ import com.lbynet.connect.backend.frames.FileReceiveListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class FileReceiver {
 
     static Socket s_;
     static ServerSocket ss_;
+    static boolean isStarted_ = false;
     static boolean isBusy_ = false;
     static Thread t_;
     static FileReceiveListener listener_;
@@ -32,11 +29,11 @@ public class FileReceiver {
 
     public static void start() {
 
-        if(isBusy_) {
+        if(isStarted_) {
             return;
         }
 
-        isBusy_ = true;
+        isStarted_ = true;
 
         t_ = new Thread( () -> {
 
@@ -57,7 +54,7 @@ public class FileReceiver {
 
                 SAL.print(SAL.MsgType.VERBOSE,"FileListener","Initiated with ip " + selfIp + " and port " + Utils.getTargetPort(selfIp));
 
-                while(isBusy_) {
+                while(isStarted_) {
 
                     String data = "";
                     String senderName = "";
@@ -71,6 +68,8 @@ public class FileReceiver {
                     SAL.print("Listening...");
 
                     s_ = ss_.accept();
+
+                    isBusy_ = true;
 
                     SAL.print("Incoming Connection...");
 
@@ -121,10 +120,14 @@ public class FileReceiver {
                     IO.sendDataToRemote(s_,portList.toString());
 
                     s_.close();
+
+                    isBusy_ = false;
                 }
 
             } catch (Exception e) {
-                SAL.print(e);
+                if(!(e instanceof InterruptedException)) {
+                    SAL.print(e);
+                }
             }
 
 
@@ -134,8 +137,30 @@ public class FileReceiver {
 
     }
 
+    public static boolean isBusy() {
+        return isBusy_;
+    }
+
+    public static void restart() {
+        stop();
+        start();
+        SAL.print(SAL.MsgType.VERBOSE,"FileReceiver","FileReceiver restarted.");
+    }
+
+    public static void restartLater() {
+        new Thread (() -> {
+
+            while(isBusy_) {
+                Utils.sleepFor(50);
+            }
+
+            restart();
+
+        }).start();
+    }
+
     public static void stop() {
-        isBusy_ = false;
+        isStarted_ = false;
         t_.interrupt();
     }
 }

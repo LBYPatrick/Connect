@@ -22,7 +22,9 @@
     <string name="notif_recv_finished_title">成功接收%d個檔案</string>
     <string name="notif_recv_finished_subtitle">點按來查看</string>
 
-    <string name="launcher_connet_good">可用</string>
-    <string name="launcher_connet_bad">不可用</string>
+    <string name="launcher_fsn">檔案分享網絡</string>
+
+    <string name="launcher_fsn_good">可用</string>
+    <string name="launcher_fsn_bad">不可用</string>
 
 </resources>

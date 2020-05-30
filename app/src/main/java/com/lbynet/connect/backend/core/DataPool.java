@@ -11,10 +11,18 @@ import jp.wasabeef.blurry.Blurry;
 
 public class DataPool {
 
+    public enum WifiStatus {
+        CONNECTED,
+        IDLE,
+        DISABLED
+    }
+
     final public static int NUM_TARGET_PLACEHOLDERS = 10;
 
+    public static boolean isLauncherActivity = false;
     public static boolean isPowerSavingMode = false;
     public static boolean isInvisibleMode = false;
+    public static WifiStatus wifiStatus;
 
     public static ArrayList<Uri> uris;
 

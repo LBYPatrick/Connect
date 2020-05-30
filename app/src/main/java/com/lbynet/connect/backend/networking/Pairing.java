@@ -4,8 +4,8 @@ import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.frames.BooleanListener;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -18,6 +18,7 @@ public class Pairing {
     public static class Device {
         public String ip, uid;
         private Timer t;
+        private boolean isDead = false;
 
         public Device() {
             t = new Timer();
@@ -29,6 +30,16 @@ public class Pairing {
             this.ip = ip;
             this.uid = uid;
         }
+
+        public void kill() {
+            isDead = true;
+            t.restInPeace();
+        }
+
+        public boolean isDead() {
+            return isDead;
+        }
+
 
         public long getFreshness() {
             return t.getElaspedTimeInMs();
@@ -58,6 +69,7 @@ public class Pairing {
     private static boolean isBusy = false;
     private static boolean isInvisible_ = false;
     private static Thread listenThread, sendThread;
+    private static BooleanListener listener_;
 
     //Eager Initialization
     private static Pairing instance = new Pairing();
@@ -65,7 +77,6 @@ public class Pairing {
     private Pairing() {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
-            //socket_ = new MulticastSocket(MCAST_PORT);
             selfUid_ = SAL.getDeviceName();
 
         } catch (Exception e) {
@@ -83,12 +94,26 @@ public class Pairing {
         }
     }
 
+    public static void start() throws Exception {
+        if(listener_ != null) {
+            start(listener_);
+        }
+        else {
+            start(null);
+        }
+    }
+
     /**
      * @throws Exception
      */
-    public static void start() throws Exception {
+    public static void start(BooleanListener statusChangeListener) throws Exception {
+
+        if(statusChangeListener != null) {
+            listener_ = statusChangeListener;
+        }
 
         if (isStarted) {
+            notifyChange();
             return;
         }
 
@@ -97,6 +122,9 @@ public class Pairing {
         joinGroup();
 
         isStarted = true;
+        if(statusChangeListener != null) {
+            listener_.onChangeStatus(isStarted);
+        }
 
         sendThread = new Thread(() -> {
                 while(!isStarted) {
@@ -152,6 +180,7 @@ public class Pairing {
 
                             boolean isExistingDevice = false;
 
+                            //Match device by UID
                             for (Device i : pairedDevices_) {
                                 if (i.uid.equals(d.uid)) {
                                     isExistingDevice = true;
@@ -160,6 +189,17 @@ public class Pairing {
                                     break;
                                 }
                             }
+
+                            if(isExistingDevice) {
+                                //If the device happens to be the same one but changed
+                                for(Device i : pairedDevices_) {
+                                    if(d.ip.equals(i.ip) && !i.uid.equals(d.uid)) {
+                                        i.kill();
+                                        break;
+                                    }
+                                }
+                            }
+
 
                             if (!isExistingDevice) {
                                 SAL.print("Device added: " + d.uid + "@" + d.ip);
@@ -199,7 +239,11 @@ public class Pairing {
     }
 
     public static void stop() throws Exception {
+
         isStarted = false;
+
+        notifyChange();
+
         listenThread.interrupt();
         sendThread.interrupt();
 
@@ -218,6 +262,8 @@ public class Pairing {
         }
 
         selfUid_ = newName;
+        selfIp_ = null;
+
         restart();
     }
 
@@ -302,6 +348,12 @@ public class Pairing {
             return subnet_;
         }
 
+    }
+
+    public static void notifyChange() {
+        if(listener_ !=  null){
+            listener_.onChangeStatus(isStarted);
+        }
     }
 
     public static String getSelfUid() {

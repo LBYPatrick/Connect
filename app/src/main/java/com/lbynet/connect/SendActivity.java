@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
+import com.lbynet.connect.backend.core.SystemManager;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.TargetLoader;
@@ -52,6 +53,8 @@ public class SendActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SystemManager.registerReceivers(this);
 
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);

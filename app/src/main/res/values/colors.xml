@@ -11,4 +11,7 @@
     <color name="white_75">#BFFFFFFF</color>
     <color name="white_100">#FFFFFFFF</color>
 
+    <color name="positive_75">#BF8BC34A</color>
+    <color name="negative_75">#BFF44336</color>
+
 </resources>

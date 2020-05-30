@@ -1,14 +1,17 @@
 package com.lbynet.connect.frontend;
 
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.lbynet.connect.R;
-import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
 
@@ -119,6 +122,20 @@ public class Visualizer {
             manager.notify(Utils.getUniqueInt(),builder.build());
 
         }).start();
+    }
+
+    public static void updateFsnStatusOnLauncher(AppCompatActivity activity, boolean isGood) {
+        CardView cv = activity.findViewById(R.id.cv_fsn_status);
+        TextView tv = activity.findViewById(R.id.tv_fsn_status);
+
+        activity.runOnUiThread( () -> {
+                    Utils.hideView(cv,false,0);
+                    tv.setText(activity.getString(isGood ? R.string.launcher_fsn_good : R.string.launcher_fsn_bad));
+                    cv.setCardBackgroundColor(activity.getColor(isGood ? R.color.positive_75 : R.color.negative_75));
+                    Utils.showView(cv,200);
+                });
+
+
     }
 
 }

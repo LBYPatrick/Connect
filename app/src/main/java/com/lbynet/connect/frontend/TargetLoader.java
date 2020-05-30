@@ -231,7 +231,7 @@ public class TargetLoader extends ParallelTask {
 
             for(Pairing.Device i : devices) {
 
-                if(i.getFreshness() < 2500 && nTotalDevices < DataPool.NUM_TARGET_PLACEHOLDERS) {
+                if(!i.isDead() && i.getFreshness() < 2500 && nTotalDevices < DataPool.NUM_TARGET_PLACEHOLDERS) {
 
                     FrameLayout parent = deviceHolders.get(nTotalDevices);
                     TextView uid = parent.findViewById(R.id.tv_uid);

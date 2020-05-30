@@ -18,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- Launcher activity -->
         <activity android:name=".LauncherActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Splash">
@@ -29,6 +30,7 @@
             </intent-filter>
         </activity>
 
+        <!-- The "send to" activity -->
         <activity android:name=".SendActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Splash">
@@ -47,6 +49,7 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
