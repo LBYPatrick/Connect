@@ -64,7 +64,6 @@ public class LauncherActivity extends AppCompatActivity {
         for(int i = 0; i < grantResults.length; ++i) {
 
             boolean isGranted = (grantResults[i] == android.content.pm.PackageManager.PERMISSION_GRANTED);
-
             SAL.print("Permission: " + permissions[i] + "\tGrant status: " + isGranted);
 
             if(!isGranted) {
@@ -111,6 +110,7 @@ public class LauncherActivity extends AppCompatActivity {
             SAL.print(e);
         }
 
+        //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
 
         runOnUiThread( () -> {

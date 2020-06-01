@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -53,6 +54,18 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        SAL.print("Intent info: \n"
+                + "\tAction: "  + getIntent().getAction() + "\n"
+                + "\tData: " + getIntent().getAction() + "\n"
+                + "\tHost: " + getReferrer().getHost() + "\n"
+                + "\tAuthority: " + getReferrer().getAuthority() + "\n");
+
+        //If the user attempts to crash the app by 套娃
+        if(getReferrer().getAuthority().equals(getApplicationContext().getPackageName())) {
+            Utils.printToast(this,getString(R.string.warning_taowa), true);
+            finish();
+        }
+
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
@@ -77,6 +90,7 @@ public class SendActivity extends AppCompatActivity {
             SAL.print(e);
         }
 
+        //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
 
         //Configure URI

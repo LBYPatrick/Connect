@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
 
@@ -12,10 +13,13 @@ import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
 
+import java.lang.reflect.Method;
+
 public class SystemManager {
 
     private static SystemManager instance = new SystemManager();
-    private static boolean isReceiverGood = false;
+    private static boolean isReceiverGood = false,
+                           isFileLimitGone = false;
 
     private SystemManager () {
 
@@ -52,7 +56,6 @@ public class SystemManager {
                         DataPool.wifiStatus = DataPool.WifiStatus.IDLE;
                     }
                 });
-
     }
 
     public static void setPowerSavingMode(boolean isTrue) {

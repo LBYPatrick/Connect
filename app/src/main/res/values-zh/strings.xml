@@ -29,4 +29,6 @@
     <string name="launcher_fsn_good">已连接</string>
     <string name="launcher_fsn_bad">未连接</string>
 
+    <string name="warning_taowa">禁 止 套 娃</string>
+
 </resources>

@@ -31,4 +31,6 @@
     <string name="launcher_fsn">File sharing network</string>
     <string name="launcher_fsn_good">Ready</string>
     <string name="launcher_fsn_bad">Down</string>
+
+    <string name="warning_taowa">STOP CRASHING MY APP BY SENDING BACK WHAT I GAVE OUT!</string>
 </resources>
