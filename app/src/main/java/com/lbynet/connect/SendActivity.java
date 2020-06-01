@@ -60,7 +60,7 @@ public class SendActivity extends AppCompatActivity {
                 + "\tHost: " + getReferrer().getHost() + "\n"
                 + "\tAuthority: " + getReferrer().getAuthority() + "\n");
 
-        //If the user attempts to crash the app by 套娃
+        //If user attempts to crash the app by 套娃
         if(getReferrer().getAuthority().equals(getApplicationContext().getPackageName())) {
             Utils.printToast(this,getString(R.string.warning_taowa), true);
             finish();
