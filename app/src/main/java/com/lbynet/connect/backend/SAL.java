@@ -9,6 +9,9 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.lbynet.connect.backend.core.DataPool;
+
+import java.io.File;
 import java.net.InetAddress;
 
 /*

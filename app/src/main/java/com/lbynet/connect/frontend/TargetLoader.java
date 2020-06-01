@@ -115,6 +115,7 @@ public class TargetLoader extends ParallelTask {
 
             for(Uri i : uris_) {
                 infos.add(Utils.getFileInfo((Uri) i, activity_.getContentResolver()));
+
                 streams.add(activity_.getContentResolver().openInputStream((Uri)i));
             }
 
@@ -269,7 +270,7 @@ public class TargetLoader extends ParallelTask {
                 }
             }
 
-            SAL.print("Active Devices: " + nTotalDevices);
+            //SAL.print("Active Devices: " + nTotalDevices);
 
             if(nTotalDevices == 0) {
                 Utils.showView(activity_,pb,100);

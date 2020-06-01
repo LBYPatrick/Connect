@@ -306,6 +306,6 @@ public class Utils {
 
     public static String getOutputPath() {
 
-        return "/storage/emulated/0/Download";
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Connect";
     }
 }

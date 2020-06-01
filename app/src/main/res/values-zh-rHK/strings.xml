@@ -22,6 +22,8 @@
     <string name="notif_recv_finished_title">成功接收%d個檔案</string>
     <string name="notif_recv_finished_subtitle">點按來查看</string>
 
+    <string name="notif_recv_finished_partial_success">%d個檔案接收成功，但%d个檔案接收失败</string>
+
     <string name="launcher_fsn">檔案分享網絡</string>
 
     <string name="launcher_fsn_good">可用</string>

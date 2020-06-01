@@ -58,7 +58,7 @@ public class Pairing {
 
     final private static String MCAST_ADDR = "233.233.233.233";
     final private static int MCAST_PORT = 2333,
-            BUFFER_LENGTH = 8192;
+            BUFFER_LENGTH = 128;
 
     private static String subnet_,
             selfIp_,

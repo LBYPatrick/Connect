@@ -34,7 +34,6 @@ public class SendActivity extends AppCompatActivity {
         String[] permissions = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO
         };
 
         for (String p : permissions) {
@@ -59,7 +58,6 @@ public class SendActivity extends AppCompatActivity {
 
         setContentView(R.layout.send);
 
-        grantPermissions();
         configureDarkMode();
 
         Utils.hideView(findViewById(R.id.screen),false,0);

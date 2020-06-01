@@ -54,6 +54,15 @@ public class FileRecvStreamer extends FileStreamer {
 
             File tempDir = new File(targetDirectory_);
 
+            //Create parent folder if needed.
+            try {
+                tempDir.mkdir();
+                SAL.print("target directory created.");
+            } catch (Exception e) {
+                SAL.print("Failed to create target directory.");
+                SAL.print(e);
+            }
+
             InputStream in = socket_.getInputStream();
             File file = new File(targetDirectory_ + "/" + filename_);
             byte [] buffer = new byte[RW_BUFFER_SIZE];
@@ -97,11 +106,16 @@ public class FileRecvStreamer extends FileStreamer {
             else {
                 netStatus = NetStatus.BAD_NETWORK;
                 SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " failed to receive because the network stream closed prematurely.");
+
+                //Delete the corrupt file
+                new File(targetDirectory_ + "/" + filename_).delete();
             }
 
         } catch(Exception e) {
             netStatus = NetStatus.BAD_GENERAL;
             SAL.print(e);
+            //Delete the corrupt file
+            new File(targetDirectory_ + "/" + filename_).delete();
         }
     }
 

@@ -103,6 +103,7 @@ public class FileSendStreamer extends FileStreamer {
                 return;
             }
             else {
+
                 netStatus = NetStatus.BAD_NETWORK;
             }
 

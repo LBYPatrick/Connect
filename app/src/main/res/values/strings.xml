@@ -11,6 +11,7 @@
     <string name="sendto_main_title">Send %d file(s) to...</string>
     <string name="sendto_subtitle">Click on device name(s) to send</string>
 
+
     <string name="sendto_snackbar_fail_text">Failed to send file(s) to %s due to unknown error</string>
 
     <string name="sendto_snackbar_success_text">File(s) successfully sent to %s</string>
@@ -22,6 +23,7 @@
     <string name="notif_recv_finished_subtitle">Tap to check</string>
 
     <string name="notif_recv_finished_percent">Done</string>
+    <string name="notif_recv_finished_partial_success">%d files received, while %d files failed to receive</string>
 
     <string name="notif_recv_channel_name">Receive status</string>
     <string name="notif_recv_channel_description">Notifications for showing file receive status</string>

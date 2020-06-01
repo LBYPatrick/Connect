@@ -6,7 +6,7 @@ public abstract class FileStreamer extends ParallelTask {
 
     final public static int RW_BUFFER_SIZE = 8192;
 
-    enum NetStatus {
+    public enum NetStatus {
         IDLE,
         WORKING,
         SUCCESS,
