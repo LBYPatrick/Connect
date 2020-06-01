@@ -1,7 +1,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <string name="app_name" translatable="false">
-       ConNET
+       Connect
     </string>
 
     <string name="app_author_text">By LBYPatrick</string>

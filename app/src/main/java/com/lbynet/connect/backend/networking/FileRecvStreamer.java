@@ -18,7 +18,9 @@ public class FileRecvStreamer extends FileStreamer {
     private String filename_,
             targetDirectory_;
     private Socket socket_;
-    private long numCyclesRead_ = 0, lastCycleCount = 0,lastSpeed = 0;
+    private long totalBytesRead = 0,
+                 lastBytesRead = 0,
+                 lastSpeed = 0;
     private int port_;
     private long fileSize_;
     private Timer timer = new Timer("FileRecvStreamer");
@@ -66,13 +68,17 @@ public class FileRecvStreamer extends FileStreamer {
 
                 int bytesRead = in.read(buffer);
 
-                numCyclesRead_ += 1;
-
                 if(bytesRead == -1) {
+
+                    //Closed prematurely
+                    if(totalBytesRead != fileSize_) {
+                        break;
+                    }
                     isSuccess = true;
                     break;
                 }
                 else {
+                    totalBytesRead += bytesRead;
                     out.write(Utils.getTrimedData(buffer, bytesRead));
                 }
             }
@@ -90,6 +96,7 @@ public class FileRecvStreamer extends FileStreamer {
             }
             else {
                 netStatus = NetStatus.BAD_NETWORK;
+                SAL.print(SAL.MsgType.VERBOSE,"FileRecvStreamer","File " + filename_ + " failed to receive because the network stream closed prematurely.");
             }
 
         } catch(Exception e) {
@@ -119,7 +126,7 @@ public class FileRecvStreamer extends FileStreamer {
         }
         else {
             double bottom = (fileSize_ == 0) ? 1 : fileSize_;
-            double top = RW_BUFFER_SIZE * numCyclesRead_;
+            double top = totalBytesRead;
             double result = top / bottom;
             return result;
         }
@@ -135,10 +142,10 @@ public class FileRecvStreamer extends FileStreamer {
             return lastSpeed;
         }
 
-        float speedRate = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024 / timer.getElaspedTimeInMs() * 1000;
+        float speedRate = ((float)(totalBytesRead - lastBytesRead)) / 1024 / timer.getElaspedTimeInMs() * 1000;
 
         timer.start();
-        lastCycleCount = numCyclesRead_;
+        lastBytesRead = totalBytesRead;
 
         lastSpeed = ((long) speedRate + lastSpeed) / 2;
 

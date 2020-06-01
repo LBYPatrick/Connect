@@ -1,17 +1,13 @@
 package com.lbynet.connect.frontend;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.net.Uri;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -103,7 +99,7 @@ public class TargetLoader extends ParallelTask {
             targetIp = ((TextView) v.findViewById(R.id.hidden_ip)).getText().toString();
 
             for (Pairing.Device i : devices) {
-                if (targetUid.equals(i.uid)) {
+                if (targetUid.equals(i.deviceName)) {
                     targetIp = i.ip;
                     break;
                 }
@@ -248,7 +244,7 @@ public class TargetLoader extends ParallelTask {
                     }
 
                     activity_.runOnUiThread(() -> {
-                        uid.setText(i.uid);
+                        uid.setText(i.deviceName);
                         ip.setText(i.ip);
                     });
 
@@ -256,6 +252,7 @@ public class TargetLoader extends ParallelTask {
 
                     nTotalDevices += 1;
                 }
+
             }
 
             for(int i = nTotalDevices; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {

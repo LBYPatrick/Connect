@@ -46,7 +46,7 @@ public class FileSender extends ParallelTask {
 
         if (ip_.length() == 0 || fileInfos_.size() == 0) {
 
-            SAL.print(SAL.MsgType.ERROR,"FileSender", "Failed to initialize FileSender because of malformed parameter");
+            SAL.print(SAL.MsgType.ERROR, "FileSender", "Failed to initialize FileSender because of malformed parameter");
             netStatus = NetStatus.INIT_FAIL;
             return;
         }
@@ -56,7 +56,7 @@ public class FileSender extends ParallelTask {
             //Build file info in JSON
             JSONObject json = new JSONObject();
 
-            for(FileInfo file : fileInfos_) {
+            for (FileInfo file : fileInfos_) {
                 json.put(file.name, file.size);
             }
 
@@ -64,7 +64,7 @@ public class FileSender extends ParallelTask {
             //Send file info to target
             Socket socket = new Socket(ip_, Utils.getTargetPort(ip_));
 
-            IO.sendDataToRemote(socket,json.toString());
+            IO.sendDataToRemote(socket, json.toString());
 
             //Retrive file transferring port from target
             String receivedData = IO.getDataFromRemote(socket, 5000);
@@ -72,7 +72,7 @@ public class FileSender extends ParallelTask {
             SAL.print(receivedData);
 
             if (receivedData != null) {
-                SAL.print(SAL.MsgType.VERBOSE,"FileSender", "File Transfer Ports: " + receivedData);
+                SAL.print(SAL.MsgType.VERBOSE, "FileSender", "File Transfer Ports: " + receivedData);
             }
 
             netStatus = NetStatus.TRANSFERRING;
@@ -82,10 +82,10 @@ public class FileSender extends ParallelTask {
             //Parse Response (Which contains an array of ports)
             JSONArray ports = new JSONArray(receivedData);
 
-            //Send Actual Data
-            for(int i = 0; i < ports.length(); ++i) {
+            //Start file receive streamers
+            for (int i = 0; i < ports.length(); ++i) {
 
-                FileSendStreamer fss = new FileSendStreamer(fileStreams_.get(i),fileInfos_.get(i).size,ip_,ports.getInt(i));
+                FileSendStreamer fss = new FileSendStreamer(fileStreams_.get(i), fileInfos_.get(i).size, ip_, ports.getInt(i));
                 queue.add(fss);
                 fss.start();
             }
@@ -93,13 +93,13 @@ public class FileSender extends ParallelTask {
             numFiles = queue.size();
 
             //Wait till everything is done
-            while(true) {
+            while (true) {
 
                 double tempPercent = 0;
                 long tempSpeed = 0;
 
                 //Iterate through every task
-                for(int i = 0; i < queue.size(); ++i) {
+                for (int i = 0; i < queue.size(); ++i) {
 
                     tempPercent += (queue.get(i).getProgress());
                     tempSpeed += queue.get(i).getAverageSpeedInKbps();
@@ -109,7 +109,9 @@ public class FileSender extends ParallelTask {
                 percentDone = tempPercent / numFiles;
                 speedInKilobytesPerSec = tempSpeed;
 
-                if(percentDone >= 1) {
+                SAL.print("Speed: " + tempSpeed + "\tPercent done: " + percentDone);
+
+                if (percentDone >= 1) {
                     SAL.print("Getting out...");
                     break;
                 }
@@ -148,6 +150,27 @@ public class FileSender extends ParallelTask {
         return speedInKilobytesPerSec;
     }
 
+    public int[] getNumGoodsAndBads() {
+
+        int good = 0, bad = 0;
+
+        if (queue.size() == 0) {
+            return new int[]{0, 0};
+        }
+
+        for (FileSendStreamer fss : queue) {
+
+            FileStreamer.NetStatus status = fss.getNetStatus();
+
+            if (status != FileStreamer.NetStatus.SUCCESS) {
+                good += 1;
+            } else {
+                bad += 1;
+            }
+        }
+
+        return new int[]{good, bad};
+    }
 
 
     public NetStatus getNetStatus() {

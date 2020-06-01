@@ -10,11 +10,12 @@ public class FileSendStreamer extends FileStreamer {
 
     private String path_, ip_;
     private int port_;
-    private long numCyclesRead_ = 0;
+    private long totalBytesRead = 0,
+            lastBytesRead = 0,
+            lastSpeed = 0;
     private long fileSize_ = 0;
     private InputStream in_;
     private OutputStream out_;
-    private long lastSpeed = 0;
 
     //For showing speed
     Timer timer = new Timer("FileSendStreamer");
@@ -36,8 +37,6 @@ public class FileSendStreamer extends FileStreamer {
     @Override
     public void run() {
         try {
-
-            netStatus = NetStatus.WORKING;
 
             Socket socket_ = new Socket(ip_, port_);
             byte[] buffer = new byte[RW_BUFFER_SIZE];
@@ -64,26 +63,32 @@ public class FileSendStreamer extends FileStreamer {
 
             boolean isSuccess = false;
 
+            netStatus = NetStatus.WORKING;
 
             //Start Looping and send data
             while (!socket_.isClosed()) {
 
                 int bytesRead = in_.read(buffer);
 
-                if(bytesRead == -1) {
+                //Connection closed prematurely
+                if(bytesRead == -1 && totalBytesRead < fileSize_) {
+                    break;
+                }
+                else if(bytesRead == -1 && totalBytesRead == fileSize_) {
                     isSuccess = true;
                     break;
                 }
+
                 else if(bytesRead < RW_BUFFER_SIZE) {
+                    totalBytesRead += bytesRead;
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                     isSuccess = true;
                     break;
                 }
                 else {
+                    totalBytesRead += bytesRead;
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                 }
-
-                numCyclesRead_ += 1;
             }
 
             socket_.shutdownOutput();
@@ -115,9 +120,13 @@ public class FileSendStreamer extends FileStreamer {
             return 1;
         }
         else {
-            double bottom = (fileSize_ == 0) ? 1 : fileSize_;
-            double top = RW_BUFFER_SIZE * numCyclesRead_;
+
+            long bottom = (fileSize_ == 0) ? 1 : fileSize_;
+            double top = totalBytesRead;
             double result = top / bottom;
+
+            SAL.print("Top:" + top + "\tBottom:" + bottom);
+
             return result;
         }
     }
@@ -132,15 +141,14 @@ public class FileSendStreamer extends FileStreamer {
             return lastSpeed;
         }
 
-        float speedRate = ((float)(numCyclesRead_ - lastCycleCount)) * RW_BUFFER_SIZE / 1024 / timer.getElaspedTimeInMs() * 1000;
+        float speedRate = ((float)(totalBytesRead - lastBytesRead)) / 1024 / timer.getElaspedTimeInMs() * 1000;
 
         timer.start();
-        lastCycleCount = numCyclesRead_;
+        lastBytesRead = totalBytesRead;
 
         lastSpeed = ((long) speedRate + lastSpeed) / 2;
 
         return lastSpeed;
-
     }
 }
 

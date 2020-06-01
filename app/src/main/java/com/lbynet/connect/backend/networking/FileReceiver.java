@@ -87,7 +87,7 @@ public class FileReceiver {
 
                     for(Pairing.Device d : devices) {
                         if(d.ip.equals(senderIp)) {
-                            senderName = d.uid;
+                            senderName = d.deviceName;
                             SAL.print("Address from Pairing: " + d.ip);
                             break;
                         }
@@ -148,7 +148,9 @@ public class FileReceiver {
     }
 
     public static void restart() {
-        stop();
+        if(isStarted_) {
+            stop();
+        }
         start();
         SAL.print(SAL.MsgType.VERBOSE,"FileReceiver","FileReceiver restarted.");
     }

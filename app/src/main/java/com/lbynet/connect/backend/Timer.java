@@ -6,7 +6,6 @@ public class Timer {
     private long endTime = 0;
     private boolean isBusy = false;
     private String name;
-    boolean isDead = false;
 
     public Timer(String name) {
         this.name = name;
@@ -32,11 +31,6 @@ public class Timer {
     }
 
     public long getElaspedTimeInMs() {
-
-        if(isDead) {
-            return -1;
-        }
-
         endTime = System.currentTimeMillis();
         return endTime - startTime;
     }
@@ -44,14 +38,6 @@ public class Timer {
     public void zero() {
         endTime = System.currentTimeMillis();
         startTime = System.currentTimeMillis();
-    }
-
-    public void restInPeace() {
-        isDead = true;
-    }
-
-    public boolean isDead() {
-        return isDead;
     }
 
     public String toString() {

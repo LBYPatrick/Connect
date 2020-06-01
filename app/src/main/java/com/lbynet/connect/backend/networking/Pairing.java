@@ -16,7 +16,7 @@ import java.util.Arrays;
 public class Pairing {
 
     public static class Device {
-        public String ip, uid;
+        public String ip, deviceName,uid;
         private Timer t;
         private boolean isDead = false;
 
@@ -25,95 +25,72 @@ public class Pairing {
             t.start();
         }
 
-        public Device(String ip, String uid) {
+        public Device(String ip, String deviceName,String uid) {
             this();
             this.ip = ip;
+            this.deviceName = deviceName;
             this.uid = uid;
         }
 
         public void kill() {
             isDead = true;
-            t.restInPeace();
         }
 
         public boolean isDead() {
             return isDead;
         }
 
-
         public long getFreshness() {
-            return t.getElaspedTimeInMs();
+
+            return isDead? -1 : t.getElaspedTimeInMs();
         }
 
         public void refresh() {
             t.start();
         }
-
     }
 
+    //Eager Initialization
+    private static Pairing instance = new Pairing();
     private static InetAddress GROUP_ADDR;
     private static String selfUid_;
     private static byte[] msg_;
 
     final private static String MCAST_ADDR = "233.233.233.233";
     final private static int MCAST_PORT = 2333,
-            BUFFER_LENGTH = 16384;
+            BUFFER_LENGTH = 8192;
 
     private static String subnet_,
             selfIp_,
             selfName_;
 
     private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
-    private static MulticastSocket socket_;
-    private static boolean isStarted = false;
-    private static boolean isBusy = false;
-    private static boolean isInvisible_ = false;
-    private static Thread listenThread, sendThread;
-    private static BooleanListener listener_;
 
-    //Eager Initialization
-    private static Pairing instance = new Pairing();
+    private static MulticastSocket socket_;
+
+    private static boolean isStarted = false,
+                           isBusy = false,
+                           isInvisible_ = false;
+
+    private static Thread listenThread,
+                          sendThread;
 
     private Pairing() {
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
-            selfUid_ = SAL.getDeviceName();
+            selfUid_ = Utils.getRandomString(4);
 
         } catch (Exception e) {
             SAL.print(e);
-        }
-
-    }
-
-    public static void joinGroup() {
-        try {
-            socket_ = new MulticastSocket(MCAST_PORT);
-            socket_.joinGroup(GROUP_ADDR);
-        } catch (Exception e) {
-            SAL.print(e);
-        }
-    }
-
-    public static void start() throws Exception {
-        if(listener_ != null) {
-            start(listener_);
-        }
-        else {
-            start(null);
         }
     }
 
     /**
      * @throws Exception
      */
-    public static void start(BooleanListener statusChangeListener) throws Exception {
-
-        if(statusChangeListener != null) {
-            listener_ = statusChangeListener;
-        }
+    public static void start() throws Exception {
 
         if (isStarted) {
-            notifyChange();
             return;
         }
 
@@ -122,9 +99,6 @@ public class Pairing {
         joinGroup();
 
         isStarted = true;
-        if(statusChangeListener != null) {
-            listener_.onChangeStatus(isStarted);
-        }
 
         sendThread = new Thread(() -> {
                 while(!isStarted) {
@@ -172,11 +146,19 @@ public class Pairing {
 
                     //Package Received
                     if (dp.getLength() > 0) {
+
+                        //Read basic information
                         Device d = new Device();
                         d.ip = dp.getAddress().getHostAddress();
                         d.uid = new String(Utils.getTrimedData(dp.getData(), dp.getOffset(), dp.getLength()));
+                        d.deviceName = dp.getAddress().getCanonicalHostName();
 
-                        if (d.uid.compareTo(selfUid_) != 0) {
+                        //If device name is too long, process it
+                        if(d.deviceName.length() > 15) {
+                            d.deviceName = d.deviceName.substring(0,16) + "...";
+                        }
+
+                        if (!d.uid.equals(selfUid_)) {
 
                             boolean isExistingDevice = false;
 
@@ -202,8 +184,11 @@ public class Pairing {
 
 
                             if (!isExistingDevice) {
-                                SAL.print("Device added: " + d.uid + "@" + d.ip);
-                                //pairedDevices_.add(d);
+
+                                SAL.print("Device added: \n"
+                                          + "\tName: " + d.deviceName + "\n"
+                                          + "\tUID: " + d.uid + "\n"
+                                          + "\tIP Address: " + d.ip + "\n");
 
                                 boolean isDeviceAdded = false;
                                 //Put the device in the right spot of the queue
@@ -224,6 +209,7 @@ public class Pairing {
                             }
                         } else if (selfIp_ == null) {
                             selfIp_ = d.ip;
+                            selfName_ = d.deviceName;
                         }
                     }
                 }
@@ -233,50 +219,34 @@ public class Pairing {
         sendThread.start();
     }
 
-    public static ArrayList<Device> getPairedDevices() {
-
-        return pairedDevices_;
-    }
-
     public static void stop() {
 
         isStarted = false;
 
-        notifyChange();
-
         try {
+
+            //Interrupt listen and send threads
             listenThread.interrupt();
             sendThread.interrupt();
-        } catch (Exception e) {
 
+            //Reset variables
+            selfIp_ = null;
+            selfName_ = null;
+            subnet_ = null;
+
+        } catch (Exception e) {
             if(e instanceof InterruptedException) {
                 SAL.print("Pairing Interrupted");
             }
             else {
                 SAL.print(e);
             }
-
         }
-
-
         pairedDevices_.clear();
 
         //Block until the thread is dead -- should take no time
-        while (!listenThread.isInterrupted() || !sendThread.isInterrupted()) {
-        }
+        while (!listenThread.isInterrupted() || !sendThread.isInterrupted()) { }
     }
-
-    public static void setUid(String newName) throws Exception {
-        if(newName == null || newName.equals(selfUid_)) {
-            return;
-        }
-
-        selfUid_ = newName;
-        selfIp_ = null;
-
-        restart();
-    }
-
     public static void restart() {
 
         if (isStarted) {
@@ -289,52 +259,17 @@ public class Pairing {
         }
     }
 
-    //Brute-force pinging -- doesn't work under some networks
-    public static ArrayList<String> getAllDeviceIPs() {
+    public static ArrayList<Device> getPairedDevices() {
+        return pairedDevices_;
+    }
 
-        String gateway = getSubnetAddr();
-        ArrayList<String> reachable = new ArrayList<>();
-
-        boolean[] status = new boolean[255];
-
-        Arrays.fill(status, false);
-
-        for (int i = 0; i < 255; ++i) {
-
-            //Java is stupid
-            final int n = i;
-
-            new Thread(() -> {
-
-                String addr = gateway + "." + (n + 1);
-
-                try {
-                    if (InetAddress.getByName(addr).isReachable(200)) {
-                        reachable.add(addr);
-                    }
-                } catch (Exception e) {
-                    //Shhhh
-                } finally {
-                    status[n] = true;
-                }
-            }).start();
+    public static void joinGroup() {
+        try {
+            socket_ = new MulticastSocket(MCAST_PORT);
+            socket_.joinGroup(GROUP_ADDR);
+        } catch (Exception e) {
+            SAL.print(e);
         }
-
-        while (true) {
-
-            boolean isDone = true;
-
-            for (int i = 0; i < 255; ++i) {
-                if (status[i] == false) {
-                    isDone = false;
-                    break;
-                }
-            }
-
-            if (isDone) break;
-        }
-
-        return reachable;
     }
 
     public static String getSelfName() {
@@ -356,19 +291,13 @@ public class Pairing {
 
         if (subnet_ != null) {
             return subnet_;
-        } else if (getSelfAddress().length() == 0) {
-            return "";
+        } else if (getSelfAddress() == null) {
+            return null;
         } else {
             subnet_ = getSelfAddress().substring(0, getSelfAddress().lastIndexOf("."));
             return subnet_;
         }
 
-    }
-
-    public static void notifyChange() {
-        if(listener_ !=  null){
-            listener_.onChangeStatus(isStarted);
-        }
     }
 
     public static String getSelfUid() {
