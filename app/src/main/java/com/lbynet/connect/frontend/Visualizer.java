@@ -6,20 +6,26 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.FileProvider;
 
 import com.lbynet.connect.R;
 import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.core.FileManager;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.FileStreamer;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Visualizer {
@@ -116,11 +122,14 @@ public class Visualizer {
 
             int goods = 0, bads = 0;
 
+            ArrayList<Uri> uris = new ArrayList<>();
+
             for (FileRecvStreamer i : streams) {
                 if (i.getNetStatus() != FileStreamer.NetStatus.SUCCESS) {
                     bads += 1;
                 } else {
                     goods += 1;
+
                 }
             }
 
@@ -133,19 +142,15 @@ public class Visualizer {
 
             subtitle = String.format(context.getString(R.string.notif_recv_finished_subtitle));
 
-            //Construct intent
-            Intent intent = new Intent();
-            intent.setDataAndType(Uri.fromFile(new File(Utils.getOutputPath())),"resource/folder");
-
-            PendingIntent pIntent = PendingIntent.getActivities(context,0, new Intent[]{intent},PendingIntent.FLAG_ONE_SHOT);
+            //TODO: Construct intent
 
             //Construct notification
             builder = new NotificationCompat.Builder(context, "connect_receive")
                     .setContentTitle(title)
                     .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
                     .setContentText(subtitle)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentIntent(pIntent);
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+                    //.setContentIntent(pIntent);
 
             manager.notify(Utils.getUniqueInt(), builder.build());
 
@@ -160,7 +165,7 @@ public class Visualizer {
             Utils.hideView(cv, false, 0);
             tv.setText(activity.getString(isGood ? R.string.launcher_fsn_good : R.string.launcher_fsn_bad));
             cv.setCardBackgroundColor(activity.getColor(isGood ? R.color.positive_75 : R.color.negative_75));
-            Utils.showView(cv, 200);
+            Utils.showView(cv, 100);
         });
 
 

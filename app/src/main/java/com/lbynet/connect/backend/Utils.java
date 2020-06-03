@@ -266,6 +266,8 @@ public class Utils {
     public static String numToString(double in, int digits) {
         NumberFormat fmt = NumberFormat.getInstance();
 
+
+        fmt.setMinimumFractionDigits(digits);
         fmt.setMaximumFractionDigits(digits);
 
         return fmt.format(in).toString();

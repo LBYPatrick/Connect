@@ -74,7 +74,8 @@ public class TargetLoader extends ParallelTask {
 
         try {
 
-            TextView uidView = v.findViewById(R.id.tv_uid);
+            TextView uidView = v.findViewById(R.id.tv_uid),
+                     speedView = v.findViewById(R.id.tv_speed);
             String targetUid = uidView.getText().toString();
             String targetIp = "";
             ProgressBar pb = v.findViewById(R.id.pb_status);
@@ -98,13 +99,6 @@ public class TargetLoader extends ParallelTask {
 
             targetIp = ((TextView) v.findViewById(R.id.hidden_ip)).getText().toString();
 
-            for (Pairing.Device i : devices) {
-                if (targetUid.equals(i.deviceName)) {
-                    targetIp = i.ip;
-                    break;
-                }
-            }
-
             if (targetIp.length() == 0) {
                 SAL.print(SAL.MsgType.ERROR, "onTargetSelected", "Failed to find target IP in paired device list.");
                 return true;
@@ -115,7 +109,6 @@ public class TargetLoader extends ParallelTask {
 
             for(Uri i : uris_) {
                 infos.add(Utils.getFileInfo((Uri) i, activity_.getContentResolver()));
-
                 streams.add(activity_.getContentResolver().openInputStream((Uri)i));
             }
 
@@ -126,6 +119,8 @@ public class TargetLoader extends ParallelTask {
 
             FileSender sender = new FileSender(targetIp, infos, streams);
             sender.start();
+
+            Utils.showView(speedView,100);
 
             //Progress Update
             new Thread(() -> {
@@ -148,7 +143,7 @@ public class TargetLoader extends ParallelTask {
 
                             activity_.runOnUiThread(() -> {
 
-                                String text = trimmedUid + " | ";
+                                String text = "";
 
                                 double rawSpeed = sender.getSpeedInKilobytesPerSec();
 
@@ -161,7 +156,7 @@ public class TargetLoader extends ParallelTask {
                                 }
 
                                 pb.setProgress((int) (sender.getPercentDone() * 100), true);
-                                uidView.setText(text);
+                                speedView.setText(text);
                             });
 
                             if (status == FileSender.NetStatus.DONE) {
@@ -182,6 +177,9 @@ public class TargetLoader extends ParallelTask {
                         //Don't update UI too fast
                         Thread.sleep(30);
                     }
+
+                    //After file transfer, hide speed view
+                    Utils.hideView(activity_,speedView,true,100);
 
                 } catch (Exception e) {
                     SAL.print(e);
@@ -234,14 +232,11 @@ public class TargetLoader extends ParallelTask {
                     TextView uid = parent.findViewById(R.id.tv_uid);
                     TextView ip = parent.findViewById(R.id.hidden_ip);
                     ProgressBar pbar = parent.findViewById(R.id.pb_status);
+                    TextView speedView = parent.findViewById(R.id.tv_speed);
 
-                    if(pbar.getProgress() != 0 && pbar.getProgress() != 100) {
+                    //Busy targets -- skip them
+                    if(speedView.getVisibility() == View.VISIBLE) {
                         nTotalDevices += 1;
-                        continue;
-                    }
-                    else if(pbar.getProgress() == 0 && pbar.getVisibility() == View.VISIBLE) {
-                        nTotalDevices += 1;
-                        continue;
                     }
 
                     activity_.runOnUiThread(() -> {

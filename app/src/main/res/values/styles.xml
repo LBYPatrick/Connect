@@ -1,5 +1,9 @@
 <resources>
 
+    <!-- Some Color attributes -->
+    <attr name="colorBlackThenWhite" format="color"/>
+    <attr name="colorMask" format="color"/>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
         <!-- Customize your theme here. -->
@@ -13,11 +17,21 @@
         <item name="colorPrimary">#000000</item>
         <item name="colorPrimaryDark">#005CA1</item>
         <item name="colorAccent">#0092FF</item>
-
     </style>
 
     <style name="AppTheme.Splash">
         <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
+    <style name="AppTheme.Light">
+        <item name="colorBlackThenWhite">#000000</item>
+        <item name="colorMask">#4D000000</item>
+
+    </style>
+
+    <style name="AppTheme.Dark">
+        <item name="colorBlackThenWhite">#FFFFFF</item>
+        <item name="colorMask">#CC000000</item>
     </style>
 
 </resources>

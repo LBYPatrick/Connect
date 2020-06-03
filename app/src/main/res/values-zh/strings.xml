@@ -7,6 +7,7 @@
 
     <string name="sendto_main_title">发送%d个文件至...</string>
     <string name="sendto_subtitle">点击设备名称以发送</string>
+    <string name="sendto_pending">少女祈祷中...</string>
 
     <string name="sendto_snackbar_fail_text">发生错误，文件无法发送至%s</string>
     <string name="sendto_snackbar_success_text">文件成功发送至%s</string>

@@ -49,6 +49,7 @@ public class SendActivity extends AppCompatActivity {
         boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
 
         //Do things here if you need
+        setTheme(isDarkMode? R.style.AppTheme_Dark : R.style.AppTheme_Light);
     }
 
     @Override
@@ -66,7 +67,8 @@ public class SendActivity extends AppCompatActivity {
             finish();
         }
 
-        setTheme(R.style.AppTheme);
+        configureDarkMode();
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.send);
@@ -74,6 +76,13 @@ public class SendActivity extends AppCompatActivity {
         configureDarkMode();
 
         Utils.hideView(findViewById(R.id.screen),false,0);
+
+        //Blur background
+        Blurry.with(this).sampling(10).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background));
+
+        //Show everything
+        Utils.showView(findViewById(R.id.screen),200);
+
 
         DataPool.activity = this;
 
@@ -120,16 +129,9 @@ public class SendActivity extends AppCompatActivity {
         String titleText = String.format(getString(R.string.sendto_main_title),uris.size());
         String subtitle = getString(R.string.sendto_subtitle);
 
-        //Set Target Select Prompt
+        //Set target select prompt
         ((TextView)findViewById(R.id.tv_send_main_title)).setText(titleText);
         ((TextView)findViewById(R.id.tv_send_subtitle)).setText(subtitle);
-
-        //Blur background
-        Blurry.with(this).sampling(5).radius(60).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background));
-
-        //Show everything
-        Utils.showView(findViewById(R.id.screen),200);
-
     }
 
     @Override

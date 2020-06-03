@@ -17,52 +17,49 @@
         android:id="@+id/iv_bkgnd_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
-        android:foreground="#FF000000"
-        android:alpha="0.3"
+        android:foreground="?attr/colorMask"
         />
 
 
     <!-- The REAL layout -->
     <LinearLayout
+        android:id="@+id/master"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:orientation="vertical"
         android:layout_marginTop="50dp"
-        android:id="@+id/master">
+        android:orientation="vertical">
 
         <!-- Title bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginLeft="20dp"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_send_main_title"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:layout_gravity="center_horizontal"
 
+                android:layout_gravity="center_horizontal"
                 android:autoSizeTextType="uniform"
-                android:maxLines="1"
                 android:gravity="left"
+                android:maxLines="1"
                 android:text="@string/sendto_main_title"
-                android:id="@+id/tv_send_main_title"
                 android:textColor="@color/white_100"
                 android:textStyle="bold" />
-            
+
             <TextView
+                android:id="@+id/tv_send_subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:autoSizeTextType="uniform"
                 android:maxLines="1"
-                android:textColor="@color/white_75"
-                android:id="@+id/tv_send_subtitle"
                 android:text="@string/sendto_subtitle"
-                android:textStyle="normal"/>
-
+                android:textColor="@color/white_75"
+                android:textStyle="normal" />
 
 
         </LinearLayout>
@@ -72,8 +69,7 @@
             android:id="@+id/fl_select"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20dp"
-            >
+            android:padding="20dp">
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -93,7 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
         </FrameLayout>
     </LinearLayout>

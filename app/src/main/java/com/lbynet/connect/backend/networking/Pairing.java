@@ -211,6 +211,7 @@ public class Pairing {
                             selfIp_ = d.ip;
                             selfName_ = d.deviceName;
                         }
+                        Utils.sleepFor(10);
                     }
                 }
         });

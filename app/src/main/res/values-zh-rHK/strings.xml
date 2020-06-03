@@ -13,6 +13,7 @@
 
     <string name="sendto_snackbar_fail_text">發生錯誤，檔案無法發送至%s</string>
     <string name="sendto_snackbar_success_text">檔案成功發送至%s</string>
+    <string name="sendto_pending">少女祈禱中...</string>
 
     <string name="notif_recv_finished_percent">完成</string>
 
@@ -26,8 +27,8 @@
 
     <string name="launcher_fsn">檔案分享網絡</string>
 
-    <string name="launcher_fsn_good">可用</string>
-    <string name="launcher_fsn_bad">不可用</string>
+    <string name="launcher_fsn_good">上線</string>
+    <string name="launcher_fsn_bad">離線</string>
 
     <string name="warning_taowa">祝 您 闔 家 富 貴</string>
 

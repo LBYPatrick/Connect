@@ -15,6 +15,7 @@
     <string name="sendto_snackbar_fail_text">Failed to send file(s) to %s due to unknown error</string>
 
     <string name="sendto_snackbar_success_text">File(s) successfully sent to %s</string>
+    <string name="sendto_pending">Pending...</string>
 
     <string name="notif_recv_working_title">Receiving %d file(s)...</string>
     <string name="notif_recv_working_subtitle">From %s</string>

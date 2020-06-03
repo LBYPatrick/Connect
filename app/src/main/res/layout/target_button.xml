@@ -21,27 +21,49 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:alpha="0.6"
+        android:alpha="0.4"
         android:progress="100"
-        android:progressTint="@color/white_50"
+        android:progressTint="@color/positive_75"
         android:progressBackgroundTint="@color/clear"
         android:scaleY="100"
         android:visibility="invisible" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <TextView
+        <TextView
             android:id="@+id/tv_uid"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="0.7"
             android:autoSizeTextType="uniform"
             android:maxLines="1"
             android:layout_marginVertical="20dp"
-            android:layout_marginHorizontal="30dp"
+            android:layout_marginHorizontal="20dp"
             android:layout_gravity="center"
             android:gravity="center"
             android:text="target_placeholder"
             android:textColor="@color/white_100"
             android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/tv_speed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.3"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:layout_marginVertical="20dp"
+            android:layout_marginRight="20dp"
+            android:text="@string/sendto_pending"
+            android:gravity="center"
+            android:textColor="@color/white_100"
+            android:textStyle="normal"
+            android:visibility="gone"/>
+
+    </LinearLayout>
 
     </FrameLayout>
 

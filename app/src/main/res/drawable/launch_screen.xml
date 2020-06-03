@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
 
-    <item android:drawable="@color/white_100"/>
-
     <item android:drawable="@drawable/ic_connect_logo_v3_round"
         android:gravity="center"/>
 

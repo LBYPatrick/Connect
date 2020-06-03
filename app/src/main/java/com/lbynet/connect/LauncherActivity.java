@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 
 import com.lbynet.connect.backend.SAL;
@@ -53,7 +54,8 @@ public class LauncherActivity extends AppCompatActivity {
 
         boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
 
-        //Do things here if you need
+        setTheme(isDarkMode? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+
     }
 
     @Override
@@ -82,6 +84,8 @@ public class LauncherActivity extends AppCompatActivity {
 
         grantPermissions();
 
+        configureDarkMode();
+
         super.onCreate(savedInstanceState);
         SAL.print("OnCreate");
 
@@ -95,7 +99,14 @@ public class LauncherActivity extends AppCompatActivity {
         setContentView(R.layout.launcher);
         FrameLayout main = findViewById(R.id.screen);
         //Configuration
-        configureDarkMode();
+
+        Utils.hideView(main,false,0);
+        Utils.showView(main,200);
+
+        runOnUiThread( () -> {
+            Blurry.with(this).sampling(10).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+        });
+
 
         try {
 
@@ -112,10 +123,6 @@ public class LauncherActivity extends AppCompatActivity {
 
         //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
-
-        runOnUiThread( () -> {
-            Blurry.with(this).sampling(3).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
-        });
 
         new Thread( () -> {
             boolean isGood = false;
@@ -134,8 +141,6 @@ public class LauncherActivity extends AppCompatActivity {
 
         }).start();
 
-        Utils.hideView(main,false,0);
-        Utils.showView(main,300);
     }
 
     public CardView makeMainButton(Drawable avatar, String text) {
