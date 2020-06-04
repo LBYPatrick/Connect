@@ -10,6 +10,8 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -122,14 +124,14 @@ public class Visualizer {
 
             int goods = 0, bads = 0;
 
-            ArrayList<Uri> uris = new ArrayList<>();
+            ArrayList<String> fileNames = new ArrayList<>();
 
             for (FileRecvStreamer i : streams) {
                 if (i.getNetStatus() != FileStreamer.NetStatus.SUCCESS) {
                     bads += 1;
                 } else {
                     goods += 1;
-
+                    fileNames.add(i.getFilename());
                 }
             }
 
@@ -144,13 +146,19 @@ public class Visualizer {
 
             //TODO: Construct intent
 
+            Intent intent = new Intent("CHECK_RECEIVED_ITEMS");
+            intent.putStringArrayListExtra("received_files",fileNames);
+
+            PendingIntent pIntent = PendingIntent.getActivities(context,0,new Intent[]{intent},PendingIntent.FLAG_ONE_SHOT);
+
             //Construct notification
             builder = new NotificationCompat.Builder(context, "connect_receive")
                     .setContentTitle(title)
                     .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
                     .setContentText(subtitle)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-                    //.setContentIntent(pIntent);
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentIntent(pIntent)
+                    .setAutoCancel(true);
 
             manager.notify(Utils.getUniqueInt(), builder.build());
 
@@ -167,8 +175,5 @@ public class Visualizer {
             cv.setCardBackgroundColor(activity.getColor(isGood ? R.color.positive_75 : R.color.negative_75));
             Utils.showView(cv, 100);
         });
-
-
     }
-
 }

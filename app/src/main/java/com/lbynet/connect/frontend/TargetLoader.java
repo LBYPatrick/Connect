@@ -94,6 +94,7 @@ public class TargetLoader extends ParallelTask {
             }
 
             v.setClickable(false);
+            Utils.showView(speedView,100);
 
             Utils.playTickVibration(activity_);
 
@@ -119,8 +120,6 @@ public class TargetLoader extends ParallelTask {
 
             FileSender sender = new FileSender(targetIp, infos, streams);
             sender.start();
-
-            Utils.showView(speedView,100);
 
             //Progress Update
             new Thread(() -> {

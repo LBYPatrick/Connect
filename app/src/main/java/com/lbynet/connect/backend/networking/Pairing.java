@@ -6,6 +6,7 @@ import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.frames.BooleanListener;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -111,7 +112,14 @@ public class Pairing {
                         try {
                             socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
                         } catch (Exception e) {
-                            SAL.print(e);
+
+                            if(e instanceof IOException) {
+                                SAL.print(SAL.MsgType.VERBOSE,"Pairing","Send thread hibernating...");
+                                Utils.sleepFor(1000);
+                            }
+                            else {
+                                SAL.print(e);
+                            }
                         }
                     }
                     if(DataPool.isPowerSavingMode) {

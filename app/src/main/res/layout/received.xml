@@ -1,9 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ReceivedActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/iv_master_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@+id/iv_bkgnd_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="?attr/colorMask" />
+
+    <LinearLayout
+        android:layout_marginTop="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="20dp">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30dp"
+            android:autoSizeTextType="uniform"
+            android:text="@string/recvd_main_title"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:gravity="left"
+            android:textColor="@color/white_100"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:text="@string/recvd_subtitle"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:layout_marginBottom="10dp"
+            android:gravity="left"
+            android:textColor="@color/white_100"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_filelist"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.8" />
+
+        <TextView
+            android:id="@+id/tv_download_directory"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.05"
+            android:gravity="center"
+            android:maxLines="2"
+            android:text="@string/recvd_directory_note"
+            android:textColor="@color/white_100"
+            android:autoSizeTextType="uniform"
+            />
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

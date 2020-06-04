@@ -2,6 +2,7 @@ package com.lbynet.connect;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 
 import com.lbynet.connect.backend.SAL;
+import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.core.SystemManager;
@@ -36,25 +38,17 @@ import jp.wasabeef.blurry.Blurry;
 
 public class LauncherActivity extends AppCompatActivity {
 
-    ProgressBar pb;
-    TextView tvDeviceID;
+    Timer renderTimer = new Timer("Launcher Timer");
 
-    void grantPermissions() {
-
-        String[] permissions = {
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-        };
-
-        requestPermissions(permissions,1);
-
-    }
+    void grantPermissions() { requestPermissions(DataPool.permissions, 1); }
 
     void configureDarkMode() {
 
         boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
 
-        setTheme(isDarkMode? R.style.AppTheme_Dark : R.style.AppTheme_Light);
+        if (isDarkMode) {
+            setTheme(R.style.AppTheme_Dark);
+        }
 
     }
 
@@ -63,13 +57,13 @@ public class LauncherActivity extends AppCompatActivity {
 
         SAL.print("Got result");
 
-        for(int i = 0; i < grantResults.length; ++i) {
+        for (int i = 0; i < grantResults.length; ++i) {
 
             boolean isGranted = (grantResults[i] == android.content.pm.PackageManager.PERMISSION_GRANTED);
             SAL.print("Permission: " + permissions[i] + "\tGrant status: " + isGranted);
 
-            if(!isGranted) {
-                Utils.printToast(this,"Failed to obtain necessary permissions, please try again.",true);
+            if (!isGranted) {
+                Utils.printToast(this, "Failed to obtain necessary permissions, please try again.", true);
                 finish();
                 return;
             }
@@ -82,28 +76,34 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        grantPermissions();
+        DataPool.activity = this;
 
         configureDarkMode();
 
         super.onCreate(savedInstanceState);
         SAL.print("OnCreate");
 
-        DataPool.activity = this;
+        if (!Utils.isPermissionGranted(this)) {
+            grantPermissions();
+        }
+        else {
+            continueWork();
+        }
+
+        //startActivity(new Intent("CHECK_RECEIVED_ITEMS"));
     }
 
     public void continueWork() {
-
 
         setTheme(R.style.AppTheme);
         setContentView(R.layout.launcher);
         FrameLayout main = findViewById(R.id.screen);
         //Configuration
 
-        Utils.hideView(main,false,0);
-        Utils.showView(main,200);
+        Utils.hideView(main, false, 0);
+        Utils.showView(main, 200);
 
-        runOnUiThread( () -> {
+        runOnUiThread(() -> {
             Blurry.with(this).sampling(10).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         });
 
@@ -112,8 +112,8 @@ public class LauncherActivity extends AppCompatActivity {
 
             Pairing.start();
 
-            FileReceiver.setOnReceiveListener((senderName,streams) -> {
-                Visualizer.showReceiveProgress(this,senderName,streams);
+            FileReceiver.setOnReceiveListener((senderName, streams) -> {
+                Visualizer.showReceiveProgress(this, senderName, streams);
             });
 
             FileReceiver.start();
@@ -124,16 +124,16 @@ public class LauncherActivity extends AppCompatActivity {
         //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
 
-        new Thread( () -> {
+        new Thread(() -> {
             boolean isGood = false;
 
-            while(true) {
+            while (true) {
 
                 boolean temp = (DataPool.wifiStatus == DataPool.WifiStatus.CONNECTED);
 
-                if(temp != isGood) {
+                if (temp != isGood) {
                     isGood = temp;
-                    Visualizer.updateFsnStatusOnLauncher(this,isGood);
+                    Visualizer.updateFsnStatusOnLauncher(this, isGood);
                 }
 
                 Utils.sleepFor(500);
@@ -141,14 +141,16 @@ public class LauncherActivity extends AppCompatActivity {
 
         }).start();
 
+        SAL.print("LaunchActivity took " + renderTimer.getElaspedTimeInMs() + "ms to render interface.");
+
     }
 
     public CardView makeMainButton(Drawable avatar, String text) {
 
-        CardView r = (CardView) getLayoutInflater().inflate(R.layout.main_button,null);
+        CardView r = (CardView) getLayoutInflater().inflate(R.layout.main_button, null);
 
-        ((ImageView)r.findViewById(R.id.avatar)).setImageDrawable(avatar);
-        ((TextView)r.findViewById(R.id.text)).setText(text);
+        ((ImageView) r.findViewById(R.id.avatar)).setImageDrawable(avatar);
+        ((TextView) r.findViewById(R.id.text)).setText(text);
 
         r.setOnClickListener(this::onMainButtonClicked);
 
@@ -163,15 +165,15 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     public boolean onMainButtonClicked(View v) {
-        if(((TextView)v.findViewById(R.id.text)).getText() == "Settings") {
-            startActivityForResult(new Intent(this,SettingsActivity.class),0);
+        if (((TextView) v.findViewById(R.id.text)).getText() == "Settings") {
+            startActivityForResult(new Intent(this, SettingsActivity.class), 0);
         }
         return true;
     }
 
     public void onSettingsButtonClicked(View view) {
 
-        startActivityForResult(new Intent(this,SettingsActivity.class),0);
+        startActivityForResult(new Intent(this, SettingsActivity.class), 0);
     }
 
 }

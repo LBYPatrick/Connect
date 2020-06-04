@@ -1,48 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:outlineSpotShadowColor="@color/clear"
-    android:outlineAmbientShadowColor="@color/clear">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white_25"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal">
+        android:layout_height="80dp"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="10dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
-
-        <!-- An empty padding occupying 5% of the space -->
-        <View
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="0.05"
-            />
 
         <!-- Filename container -->
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center|start"
-            android:autoSizeTextType="uniform"
+            android:textSize="20dp"
             android:maxLines="1"
             android:text="DEFAULT_FILE.EXTENSION"
-
+            android:id="@+id/tv_filename"
+            android:textColor="@color/white_100"
+            android:textStyle="bold"
             />
 
-        <!-- Another empty padding occupying 5% of the space -->
-        <View
+        <!-- Hidden container for storing file's full path -->
+        <TextView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.05"/>
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:id="@+id/tv_hidden_full_path"/>
 
-        <!-- Share button container -->
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.25"
-            android:text="SHARE_BUTTON"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:maxLines="1"
+            android:id="@+id/tv_file_modified_date"
+            android:textColor="@color/white_50"
+            android:text="MM/DD/YY HH:SS"
+        />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/v_highlight"
+        android:foreground="@color/white_50"
+        android:visibility="gone"
+        />
+
+</FrameLayout>

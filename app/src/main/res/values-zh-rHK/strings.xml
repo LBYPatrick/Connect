@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Global -->
     <string name="app_author_text">LBYPatrick 呈現</string>
-
     <string name="settings_tile">設置</string>
 
+    <!-- Send Activity -->
     <string name="sendto_main_title">發送%d個檔案至...</string>
     <string name="sendto_subtitle">點選設備名稱來發送</string>
-
-    <string name="notif_recv_working_title">正在接收%d個檔案...</string>
-    <string name="notif_recv_working_subtitle">來自%s</string>
-
     <string name="sendto_snackbar_fail_text">發生錯誤，檔案無法發送至%s</string>
     <string name="sendto_snackbar_success_text">檔案成功發送至%s</string>
     <string name="sendto_pending">少女祈禱中...</string>
 
+    <!-- Notification -->
+    <string name="notif_recv_working_title">正在接收%d個檔案...</string>
+    <string name="notif_recv_working_subtitle">來自%s</string>
     <string name="notif_recv_finished_percent">完成</string>
-
     <string name="notif_recv_channel_name">檔案接收狀態顯示</string>
     <string name="notif_recv_channel_description">顯示檔案接收進度及完成接收的通知</string>
-
     <string name="notif_recv_finished_title">成功接收%d個檔案</string>
     <string name="notif_recv_finished_subtitle">點按來查看</string>
-
     <string name="notif_recv_finished_partial_success">%d個檔案接收成功，但%d个檔案接收失败</string>
 
+    <!-- Launcher -->
     <string name="launcher_fsn">檔案分享網絡</string>
-
     <string name="launcher_fsn_good">上線</string>
     <string name="launcher_fsn_bad">離線</string>
+
+    <!-- Received Activity -->
+    <string name="recvd_main_title">已接收的文檔</string>
+    <string name="recvd_subtitle">點選項目以分享</string>
+    <string name="recvd_directory_note">如需進階操作，請訪問目錄\n%s</string>
 
     <string name="warning_taowa">祝 您 闔 家 富 貴</string>
 

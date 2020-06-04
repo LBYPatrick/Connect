@@ -16,37 +16,44 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/ic_connect_logo_v3_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".ReceivedActivity"></activity>
+        android:theme="@style/AppTheme.Light">
+
         <!-- Launcher activity -->
         <activity
             android:name=".LauncherActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme">
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- The "send to" activity -->
+        </activity>
+
+        <!-- The "send to" activity -->
         <activity
             android:name=".SendActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme">
+            android:screenOrientation="sensorPortrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="*/*" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="*/*" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".ReceivedActivity">
+
+            <intent-filter>
+                <action android:name="CHECK_RECEIVED_ITEMS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
         </activity>
 
         <provider

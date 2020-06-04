@@ -7,6 +7,8 @@ import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -120,6 +122,10 @@ public class Utils {
         return r;
     }
 
+    public static boolean isDarkMode(Context context) {
+        return (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+    }
+
     public static FileInfo getFileInfo(Uri uri, ContentResolver contentResolver) {
 
         Cursor query = contentResolver.query(uri,null,null,null,null,null);
@@ -131,9 +137,14 @@ public class Utils {
 
     }
 
+
+    public static Locale getLocale() {
+        return Resources.getSystem().getConfiguration().getLocales().get(0);
+    }
+
     public static boolean isChinese() {
 
-        Locale language = Resources.getSystem().getConfiguration().getLocales().get(0);
+        Locale language = getLocale();
 
         SAL.print("Locale:" + language.toLanguageTag());
 
@@ -309,5 +320,18 @@ public class Utils {
     public static String getOutputPath() {
 
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Connect";
+    }
+
+    public static boolean isPermissionGranted(Context context) {
+        boolean isGood = true;
+
+        for (String p : DataPool.permissions) {
+            if (context.checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
+                isGood = false;
+                break;
+            }
+        }
+
+        return isGood;
     }
 }
