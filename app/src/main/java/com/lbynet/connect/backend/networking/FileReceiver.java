@@ -27,6 +27,9 @@ public class FileReceiver {
         listener_ = listener;
     }
 
+    /**
+     * Starts the listening thread (Requires Pairing to be running beforehand)
+     */
     public static void start() {
 
         if(isStarted_) {
@@ -119,6 +122,8 @@ public class FileReceiver {
                     }
 
                     //Call Listener
+                    //which fires up the notification defined in Visualizer.showReceiveProgress()
+                    //Registered in LauncherActivity and SendActivity
                     if(listener_ != null) {
                         listener_.onFileReceive(senderName,streams);
                     }
@@ -155,6 +160,9 @@ public class FileReceiver {
         SAL.print(SAL.MsgType.VERBOSE,"FileReceiver","FileReceiver restarted.");
     }
 
+    /**
+     * Schedule a restart (if a handshaking session is active, restart after the session is done)
+     */
     public static void restartLater() {
         new Thread (() -> {
 
@@ -167,7 +175,15 @@ public class FileReceiver {
         }).start();
     }
 
+    /**
+     * Stops the listening thread (Would do nothing if the thread is not started)
+     */
     public static void stop() {
+
+        if(!isStarted_) {
+            return;
+        }
+
         isStarted_ = false;
         t_.interrupt();
     }

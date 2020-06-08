@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.view.View;
@@ -21,6 +22,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 
 import com.lbynet.connect.R;
+import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.FileManager;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
@@ -34,11 +36,18 @@ public class Visualizer {
 
     static boolean isChannelCreated = false;
 
+    public static void overrideSecurity() {
+        try {
+            StrictMode.class.getMethod("disableDeathOnFileUriExposure").invoke(null);
+        } catch (Exception e) {
+            SAL.print(e);
+        }
+    }
+
     public static void showReceiveProgress(Context context, String senderName, ArrayList<FileRecvStreamer> streams) {
 
 
         new Thread(() -> {
-
 
             double percentDone = 0;
             int numFiles = streams.size();
@@ -119,21 +128,26 @@ public class Visualizer {
             }
 
             Utils.sleepFor(300);
-            //Finish data transfer (cancel the notification)
-            manager.cancel(notificationId);
 
             int goods = 0, bads = 0;
-
             ArrayList<String> fileNames = new ArrayList<>();
 
             for (FileRecvStreamer i : streams) {
-                if (i.getNetStatus() != FileStreamer.NetStatus.SUCCESS) {
-                    bads += 1;
-                } else {
-                    goods += 1;
-                    fileNames.add(i.getFilename());
+
+                //Pause if the streamer is not actually done yet
+                while(i.getNetStatus() == FileStreamer.NetStatus.WORKING) {
+                    SAL.print("Blocking notification...");
+                    Utils.sleepFor(300);
                 }
+
+                if (i.getNetStatus() != FileStreamer.NetStatus.SUCCESS) { bads += 1; }
+
+                else { goods += 1; fileNames.add(i.getFilename()); }
             }
+
+            SAL.print("Cancelling notification...");
+            //Cancel the progress notification
+            manager.cancel(notificationId);
 
             //Construct a new notification prompting the user to check the files out
 

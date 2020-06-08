@@ -71,13 +71,9 @@ public class FileSendStreamer extends FileStreamer {
                 int bytesRead = in_.read(buffer);
 
                 //Connection closed prematurely
-                if(bytesRead == -1 && totalBytesRead < fileSize_) {
-                    break;
-                }
-                else if(bytesRead == -1 && totalBytesRead == fileSize_) {
-                    isSuccess = true;
-                    break;
-                }
+                if(bytesRead == -1 && totalBytesRead < fileSize_) { break; }
+
+                else if(bytesRead == -1 && totalBytesRead == fileSize_) { isSuccess = true; break; }
 
                 else if(bytesRead < RW_BUFFER_SIZE) {
                     totalBytesRead += bytesRead;
@@ -102,10 +98,7 @@ public class FileSendStreamer extends FileStreamer {
                 SAL.print(SAL.MsgType.VERBOSE,"FileSendStreamer","File sent. Progress: " + getProgress());
                 return;
             }
-            else {
-
-                netStatus = NetStatus.BAD_NETWORK;
-            }
+            else { netStatus = NetStatus.BAD_NETWORK; }
 
         } catch (Exception e) {
             netStatus = NetStatus.BAD_GENERAL;

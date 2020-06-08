@@ -43,13 +43,10 @@ public class LauncherActivity extends AppCompatActivity {
     void grantPermissions() { requestPermissions(DataPool.permissions, 1); }
 
     void configureDarkMode() {
-
         boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
-
         if (isDarkMode) {
             setTheme(R.style.AppTheme_Dark);
         }
-
     }
 
     @Override
@@ -103,10 +100,13 @@ public class LauncherActivity extends AppCompatActivity {
         Utils.hideView(main, false, 0);
         Utils.showView(main, 200);
 
+
         runOnUiThread(() -> {
-            Blurry.with(this).sampling(10).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+            Blurry.with(this).sampling(3).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         });
 
+
+        //((ImageView)findViewById(R.id.iv_master_background)).setImageBitmap(Utils.getWallpaper(this));
 
         try {
 

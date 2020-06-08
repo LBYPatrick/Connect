@@ -25,7 +25,17 @@ public class FileRecvStreamer extends FileStreamer {
     private long fileSize_;
     private Timer timer = new Timer("FileRecvStreamer");
 
-
+    /**
+     * Constructor for creating a FileRecvStream instance
+     * @param filename the name of the file that would be STORED TO THIS DEVICE
+     *
+     * @param targetDirectory the directory that the received file will go to
+     *
+     * @param port the port number of the communication port that the sender will send the file with
+     *
+     * @param fileSize filesize in bytes, which can help us determine whether the stream closes prematurely
+     *                 as well as calculating progress and speed information
+     */
     public FileRecvStreamer(String filename,String targetDirectory, int port,long fileSize) {
         filename_ = filename;
         targetDirectory_ = targetDirectory;
@@ -119,18 +129,34 @@ public class FileRecvStreamer extends FileStreamer {
         }
     }
 
+    /**
+     * Get filename.
+     * @return filename
+     */
     public String getFilename() {
         return filename_;
     }
 
-    public String getTargetDirectory_() {
+    /**
+     * Get target directory.
+     * @return target directory (raw)
+     */
+    public String getTargetDirectory() {
         return targetDirectory_;
     }
 
+    /**
+     * Get filesize in bytes.
+     * @return filesize
+     */
     public long getFileSize_() {
         return fileSize_;
     }
 
+    /**
+     * Get percentage of the file received (number ranging from 0 to 1)
+     * @return percentage
+     */
     public double getProgress() {
         if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
             return 1;
@@ -148,7 +174,8 @@ public class FileRecvStreamer extends FileStreamer {
 
     /**
      * Calculate transfer speed in kilobytes per second
-     * @return
+     * @return the average transfer speed for the pass 300 milliseconds
+     *         (See the first if statement, can be changed when needed).
      */
     public long getAverageSpeedInKbps() {
 

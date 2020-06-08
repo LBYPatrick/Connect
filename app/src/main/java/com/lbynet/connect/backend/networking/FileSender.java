@@ -69,10 +69,13 @@ public class FileSender extends ParallelTask {
             //Retrive file transferring port from target
             String receivedData = IO.getDataFromRemote(socket, 5000);
 
-            SAL.print(receivedData);
-
             if (receivedData != null) {
+                SAL.print(receivedData);
                 SAL.print(SAL.MsgType.VERBOSE, "FileSender", "File Transfer Ports: " + receivedData);
+            }
+            else {
+                netStatus = NetStatus.HANDSHAKE_TIMEOUT;
+                return;
             }
 
             netStatus = NetStatus.TRANSFERRING;

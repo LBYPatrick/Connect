@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,7 +57,8 @@ public class SAL {
 
     public static String getDeviceName() {
 
-        return Build.BRAND +" " + Build.MODEL + " " + Build.ID;
+        return Settings.Secure.getString(DataPool.activity.getContentResolver(),"bluetooth_name");
+        //return Build.BRAND +" " + Build.MODEL + " " + Build.ID;
     }
 
     public static void print(Exception e) {

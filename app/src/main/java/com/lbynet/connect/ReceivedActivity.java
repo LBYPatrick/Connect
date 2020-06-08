@@ -1,18 +1,24 @@
 package com.lbynet.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.net.NetworkRequest;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.widget.TextView;
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
+import com.lbynet.connect.backend.core.FileManager;
 import com.lbynet.connect.frontend.FolderViewAdapter;
+import com.lbynet.connect.frontend.Visualizer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -77,13 +83,34 @@ public class ReceivedActivity extends AppCompatActivity {
 
     public boolean onFileClick(File file) {
 
-        String name = file.getName(),
-                path = file.getPath();
 
-        SAL.print(name + ", " + path);
+        try {
+            Uri uri = FileProvider.getUriForFile(this,  "com.lbynet.connect.fileprovider", file);
 
-        Utils.printToast(this,name + "," + path,false);
+            /*
+            String name = file.getName(),
+                    path = file.getPath();
+            SAL.print(name + ", " + path);
+             */
 
+            ArrayList<Uri> uris = new ArrayList<>();
+
+            uris.add(uri);
+
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_STREAM,uri);
+            sendIntent.setType(getContentResolver().getType(uri));
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            Intent shareIntent = Intent.createChooser(sendIntent,null);
+
+            startActivityForResult(shareIntent,1);
+            //Utils.printToast(this,name + "," + path,false);
+
+        } catch (Exception e) {
+            SAL.print(e);
+        }
         return true;
     }
 

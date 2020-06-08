@@ -32,6 +32,7 @@ public class TargetLoader extends ParallelTask {
 
     FrameLayout rootView_;
     AppCompatActivity activity_;
+    boolean isPaused_ = false;
 
     public TargetLoader(FrameLayout rootView, AppCompatActivity activity) {
         rootView_ = rootView;
@@ -40,6 +41,10 @@ public class TargetLoader extends ParallelTask {
 
     public void setUris(ArrayList<Uri> uris) {
         uris_ = uris;
+    }
+
+    public void setPause(boolean value) {
+        isPaused_ = value;
     }
 
     public void inflateList() throws Exception{
@@ -218,6 +223,12 @@ public class TargetLoader extends ParallelTask {
         inflateList();
 
         while (true) {
+
+            if(isPaused_) {
+                Utils.sleepFor(500);
+                SAL.print("Target Loader is currently paused...");
+                continue;
+            }
 
             devices = Pairing.getPairedDevices();
 

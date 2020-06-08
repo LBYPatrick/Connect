@@ -95,7 +95,7 @@ public class Pairing {
             return;
         }
 
-        msg_ = selfUid_.getBytes();
+        msg_ = (SAL.getDeviceName() + "\n" + selfUid_).getBytes();
 
         joinGroup();
 
@@ -155,11 +155,13 @@ public class Pairing {
                     //Package Received
                     if (dp.getLength() > 0) {
 
+                        String data = new String(Utils.getTrimedData(dp.getData(), dp.getOffset(), dp.getLength()));
+
                         //Read basic information
                         Device d = new Device();
                         d.ip = dp.getAddress().getHostAddress();
-                        d.uid = new String(Utils.getTrimedData(dp.getData(), dp.getOffset(), dp.getLength()));
-                        d.deviceName = dp.getAddress().getCanonicalHostName();
+                        d.uid = data.substring(data.indexOf('\n') + 1);
+                        d.deviceName = data.substring(0,data.indexOf('\n'));
 
                         //If device name is too long, process it
                         if(d.deviceName.length() > 15) {

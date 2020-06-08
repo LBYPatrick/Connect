@@ -12,7 +12,7 @@
         android:layout_height="match_parent" />
 
     <View
-        android:id="@+id/iv_bkgnd_mask"
+        android:id="@+id/iv_bkgnd_gradient"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:foreground="?attr/colorMask" />

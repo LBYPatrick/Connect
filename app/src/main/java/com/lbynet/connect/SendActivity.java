@@ -55,17 +55,20 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
         SAL.print("Intent info: \n"
                 + "\tAction: "  + getIntent().getAction() + "\n"
-                + "\tData: " + getIntent().getAction() + "\n"
+                + "\tData: " + getIntent().getData() + "\n"
                 + "\tHost: " + getReferrer().getHost() + "\n"
                 + "\tAuthority: " + getReferrer().getAuthority() + "\n");
 
+        /*
         //If user attempts to crash the app by 套娃
         if(getReferrer().getAuthority().equals(getApplicationContext().getPackageName())) {
             Utils.printToast(this,getString(R.string.warning_taowa), true);
             finish();
         }
+         */
 
         configureDarkMode();
 
@@ -91,6 +94,7 @@ public class SendActivity extends AppCompatActivity {
             Pairing.start();
             FileReceiver.start();
 
+            //Register listener for notification
             FileReceiver.setOnReceiveListener((senderName,streams) -> {
                 Visualizer.showReceiveProgress(this,senderName,streams);
             });
@@ -138,6 +142,17 @@ public class SendActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         SAL.print("onResume");
+
+        targetLoader.setPause(false);
+    }
+
+    @Override
+    protected void onPause() {
+
+        super.onPause();
+        SAL.print("onPause");
+
+        targetLoader.setPause(true);
     }
 
     public void onSettingsButtonClicked(View view) {

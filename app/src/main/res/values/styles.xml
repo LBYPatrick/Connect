@@ -3,6 +3,8 @@
     <!-- Some Color attributes -->
     <attr name="colorBlackThenWhite" format="color"/>
     <attr name="colorMask" format="color"/>
+    <attr name="dmAlpha" format="float"/>
+    <attr name="overlay_alpha" format="float"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
@@ -26,12 +28,13 @@
     <style name="AppTheme.Light">
         <item name="colorBlackThenWhite">#000000</item>
         <item name="colorMask">#4D000000</item>
-
+        <item name="dmAlpha">0.3</item>
     </style>
 
     <style name="AppTheme.Dark">
         <item name="colorBlackThenWhite">#FFFFFF</item>
         <item name="colorMask">#CC000000</item>
+        <item name="dmAlpha">0.9</item>
     </style>
 
 </resources>
