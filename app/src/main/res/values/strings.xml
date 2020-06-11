@@ -18,7 +18,7 @@
     <string name="notif_recv_working_title">Receiving %d file(s)...</string>
     <string name="notif_recv_working_subtitle">From %s</string>
     <string name="notif_recv_finished_title">%d file(s) received</string>
-    <string name="notif_recv_finished_subtitle">Tap to check</string>
+    <string name="notif_recv_finished_subtitle">Tap to open or share</string>
     <string name="notif_recv_finished_percent">Done</string>
     <string name="notif_recv_finished_partial_success">%d files received, while %d files failed to receive</string>
     <string name="notif_recv_channel_name">Receive status</string>

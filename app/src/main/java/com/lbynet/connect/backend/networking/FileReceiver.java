@@ -9,61 +9,67 @@ import com.lbynet.connect.backend.frames.FileReceiveListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 public class FileReceiver {
+
+    static String TAG = FileReceiver.class.getSimpleName();
 
     static Socket s_;
     static ServerSocket ss_;
     static boolean isStarted_ = false;
     static boolean isBusy_ = false;
     static Thread t_;
+    static Runnable mainTask;
     static FileReceiveListener listener_;
+    static private FileReceiver instance = new FileReceiver();
 
     public static void setOnReceiveListener(FileReceiveListener listener) {
         listener_ = listener;
     }
 
-    /**
-     * Starts the listening thread (Requires Pairing to be running beforehand)
-     */
-    public static void start() {
+    private FileReceiver() {
 
-        if(isStarted_) {
-            return;
+        try {
+            //ss_ = new ServerSocket();
+            //ss_.setReuseAddress(true);
+        } catch (Exception e) {
+            if(e instanceof SocketException || e instanceof IOException) {
+                SAL.print(SAL.MsgType.ERROR,TAG,"Exception threw during initialization");
+                SAL.print(e);
+            }
         }
 
-        isStarted_ = true;
+        mainTask = () -> {
 
-        t_ = new Thread( () -> {
+            SAL.print("I am ALIVE!");
 
             try {
-                String selfIp = Pairing.getSelfAddress();
+                String selfIp = null;
 
+                //Fetch IP address from Pairing
                 while(selfIp == null) {
+                    SAL.print("Fetching IP");
                     selfIp = Pairing.getSelfAddress();
-                    Thread.sleep(500);
+                    Utils.sleepFor(50);
                 }
 
-                SAL.print("IP: " + selfIp);
+                SAL.print(SAL.MsgType.VERBOSE,TAG,"IP: " + selfIp);
+
+                //Bind every time
+                if(ss_ != null && ss_.isBound()) { ss_.close(); }
 
                 ss_ = new ServerSocket();
-
                 ss_.setReuseAddress(true);
-                if(!ss_.isBound()) {
-                    ss_.bind(new InetSocketAddress(Utils.getTargetPort(selfIp)));
-                }
+                ss_.bind(new InetSocketAddress(Utils.getTargetPort(selfIp)));
+                SAL.print(SAL.MsgType.VERBOSE,TAG,"Initiated with ip " + selfIp + " and port " + Utils.getTargetPort(selfIp));
 
-                if(s_ != null && !s_.isClosed()) {
-                    s_.close();
-                }
-
-                SAL.print(SAL.MsgType.VERBOSE,"FileListener","Initiated with ip " + selfIp + " and port " + Utils.getTargetPort(selfIp));
-
-                while(isStarted_) {
+                while(true) {
 
                     String data = "";
                     String senderName = "";
@@ -121,6 +127,8 @@ public class FileReceiver {
                         portList.put(port);
                     }
 
+                    IO.sendDataToRemote(s_,portList.toString());
+
                     //Call Listener
                     //which fires up the notification defined in Visualizer.showReceiveProgress()
                     //Registered in LauncherActivity and SendActivity
@@ -128,10 +136,7 @@ public class FileReceiver {
                         listener_.onFileReceive(senderName,streams);
                     }
 
-                    IO.sendDataToRemote(s_,portList.toString());
-
                     s_.close();
-
                     isBusy_ = false;
                 }
 
@@ -141,10 +146,30 @@ public class FileReceiver {
                 }
             }
 
+        };
+    }
 
-        });
+    /**
+     * Starts the listening thread (Requires Pairing to be running beforehand)
+     */
+    public static void start() {
 
-        t_.start();
+        if(isStarted_) {
+            return;
+        }
+
+        isStarted_ = true;
+
+        try {
+
+            t_ = new Thread(mainTask);
+            t_.start();
+
+        } catch (Exception e) {
+            SAL.print(e);
+        }
+
+        SAL.print(SAL.MsgType.VERBOSE,TAG,"FileReceiver started.");
 
     }
 
@@ -157,7 +182,6 @@ public class FileReceiver {
             stop();
         }
         start();
-        SAL.print(SAL.MsgType.VERBOSE,"FileReceiver","FileReceiver restarted.");
     }
 
     /**
@@ -166,9 +190,7 @@ public class FileReceiver {
     public static void restartLater() {
         new Thread (() -> {
 
-            while(isBusy_) {
-                Utils.sleepFor(50);
-            }
+            while(isBusy_) { Utils.sleepFor(50); }
 
             restart();
 
@@ -186,5 +208,6 @@ public class FileReceiver {
 
         isStarted_ = false;
         t_.interrupt();
+        SAL.print(SAL.MsgType.VERBOSE,TAG,"FileReceiver stopped.");
     }
 }

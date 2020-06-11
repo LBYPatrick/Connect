@@ -11,11 +11,18 @@
         android:layout_height="match_parent"/>
 
     <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="@drawable/edge_top"
+        />
+
+    <View
         android:id="@+id/iv_bkgnd_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:foreground="#FF000000"
         android:alpha="?attr/dmAlpha"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"

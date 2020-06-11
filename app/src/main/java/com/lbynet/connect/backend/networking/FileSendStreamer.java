@@ -71,17 +71,17 @@ public class FileSendStreamer extends FileStreamer {
                 int bytesRead = in_.read(buffer);
 
                 //Connection closed prematurely
-                if(bytesRead == -1 && totalBytesRead < fileSize_) { break; }
-
-                else if(bytesRead == -1 && totalBytesRead == fileSize_) { isSuccess = true; break; }
-
-                else if(bytesRead < RW_BUFFER_SIZE) {
+                if (bytesRead == -1 && totalBytesRead < fileSize_) {
+                    break;
+                } else if (bytesRead == -1 && totalBytesRead == fileSize_) {
+                    isSuccess = true;
+                    break;
+                } else if (bytesRead < RW_BUFFER_SIZE) {
                     totalBytesRead += bytesRead;
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                     isSuccess = true;
                     break;
-                }
-                else {
+                } else {
                     totalBytesRead += bytesRead;
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                 }
@@ -119,7 +119,7 @@ public class FileSendStreamer extends FileStreamer {
             double top = totalBytesRead;
             double result = top / bottom;
 
-            SAL.print("Top:" + top + "\tBottom:" + bottom);
+            //SAL.print("Top:" + top + "\tBottom:" + bottom);
 
             return result;
         }

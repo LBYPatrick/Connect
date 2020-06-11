@@ -60,7 +60,8 @@ public class SendActivity extends AppCompatActivity {
                 + "\tAction: "  + getIntent().getAction() + "\n"
                 + "\tData: " + getIntent().getData() + "\n"
                 + "\tHost: " + getReferrer().getHost() + "\n"
-                + "\tAuthority: " + getReferrer().getAuthority() + "\n");
+                + "\tAuthority: " + getReferrer().getAuthority() + "\n"
+                + "Type: " + getIntent().getType());
 
         /*
         //If user attempts to crash the app by 套娃
@@ -81,7 +82,7 @@ public class SendActivity extends AppCompatActivity {
         Utils.hideView(findViewById(R.id.screen),false,0);
 
         //Blur background
-        Blurry.with(this).sampling(10).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background));
+        Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background));
 
         //Show everything
         Utils.showView(findViewById(R.id.screen),200);
@@ -91,8 +92,8 @@ public class SendActivity extends AppCompatActivity {
 
         SAL.print("onCreate");
         try {
-            Pairing.start();
-            FileReceiver.start();
+            //Pairing.start();
+           //FileReceiver.start();
 
             //Register listener for notification
             FileReceiver.setOnReceiveListener((senderName,streams) -> {

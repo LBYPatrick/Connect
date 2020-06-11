@@ -1,23 +1,17 @@
 package com.lbynet.connect;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
@@ -102,7 +96,7 @@ public class LauncherActivity extends AppCompatActivity {
 
 
         runOnUiThread(() -> {
-            Blurry.with(this).sampling(3).radius(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+            Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         });
 
 
@@ -110,13 +104,13 @@ public class LauncherActivity extends AppCompatActivity {
 
         try {
 
-            Pairing.start();
+            //Pairing.start();
 
             FileReceiver.setOnReceiveListener((senderName, streams) -> {
                 Visualizer.showReceiveProgress(this, senderName, streams);
             });
 
-            FileReceiver.start();
+            //FileReceiver.start();
         } catch (Exception e) {
             SAL.print(e);
         }
@@ -142,19 +136,6 @@ public class LauncherActivity extends AppCompatActivity {
         }).start();
 
         SAL.print("LaunchActivity took " + renderTimer.getElaspedTimeInMs() + "ms to render interface.");
-
-    }
-
-    public CardView makeMainButton(Drawable avatar, String text) {
-
-        CardView r = (CardView) getLayoutInflater().inflate(R.layout.main_button, null);
-
-        ((ImageView) r.findViewById(R.id.avatar)).setImageDrawable(avatar);
-        ((TextView) r.findViewById(R.id.text)).setText(text);
-
-        r.setOnClickListener(this::onMainButtonClicked);
-
-        return r;
 
     }
 

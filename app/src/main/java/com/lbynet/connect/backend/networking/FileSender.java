@@ -80,10 +80,12 @@ public class FileSender extends ParallelTask {
 
             netStatus = NetStatus.TRANSFERRING;
 
-            Utils.sleepFor(200);
+            //Utils.sleepFor(200);
+            socket.close();
 
             //Parse Response (Which contains an array of ports)
             JSONArray ports = new JSONArray(receivedData);
+
 
             //Start file receive streamers
             for (int i = 0; i < ports.length(); ++i) {

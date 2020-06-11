@@ -226,7 +226,7 @@ public class TargetLoader extends ParallelTask {
 
             if(isPaused_) {
                 Utils.sleepFor(500);
-                SAL.print("Target Loader is currently paused...");
+                //SAL.print("Target Loader is currently paused...");
                 continue;
             }
 

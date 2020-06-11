@@ -14,12 +14,10 @@
         android:visibility="visible"/>
 
     <View
-        android:id="@+id/iv_bkgnd_gradient"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="?attr/colorMask"
+        android:foreground="@drawable/edge_top"
         />
-
 
     <!-- The REAL layout -->
     <LinearLayout

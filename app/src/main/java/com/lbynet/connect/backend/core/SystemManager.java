@@ -18,8 +18,7 @@ import java.lang.reflect.Method;
 public class SystemManager {
 
     private static SystemManager instance = new SystemManager();
-    private static boolean isReceiverGood = false,
-                           isFileLimitGone = false;
+    private static boolean isReceiverGood = false;
 
     private SystemManager () {
 
@@ -39,15 +38,13 @@ public class SystemManager {
                     @Override
                     public void onAvailable(@NonNull Network network) {
                         super.onAvailable(network);
-
                         DataPool.wifiStatus = DataPool.WifiStatus.CONNECTED;
                         FileReceiver.restartLater();
-
                         try {
-                            Pairing.restart();
-                            SAL.print("Pairing restarted");
+                            Pairing.start();
+                            Pairing.recover();
                         } catch (Exception e) {
-                            //Shhhh
+                            SAL.print(e);
                         }
                     }
 

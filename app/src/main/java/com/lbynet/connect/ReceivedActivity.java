@@ -7,23 +7,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.widget.TextView;
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
-import com.lbynet.connect.backend.core.FileManager;
 import com.lbynet.connect.frontend.FolderViewAdapter;
-import com.lbynet.connect.frontend.Visualizer;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -63,7 +57,7 @@ public class ReceivedActivity extends AppCompatActivity {
 
         rv.setAdapter(adapter);
 
-        Blurry.with(this).radius(10).sampling(10).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+        Blurry.with(this).radius(5).sampling(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         TextView tvDirNote = findViewById(R.id.tv_download_directory);
 
         tvDirNote.setText(String.format(tvDirNote.getText().toString(),Utils.getOutputPath()));

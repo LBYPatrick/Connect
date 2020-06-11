@@ -88,9 +88,9 @@ public class FileRecvStreamer extends FileStreamer {
                 int bytesRead = in.read(buffer);
 
                 if(bytesRead == -1) {
-
                     //Closed prematurely
                     if(totalBytesRead != fileSize_) {
+                        SAL.print("Stream closed prematurely, " + totalBytesRead + "/" + fileSize_);
                         break;
                     }
                     isSuccess = true;
@@ -102,11 +102,13 @@ public class FileRecvStreamer extends FileStreamer {
                 }
             }
 
+
             socket_.shutdownOutput();
             socket_.shutdownInput();
 
             out.close();
             in.close();
+
 
             if(isSuccess) {
                 netStatus = NetStatus.SUCCESS;
@@ -151,6 +153,10 @@ public class FileRecvStreamer extends FileStreamer {
      */
     public long getFileSize_() {
         return fileSize_;
+    }
+
+    public String getFullPath() {
+        return getTargetDirectory() + '/' + getFilename();
     }
 
     /**

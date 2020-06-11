@@ -1,18 +1,11 @@
 package com.lbynet.connect.frontend;
 
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
-import android.os.StrictMode;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,25 +17,15 @@ import androidx.core.content.FileProvider;
 import com.lbynet.connect.R;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
-import com.lbynet.connect.backend.core.FileManager;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.FileStreamer;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Visualizer {
 
     static boolean isChannelCreated = false;
-
-    public static void overrideSecurity() {
-        try {
-            StrictMode.class.getMethod("disableDeathOnFileUriExposure").invoke(null);
-        } catch (Exception e) {
-            SAL.print(e);
-        }
-    }
 
     public static void showReceiveProgress(Context context, String senderName, ArrayList<FileRecvStreamer> streams) {
 
@@ -130,7 +113,7 @@ public class Visualizer {
             Utils.sleepFor(300);
 
             int goods = 0, bads = 0;
-            ArrayList<String> fileNames = new ArrayList<>();
+            ArrayList<Uri> fileUris = new ArrayList<>();
 
             for (FileRecvStreamer i : streams) {
 
@@ -142,7 +125,13 @@ public class Visualizer {
 
                 if (i.getNetStatus() != FileStreamer.NetStatus.SUCCESS) { bads += 1; }
 
-                else { goods += 1; fileNames.add(i.getFilename()); }
+                else {
+                    goods += 1;
+
+                    Uri uri = FileProvider.getUriForFile(context,  "com.lbynet.connect.fileprovider", new File(i.getFullPath()));
+
+                    fileUris.add(uri);
+                }
             }
 
             SAL.print("Cancelling notification...");
@@ -160,10 +149,54 @@ public class Visualizer {
 
             //TODO: Construct intent
 
+            Intent sendIntent = null;
+            PendingIntent pIntent = null;
+
+            if(streams.size() > 1) {
+                sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,fileUris);
+
+                String type = context.getContentResolver().getType(fileUris.get(0));
+                sendIntent.setType(type);
+
+                SAL.print("Default type: " + type);
+
+                for(Uri i : fileUris) {
+
+                    String cType = context.getContentResolver().getType(i);
+
+                    if(!cType.equals(type)) {
+                        type = "*/*";
+                        sendIntent.setType(type);
+                        SAL.print("Type mismatch: " + cType);
+                        break;
+                    }
+                }
+
+                SAL.print("Final type: " + type);
+
+
+            }
+            else if (streams.size() == 1) {
+                sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_STREAM,fileUris.get(0));
+                sendIntent.setType(context.getContentResolver().getType(fileUris.get(0)));
+            }
+
+            if(sendIntent != null) {
+                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                pIntent = PendingIntent.getActivities(context,
+                        0,
+                        new Intent[]{Intent.createChooser(sendIntent,null)},
+                        PendingIntent.FLAG_ONE_SHOT);
+            }
+
+            /*
             Intent intent = new Intent("CHECK_RECEIVED_ITEMS");
             intent.putStringArrayListExtra("received_files",fileNames);
+            */
 
-            PendingIntent pIntent = PendingIntent.getActivities(context,0,new Intent[]{intent},PendingIntent.FLAG_ONE_SHOT);
 
             //Construct notification
             builder = new NotificationCompat.Builder(context, "connect_receive")
@@ -171,8 +204,12 @@ public class Visualizer {
                     .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
                     .setContentText(subtitle)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentIntent(pIntent)
+                    //.setContentIntent(pIntent)
                     .setAutoCancel(true);
+
+            if(sendIntent != null) {
+                builder.setContentIntent(pIntent);
+            }
 
             manager.notify(Utils.getUniqueInt(), builder.build());
 
