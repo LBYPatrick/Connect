@@ -2,8 +2,6 @@
 <resources>
 
     <!-- Global -->
-    <string name="app_author_text">LBYPatrick 呈現</string>
-    <string name="settings_tile">設置</string>
 
     <!-- Send Activity -->
     <string name="sendto_main_title">發送%d個檔案至...</string>
@@ -26,12 +24,11 @@
     <string name="launcher_fsn">檔案分享網絡</string>
     <string name="launcher_fsn_good">上線</string>
     <string name="launcher_fsn_bad">離線</string>
+    <string name="launcher_fsn_bad_support">不被支援的Wi-Fi</string>
 
     <!-- Received Activity -->
     <string name="recvd_main_title">已接收的文檔</string>
     <string name="recvd_subtitle">點選項目以分享</string>
     <string name="recvd_directory_note">如需進階操作，請訪問目錄\n%s</string>
-
-    <string name="warning_taowa">祝 您 闔 家 富 貴</string>
 
 </resources>

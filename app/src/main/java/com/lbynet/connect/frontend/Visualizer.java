@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import androidx.core.content.FileProvider;
 import com.lbynet.connect.R;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
+import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.FileStreamer;
 
@@ -58,7 +60,7 @@ public class Visualizer {
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "connect_receive")
                     .setContentTitle(title)
-                    .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
+                    .setSmallIcon(R.drawable.ic_connect_logo_v3_clear)
                     .setContentText(subtitle)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setOngoing(true)
@@ -201,7 +203,7 @@ public class Visualizer {
             //Construct notification
             builder = new NotificationCompat.Builder(context, "connect_receive")
                     .setContentTitle(title)
-                    .setSmallIcon(R.drawable.ic_connect_logo_v3_round)
+                    .setSmallIcon(R.drawable.ic_connect_logo_v3_clear)
                     .setContentText(subtitle)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     //.setContentIntent(pIntent)
@@ -216,15 +218,43 @@ public class Visualizer {
         }).start();
     }
 
-    public static void updateFsnStatusOnLauncher(AppCompatActivity activity, boolean isGood) {
+    public static void updateFsnStatusOnLauncher(AppCompatActivity activity) {
         CardView cv = activity.findViewById(R.id.cv_fsn_status);
         TextView tv = activity.findViewById(R.id.tv_fsn_status);
+        View active_logo = activity.findViewById(R.id.logo_active);
 
         activity.runOnUiThread(() -> {
             Utils.hideView(cv, false, 0);
-            tv.setText(activity.getString(isGood ? R.string.launcher_fsn_good : R.string.launcher_fsn_bad));
-            cv.setCardBackgroundColor(activity.getColor(isGood ? R.color.positive_75 : R.color.negative_75));
+            Utils.hideView(tv, false, 0);
+
             Utils.showView(cv, 100);
+            Utils.showView(tv, 100);
+
+            boolean isGood = false;
+
+            //Connected
+            if(DataPool.isWifiConnected && DataPool.isPairingReady) {
+                isGood = true;
+                tv.setText(activity.getString(R.string.launcher_fsn_good));
+                cv.setCardBackgroundColor(activity.getColor(R.color.positive_75));
+            }
+            //Unsupported
+            else if (DataPool.isWifiConnected) {
+                tv.setText(activity.getString(R.string.launcher_fsn_bad_support));
+                cv.setCardBackgroundColor(activity.getColor(R.color.negative_75));
+            }
+            else {
+                tv.setText(activity.getString(R.string.launcher_fsn_bad));
+                cv.setCardBackgroundColor(activity.getColor(R.color.negative_75));
+            }
+
+            if(isGood) {
+                Utils.showView(active_logo,100);
+            }
+            else {
+                Utils.hideView(active_logo,false,100);
+            }
+
         });
     }
 }

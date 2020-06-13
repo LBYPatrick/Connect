@@ -40,13 +40,18 @@ public class ReceivedActivity extends AppCompatActivity {
         setContentView(R.layout.received);
 
 
-        //Process data
+        //Create Connect folder if it does not exist
+        File folder = new File(Utils.getOutputPath());
+        folder.mkdirs();
+
+        Blurry.with(this).radius(5).sampling(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
+
+        //Process Intent data
         ArrayList<String> fileData = getIntent().getStringArrayListExtra("received_files");
 
         //Setup RecyclerView
         RecyclerView rv = findViewById(R.id.rv_filelist);
         rv.setLayoutManager(new LinearLayoutManager(this));
-
         rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         adapter = new FolderViewAdapter(Utils.getOutputPath(), this::onFileClick);
@@ -57,9 +62,7 @@ public class ReceivedActivity extends AppCompatActivity {
 
         rv.setAdapter(adapter);
 
-        Blurry.with(this).radius(5).sampling(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
         TextView tvDirNote = findViewById(R.id.tv_download_directory);
-
         tvDirNote.setText(String.format(tvDirNote.getText().toString(),Utils.getOutputPath()));
     }
 

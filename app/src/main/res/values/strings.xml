@@ -1,11 +1,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- Global -->
-    <string name="app_name" translatable="false">
-       Connect
-    </string>
-    <string name="app_author_text">By LBYPatrick</string>
-    <string name="settings_tile">Settings</string>
+    <string name="app_name" translatable="false">Connect</string>
 
     <!-- Send Activity -->
     <string name="sendto_main_title">Send %d file(s) to...</string>
@@ -26,13 +22,12 @@
 
     <!-- Launcher -->
     <string name="launcher_fsn">File sharing network</string>
-    <string name="launcher_fsn_good">Ready</string>
-    <string name="launcher_fsn_bad">Down</string>
+    <string name="launcher_fsn_good">Online</string>
+    <string name="launcher_fsn_bad">Offline</string>
+    <string name="launcher_fsn_bad_support">Unsupported Wi-Fi</string>
 
     <!-- Received Activity -->
     <string name="recvd_main_title">Received Files</string>
     <string name="recvd_subtitle">Click item to share</string>
     <string name="recvd_directory_note">For advanced operations, please access directory\n%s</string>
-
-    <string name="warning_taowa">STOP CRASHING MY APP BY SENDING BACK WHAT I GAVE OUT!</string>
 </resources>

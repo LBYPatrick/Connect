@@ -11,11 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Top edge fade -->
     <View
-        android:id="@+id/iv_bkgnd_gradient"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="?attr/colorMask" />
+        android:foreground="@drawable/edge_top" />
+
+    <!-- Dark mode (Darken) layer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="@color/dark_overlay"
+        android:alpha="?attr/dmAlpha"/>
 
     <LinearLayout
         android:layout_marginTop="40dp"
@@ -48,11 +55,25 @@
             android:gravity="left"
             android:textColor="@color/white_100"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_filelist"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.8" />
+            android:foreground="@color/clear"
+            android:background="@color/clear"
+            app:cardBackgroundColor="@color/clear"
+            app:cardCornerRadius="20dp"
+            android:outlineAmbientShadowColor="@color/clear"
+            android:outlineSpotShadowColor="@color/clear"
+            android:layout_weight="0.8">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_filelist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </androidx.cardview.widget.CardView>
+
+
 
         <TextView
             android:id="@+id/tv_download_directory"

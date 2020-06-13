@@ -5,15 +5,13 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
-import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
 
 import com.lbynet.connect.backend.SAL;
+import com.lbynet.connect.backend.frames.NetCallback;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
-
-import java.lang.reflect.Method;
 
 public class SystemManager {
 
@@ -32,17 +30,18 @@ public class SystemManager {
 
         NetworkRequest request = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build();
 
+        //Wi-Fi State
         ((ConnectivityManager)context
                 .getSystemService(Context.CONNECTIVITY_SERVICE))
                 .registerNetworkCallback(request,new ConnectivityManager.NetworkCallback() {
                     @Override
                     public void onAvailable(@NonNull Network network) {
                         super.onAvailable(network);
-                        DataPool.wifiStatus = DataPool.WifiStatus.CONNECTED;
+                        DataPool.isWifiConnected = true;
                         FileReceiver.restartLater();
                         try {
                             Pairing.start();
-                            Pairing.recover();
+                            Pairing.onConnect();
                         } catch (Exception e) {
                             SAL.print(e);
                         }
@@ -50,9 +49,23 @@ public class SystemManager {
 
                     @Override
                     public void onLost(@NonNull Network network) {
-                        DataPool.wifiStatus = DataPool.WifiStatus.IDLE;
+                        DataPool.isWifiConnected = false;
+                        Pairing.onLost();
                     }
                 });
+
+        //Pairing
+        Pairing.setStatusCallback(new NetCallback() {
+            @Override
+            public void onConnect() {
+                SAL.print("Pairing Possible");
+            }
+
+            @Override
+            public void onLost() {
+                SAL.print("Pairing Bad");
+            }
+        });
     }
 
     public static void setPowerSavingMode(boolean isTrue) {

@@ -1,110 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/screen"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/screen">
+    android:layout_height="match_parent">
 
+    <!-- Clear background layer -->
     <ImageView
-        android:id="@+id/iv_master_background"
+        android:id="@+id/iv_background_clear"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="visible" />
 
+    <!-- Blur background layer -->
+    <ImageView
+        android:id="@+id/iv_background_blur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
+
+    <!-- Top edge fade -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="@drawable/edge_top"
-        />
+        android:foreground="@drawable/edge_top" />
 
+    <!-- Dark mode (Darken) layer -->
     <View
-        android:id="@+id/iv_bkgnd_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="#FF000000"
+        android:foreground="@color/dark_overlay"
         android:alpha="?attr/dmAlpha"/>
 
-
+    <!-- Main content -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/master"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical">
-        
-        <View
+
+        <!-- Logo (Monochrome/Colored for showing status as well) -->
+
+        <FrameLayout
             android:layout_width="131.89dp"
             android:layout_height="122.67dp"
-            android:foreground="@drawable/ic_connect_logo_v3_round"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="30dp"/>
+            android:layout_marginBottom="20dp">
 
-        <TextView
+            <View
+                android:id="@+id/logo_inactive"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:foreground="@drawable/ic_connect_logo_v3_monochrome" />
+
+            <View
+                android:id="@+id/logo_active"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:foreground="@drawable/ic_connect_logo_v3_clear"
+                android:visibility="invisible" />
+
+        </FrameLayout>
+
+        <!-- Online / Offline status indicator -->
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_fsn_status"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="40dp"
-            android:gravity="center_horizontal"
-            android:textColor="@color/white_100"
-            android:textStyle="bold"
-            android:text="@string/app_name"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="23dp"
-            android:gravity="center_horizontal"
-            android:textColor="@color/white_solid_75"
-            android:textStyle="normal"
-            android:text="@string/app_author_text"
-            android:layout_marginBottom="50dp"
-            />
-
-        <!-- ConNET status-->
-
-        <LinearLayout
-            android:paddingHorizontal="30dp"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal"
-            >
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:outlineAmbientShadowColor="@color/clear"
+            android:outlineSpotShadowColor="@color/clear"
+            app:cardBackgroundColor="@color/negative_75"
+            app:cardCornerRadius="10dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/tv_fsn_status"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="0.7"
+                android:layout_margin="5dp"
                 android:autoSizeTextType="uniform"
-                android:maxLines="1"
-                android:text="@string/launcher_fsn"
                 android:gravity="center"
-                android:paddingRight="5dp"
-                android:textColor="@color/white_solid_75"/>
+                android:maxLines="1"
+                android:text="@string/launcher_fsn_bad"
+                android:textColor="@color/white_75" />
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Three buttons -->
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:foreground="@color/clear"
+            android:background="@color/clear"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@color/clear"
+            android:outlineSpotShadowColor="@color/clear"
+            android:outlineAmbientShadowColor="@color/clear"
+            android:layout_marginTop="15dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/white_25"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_info"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:foreground="@drawable/ic_info"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="onTriButtonClicked"/>
 
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_received"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:foreground="@drawable/ic_download"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="onTriButtonClicked"/>
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.3"
-                android:id="@+id/cv_fsn_status"
-                app:cardCornerRadius="5dp"
-                android:outlineAmbientShadowColor="@color/clear"
-                android:outlineSpotShadowColor="@color/clear"
-                app:cardBackgroundColor="@color/negative_75"
-                >
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_help"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:foreground="@drawable/ic_help"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="onTriButtonClicked"/>
+            </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:autoSizeTextType="uniform"
-                    android:maxLines="1"
-                    android:gravity="center"
-                    android:layout_margin="5dp"
-                    android:text="@string/launcher_fsn_bad"
-                    android:id="@+id/tv_fsn_status"
-                    android:textColor="@color/white_75"
-                    />
 
-            </androidx.cardview.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-        </LinearLayout>
 
     </LinearLayout>
 

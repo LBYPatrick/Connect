@@ -1,5 +1,6 @@
 package com.lbynet.connect;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -18,6 +19,7 @@ import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.core.SystemManager;
+import com.lbynet.connect.backend.frames.NetCallback;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.Visualizer;
@@ -31,6 +33,8 @@ import jp.wasabeef.blurry.Blurry;
 //TODO: FileRecvStreamer improvement: create directories, delete file if the connection is interrupted
 
 public class LauncherActivity extends AppCompatActivity {
+
+    private String TAG = this.getClass().getSimpleName();
 
     Timer renderTimer = new Timer("Launcher Timer");
 
@@ -89,18 +93,14 @@ public class LauncherActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme);
         setContentView(R.layout.launcher);
         FrameLayout main = findViewById(R.id.screen);
-        //Configuration
 
+
+        Utils.hideView(findViewById(R.id.master),false,0);
         Utils.hideView(main, false, 0);
-        Utils.showView(main, 200);
 
 
-        runOnUiThread(() -> {
-            Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_master_background));
-        });
-
-
-        //((ImageView)findViewById(R.id.iv_master_background)).setImageBitmap(Utils.getWallpaper(this));
+        ((ImageView)findViewById(R.id.iv_background_clear)).setImageBitmap(Utils.getWallpaper(this));
+        Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background_blur));
 
         try {
 
@@ -118,43 +118,50 @@ public class LauncherActivity extends AppCompatActivity {
         //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
 
-        new Thread(() -> {
-            boolean isGood = false;
-
-            while (true) {
-
-                boolean temp = (DataPool.wifiStatus == DataPool.WifiStatus.CONNECTED);
-
-                if (temp != isGood) {
-                    isGood = temp;
-                    Visualizer.updateFsnStatusOnLauncher(this, isGood);
-                }
-
-                Utils.sleepFor(500);
-            }
-
-        }).start();
+        setPairingCallback();
 
         SAL.print("LaunchActivity took " + renderTimer.getElaspedTimeInMs() + "ms to render interface.");
 
+        Utils.showView(main, 200);
+        Utils.showView(findViewById(R.id.iv_background_blur),300);
+        Utils.showView(findViewById(R.id.master),300);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        DataPool.isLauncherActivity = true;
+
+        SAL.print(SAL.MsgType.VERBOSE,TAG,"onResume");
+        setPairingCallback();
     }
 
-    public boolean onMainButtonClicked(View v) {
-        if (((TextView) v.findViewById(R.id.text)).getText() == "Settings") {
-            startActivityForResult(new Intent(this, SettingsActivity.class), 0);
+    public void setPairingCallback() {
+
+        AppCompatActivity activity = this;
+        Pairing.setStatusCallback(new NetCallback() {
+            @Override
+            public void onConnect() {
+                Visualizer.updateFsnStatusOnLauncher(activity);
+            }
+
+            @Override
+            public void onLost() {
+                Visualizer.updateFsnStatusOnLauncher(activity);
+            }
+        });
+    }
+
+    public void onTriButtonClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_help:
+                break;
+            case R.id.btn_info:
+                break;
+            case R.id.btn_received:
+                startActivity(new Intent("CHECK_RECEIVED_ITEMS"));
+                break;
+            default:
+                break;
         }
-        return true;
     }
-
-    public void onSettingsButtonClicked(View view) {
-
-        startActivityForResult(new Intent(this, SettingsActivity.class), 0);
-    }
-
 }

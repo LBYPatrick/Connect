@@ -4,14 +4,13 @@ import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
 import com.lbynet.connect.backend.Utils;
-import com.lbynet.connect.backend.frames.BooleanListener;
+import com.lbynet.connect.backend.frames.NetCallback;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 //This is a singleton, so do not create instances of this class
 public class Pairing {
@@ -53,33 +52,36 @@ public class Pairing {
 
     //Eager Initialization
     private static Pairing instance = new Pairing();
+
     private static InetAddress GROUP_ADDR;
-    private static String selfUid_;
     private static byte[] msg_;
-
-    final private static String MCAST_ADDR = "233.233.233.233";
-    final private static int MCAST_PORT = 2333,
-            BUFFER_LENGTH = 128;
-
-    private static String subnet_,
-            selfIp_,
-            selfName_;
-
+    private static String selfUid_,
+                          subnet_,
+                          selfIp_,
+                          selfName_;
     private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
-
     private static MulticastSocket socket_;
 
     private static boolean isStarted = false,
             isBusy = false,
             isInvisible_ = false;
-
     private static Thread listenThread,
             sendThread;
-
     private static Runnable sendTask,
             listenTask;
+    private static NetCallback statusCallback_ = new NetCallback();
 
+    final private static String MCAST_ADDR = "233.233.233.233";
+    final private static int MCAST_PORT = 2333,
+                             BUFFER_LENGTH = 128;
+    final public static String TAG = Pairing.class.getSimpleName();
+
+
+    /**
+     * Initialize Runnable objects for listen and send threads
+     */
     private Pairing() {
+
         try {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
             selfUid_ = Utils.getRandomString(4);
@@ -87,7 +89,6 @@ public class Pairing {
         } catch (Exception e) {
             SAL.print(e);
         }
-
 
         sendTask = () -> {
             while (!isStarted) {
@@ -204,8 +205,14 @@ public class Pairing {
 
                         }
                     } else if (selfIp_ == null) {
+
+                        DataPool.isPairingReady = true;
                         selfIp_ = d.ip;
                         selfName_ = d.deviceName;
+
+                        DataPool.isPairingReady = true;
+                        statusCallback_.onConnect();
+
                     }
                     Utils.sleepFor(10);
                 }
@@ -215,6 +222,7 @@ public class Pairing {
     }
 
     /**
+     * Start the pairing service, device list can be obtained by getPairedDevices()s
      * @throws Exception
      */
     public static void start() throws Exception {
@@ -224,6 +232,8 @@ public class Pairing {
         }
 
         msg_ = (SAL.getDeviceName() + "\n" + selfUid_).getBytes();
+
+        SAL.print(SAL.MsgType.VERBOSE,TAG,"Started with name " + SAL.getDeviceName() + " and uid " + selfUid_);
 
         joinGroup();
 
@@ -236,6 +246,9 @@ public class Pairing {
         sendThread.start();
     }
 
+    /**
+     * Manually stop the pairing service.
+     */
     public static void stop() {
 
         isStarted = false;
@@ -265,10 +278,16 @@ public class Pairing {
         }
     }
 
-    public static void recover() {
+    /**
+     * Recover from network disconnection (manually called by the user)
+     */
+    public static void onConnect() {
         joinGroup();
     }
 
+    /**
+     * Manually restart the pairing service. Do not call this method UNLESS stuff keeps failing/User ID is changed.
+     */
     public static void restart() {
 
         if (isStarted) {
@@ -281,10 +300,17 @@ public class Pairing {
         }
     }
 
+    /**
+     *
+     * @return An unfiltered list of devices (i.e. including those that are not "fresh" -- probably closed the app)
+     */
     public static ArrayList<Device> getPairedDevices() {
         return pairedDevices_;
     }
 
+    /**
+     * Join the multicast group for send and receiving beacons.
+     */
     public static void joinGroup() {
         try {
             socket_ = new MulticastSocket(MCAST_PORT);
@@ -328,5 +354,20 @@ public class Pairing {
 
     public static void setInvisible(boolean isInvisible) {
         isInvisible_ = isInvisible;
+    }
+
+    public static void setStatusCallback(NetCallback statusCallback) {
+        statusCallback_ = statusCallback;
+    }
+
+    public static void onLost() {
+
+        //Reset variables
+        selfIp_ = null;
+        selfName_ = null;
+        subnet_ = null;
+
+        DataPool.isPairingReady = false;
+        statusCallback_.onLost();
     }
 }

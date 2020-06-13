@@ -8,8 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,7 +18,6 @@ import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.core.SystemManager;
 import com.lbynet.connect.backend.networking.FileReceiver;
-import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.TargetLoader;
 import com.lbynet.connect.frontend.Visualizer;
 
@@ -79,14 +78,10 @@ public class SendActivity extends AppCompatActivity {
 
         configureDarkMode();
 
-        Utils.hideView(findViewById(R.id.screen),false,0);
-
-        //Blur background
-        Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background));
-
-        //Show everything
-        Utils.showView(findViewById(R.id.screen),200);
-
+        //Setup clear background
+        ((ImageView) findViewById(R.id.iv_background_clear)).setImageBitmap(Utils.getWallpaper(this));
+        //Setup blur background
+        Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background_blur));
 
         DataPool.activity = this;
 
@@ -137,6 +132,11 @@ public class SendActivity extends AppCompatActivity {
         //Set target select prompt
         ((TextView)findViewById(R.id.tv_send_main_title)).setText(titleText);
         ((TextView)findViewById(R.id.tv_send_subtitle)).setText(subtitle);
+
+        //Show everything
+        Utils.showView(findViewById(R.id.iv_background_blur),500);
+        Utils.showView(findViewById(R.id.master),500);
+
     }
 
     @Override

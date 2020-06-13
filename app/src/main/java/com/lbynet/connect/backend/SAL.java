@@ -57,8 +57,13 @@ public class SAL {
 
     public static String getDeviceName() {
 
-        return Settings.Secure.getString(DataPool.activity.getContentResolver(),"bluetooth_name");
-        //return Build.BRAND +" " + Build.MODEL + " " + Build.ID;
+        String name = Settings.Secure.getString(DataPool.activity.getContentResolver(),"bluetooth_name");
+
+        if(name == null) {
+            name = Build.BRAND +" " + Build.MODEL + " " + Build.ID;
+        }
+
+        return name;
     }
 
     public static void print(Exception e) {

@@ -8,16 +8,31 @@
     <!-- Background image (Wallpaper) -->
 
     <ImageView
-        android:id="@+id/iv_background"
+        android:id="@+id/iv_background_clear"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible"/>
+
+    <ImageView
+        android:id="@+id/iv_background_blur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:foreground="@drawable/edge_top"
+        android:visibility="visible"
         />
+
+    <!-- Dark mode (Darken) layer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="@color/dark_overlay"
+        android:alpha="?attr/dmAlpha"/>
 
     <!-- The REAL layout -->
     <LinearLayout
@@ -26,7 +41,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="invisible">
 
         <!-- Title bar -->
         <LinearLayout
@@ -46,7 +62,7 @@
                 android:gravity="left"
                 android:maxLines="1"
                 android:text="@string/sendto_main_title"
-                android:textColor="@color/white_100"
+                android:textColor="?attr/colorText"
                 android:textStyle="bold" />
 
             <TextView
@@ -56,7 +72,8 @@
                 android:autoSizeTextType="uniform"
                 android:maxLines="1"
                 android:text="@string/sendto_subtitle"
-                android:textColor="@color/white_75"
+                android:textColor="?attr/colorText"
+                android:alpha="0.5"
                 android:textStyle="normal" />
 
 

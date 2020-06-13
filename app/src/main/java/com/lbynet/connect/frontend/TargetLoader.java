@@ -8,6 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -57,10 +58,12 @@ public class TargetLoader extends ParallelTask {
 
             for (int i = 0; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {
 
-                FrameLayout v = (FrameLayout) activity_.getLayoutInflater().inflate(R.layout.target_button, null);
+                CardView v = (CardView) activity_.getLayoutInflater().inflate(R.layout.target_button, null);
                 v.setOnClickListener(this::onTargetSelected);
                 v.setVisibility(View.GONE);
 
+                v.findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+                v.findViewById(R.id.tv_speed).setVisibility(View.GONE);
 
                 ((LinearLayout) rootView_.findViewById(R.id.ll_select)).addView(v);
                 deviceHolders.add(v);
