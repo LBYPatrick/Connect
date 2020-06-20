@@ -11,6 +11,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
+import java.util.Collections;
 
 //This is a singleton, so do not create instances of this class
 public class Pairing {
@@ -42,7 +43,7 @@ public class Pairing {
 
         public long getFreshness() {
 
-            return isDead ? -1 : t.getElaspedTimeInMs();
+            return t.getElaspedTimeInMs();
         }
 
         public void refresh() {
@@ -59,12 +60,15 @@ public class Pairing {
                           subnet_,
                           selfIp_,
                           selfName_;
-    private static ArrayList<Device> pairedDevices_ = new ArrayList<>();
+    private static ArrayList<Device> pairedDevices_ = new ArrayList<>(),
+                                     filteredDevices_ = new ArrayList<>();
     private static MulticastSocket socket_;
 
     private static boolean isStarted = false,
             isBusy = false,
-            isInvisible_ = false;
+            isInvisible_ = false,
+            isListChanged = true;
+
     private static Thread listenThread,
             sendThread;
     private static Runnable sendTask,
@@ -174,11 +178,12 @@ public class Pairing {
                             for (Device i : pairedDevices_) {
                                 if (d.ip.equals(i.ip) && !i.uid.equals(d.uid)) {
                                     i.kill();
+                                    pairedDevices_.remove(i);
+                                    isListChanged = true;
                                     break;
                                 }
                             }
                         }
-
 
                         if (!isExistingDevice) {
 
@@ -202,7 +207,7 @@ public class Pairing {
                                 pairedDevices_.add(d);
                             }
 
-
+                            isListChanged = true;
                         }
                     } else if (selfIp_ == null) {
 
@@ -212,7 +217,6 @@ public class Pairing {
 
                         DataPool.isPairingReady = true;
                         statusCallback_.onConnect();
-
                     }
                     Utils.sleepFor(10);
                 }
@@ -279,10 +283,31 @@ public class Pairing {
     }
 
     /**
-     * Recover from network disconnection (manually called by the user)
+     * called when recovering from network disconnection (manually called by user)
+     * (Called by SystemManager in this app)
      */
-    public static void onConnect() {
+    public static void onRecover() {
+
+        selfUid_ = Utils.getRandomString(4);
+        msg_ = (SAL.getDeviceName() + "\n" + selfUid_).getBytes();
+
         joinGroup();
+
+    }
+
+    /**
+     * Called when LAN connection is lost (manually called by user)
+     * (Called by SystemManager in this app)
+     */
+    public static void onLost() {
+
+        //Reset variables
+        selfIp_ = null;
+        selfName_ = null;
+        subnet_ = null;
+
+        DataPool.isPairingReady = false;
+        statusCallback_.onLost();
     }
 
     /**
@@ -306,6 +331,55 @@ public class Pairing {
      */
     public static ArrayList<Device> getPairedDevices() {
         return pairedDevices_;
+    }
+
+    /**
+     * Get a filtered list of paired devices (i.e. Alive and fresh enough)
+     * @param buffer the list buffer for us to write in
+     * @return Whether the list written is new
+     *         (Allowing user to optimize their code as needed. For example: RecyclerView)
+     */
+    public static boolean getFilteredDevices(ArrayList<Device> buffer) {
+        boolean isUpdateNeeded = false;
+
+        if(isListChanged) {
+
+            SAL.print("List changed!");
+            isUpdateNeeded = true;
+
+            buffer.clear();
+
+            for(Device i : pairedDevices_) {
+                if((!i.isDead()) && i.getFreshness() < 2500) {
+                    buffer.add(i);
+                }
+            }
+
+            filteredDevices_ = buffer;
+        }
+
+        //If there has been no update to the list of devices, filter out the old devices
+        else {
+
+            SAL.print("On else");
+
+            for (Device i : filteredDevices_) {
+                if (i.getFreshness() > 2500) {
+                    filteredDevices_.remove(i);
+                    isUpdateNeeded = true;
+                }
+            }
+
+            if(isUpdateNeeded) {
+                buffer.clear();
+                buffer.addAll(filteredDevices_);
+            }
+        }
+
+        //Resets the change notification flag
+        isListChanged = false;
+
+        return isUpdateNeeded;
     }
 
     /**
@@ -352,6 +426,10 @@ public class Pairing {
         return selfUid_;
     }
 
+    public static boolean isStarted() {
+        return isStarted;
+    }
+
     public static void setInvisible(boolean isInvisible) {
         isInvisible_ = isInvisible;
     }
@@ -360,14 +438,4 @@ public class Pairing {
         statusCallback_ = statusCallback;
     }
 
-    public static void onLost() {
-
-        //Reset variables
-        selfIp_ = null;
-        selfName_ = null;
-        subnet_ = null;
-
-        DataPool.isPairingReady = false;
-        statusCallback_.onLost();
-    }
 }

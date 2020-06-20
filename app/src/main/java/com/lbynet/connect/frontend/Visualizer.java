@@ -19,6 +19,7 @@ import com.lbynet.connect.R;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
+import com.lbynet.connect.backend.core.SystemManager;
 import com.lbynet.connect.backend.networking.FileRecvStreamer;
 import com.lbynet.connect.backend.networking.FileStreamer;
 
@@ -29,7 +30,7 @@ public class Visualizer {
 
     static boolean isChannelCreated = false;
 
-    public static void showReceiveProgress(Context context, String senderName, ArrayList<FileRecvStreamer> streams) {
+    public static void showRecvNotification(Context context, String senderName, ArrayList<FileRecvStreamer> streams) {
 
 
         new Thread(() -> {
@@ -149,7 +150,11 @@ public class Visualizer {
 
             subtitle = String.format(context.getString(R.string.notif_recv_finished_subtitle));
 
-            //TODO: Construct intent
+            //Construct intent
+
+            //TODO: Fix WeChat's ACTION_SEND_MULTIPLE failure
+
+            // SystemManager.overrideFileSafety();
 
             Intent sendIntent = null;
             PendingIntent pIntent = null;
@@ -158,24 +163,21 @@ public class Visualizer {
                 sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
                 sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,fileUris);
 
-                String type = context.getContentResolver().getType(fileUris.get(0));
+                String type = "image/*";
                 sendIntent.setType(type);
-
-                SAL.print("Default type: " + type);
 
                 for(Uri i : fileUris) {
 
                     String cType = context.getContentResolver().getType(i);
 
-                    if(!cType.equals(type)) {
+                    if(!cType.contains("image")) {
                         type = "*/*";
                         sendIntent.setType(type);
-                        SAL.print("Type mismatch: " + cType);
                         break;
                     }
                 }
 
-                SAL.print("Final type: " + type);
+                SAL.print("Final MIME type: " + type);
 
 
             }

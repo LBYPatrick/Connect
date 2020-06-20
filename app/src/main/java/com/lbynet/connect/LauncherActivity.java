@@ -1,18 +1,14 @@
 package com.lbynet.connect;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Timer;
@@ -23,6 +19,8 @@ import com.lbynet.connect.backend.frames.NetCallback;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.Visualizer;
+
+import java.util.ArrayList;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -103,17 +101,40 @@ public class LauncherActivity extends AppCompatActivity {
         Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background_blur));
 
         try {
-
-            //Pairing.start();
-
             FileReceiver.setOnReceiveListener((senderName, streams) -> {
-                Visualizer.showReceiveProgress(this, senderName, streams);
+                Visualizer.showRecvNotification(this, senderName, streams);
             });
-
-            //FileReceiver.start();
         } catch (Exception e) {
             SAL.print(e);
         }
+
+        //For debugging purposes only
+
+        /*
+        new Thread( () -> {
+
+            ArrayList<Pairing.Device> devices = new ArrayList<>();
+
+
+            while(true) {
+                boolean isChanged = Pairing.getFilteredDevices(devices);
+
+                String msg = "";
+
+                msg += "Is list changed: " + isChanged + "\n";
+                msg += "Device list: \n";
+
+                for(Pairing.Device i : devices) {
+                    msg += "\tName: " + i.deviceName + " UID: " + i.uid + " IP: " + i.ip + "\n";
+                }
+
+                SAL.print(SAL.MsgType.VERBOSE,TAG,msg);
+
+                Utils.sleepFor(500);
+            }
+
+        }).start();
+         */
 
         //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);

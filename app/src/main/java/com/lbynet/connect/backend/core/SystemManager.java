@@ -5,6 +5,8 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.os.Build;
+import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
 
@@ -40,8 +42,14 @@ public class SystemManager {
                         DataPool.isWifiConnected = true;
                         FileReceiver.restartLater();
                         try {
-                            Pairing.start();
-                            Pairing.onConnect();
+
+                            if(!Pairing.isStarted()) {
+                                Pairing.start();
+                            }
+                            else {
+                                Pairing.onRecover();
+                            }
+
                         } catch (Exception e) {
                             SAL.print(e);
                         }
@@ -66,6 +74,13 @@ public class SystemManager {
                 SAL.print("Pairing Bad");
             }
         });
+    }
+
+    public static void overrideFileSafety() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+        }
     }
 
     public static void setPowerSavingMode(boolean isTrue) {

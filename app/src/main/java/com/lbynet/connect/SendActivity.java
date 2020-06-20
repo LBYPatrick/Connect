@@ -92,7 +92,7 @@ public class SendActivity extends AppCompatActivity {
 
             //Register listener for notification
             FileReceiver.setOnReceiveListener((senderName,streams) -> {
-                Visualizer.showReceiveProgress(this,senderName,streams);
+                Visualizer.showRecvNotification(this,senderName,streams);
             });
 
         } catch (Exception e) {
