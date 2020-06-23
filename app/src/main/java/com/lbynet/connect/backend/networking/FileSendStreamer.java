@@ -125,6 +125,14 @@ public class FileSendStreamer extends FileStreamer {
         }
     }
 
+    public long getNumBytesSent() {
+        return totalBytesRead;
+    }
+
+    public long getFileSize() {
+        return fileSize_;
+    }
+
     /**
      * Calculate transfer speed in kilobytes per second
      * @return

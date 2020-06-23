@@ -349,7 +349,7 @@ public class Pairing {
 
         if(isListChanged) {
 
-            SAL.print(SAL.MsgType.VERBOSE,TAG,"List changed!");
+            //SAL.print(SAL.MsgType.VERBOSE,TAG,"List changed!");
             isUpdateNeeded = true;
 
             filteredDevices_.clear();
@@ -365,7 +365,7 @@ public class Pairing {
         //If there has been no update to the list of devices, filter out the old devices
         else {
 
-            SAL.print(SAL.MsgType.VERBOSE,TAG,"On else");
+            //SAL.print(SAL.MsgType.VERBOSE,TAG,"On else");
 
             for (Device i : filteredDevices_) {
                 if (i.getFreshness() > freshnessInMs) {

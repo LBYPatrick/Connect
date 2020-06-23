@@ -151,7 +151,7 @@ public class FileRecvStreamer extends FileStreamer {
      * Get filesize in bytes.
      * @return filesize
      */
-    public long getFileSize_() {
+    public long getFileSize() {
         return fileSize_;
     }
 
@@ -166,16 +166,18 @@ public class FileRecvStreamer extends FileStreamer {
     public double getProgress() {
         if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
             return 1;
-        }
-        else if(netStatus == NetStatus.SUCCESS) {
+        } else if (netStatus == NetStatus.SUCCESS) {
             return 1;
-        }
-        else {
+        } else {
             double bottom = (fileSize_ == 0) ? 1 : fileSize_;
             double top = totalBytesRead;
             double result = top / bottom;
             return result;
         }
+    }
+
+    public long getNumBytesRead() {
+        return totalBytesRead;
     }
 
     /**

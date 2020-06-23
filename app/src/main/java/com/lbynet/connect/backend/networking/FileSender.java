@@ -87,31 +87,36 @@ public class FileSender extends ParallelTask {
             JSONArray ports = new JSONArray(receivedData);
 
 
+            long totalSize = 0;
+
             //Start file receive streamers
             for (int i = 0; i < ports.length(); ++i) {
 
                 FileSendStreamer fss = new FileSendStreamer(fileStreams_.get(i), fileInfos_.get(i).size, ip_, ports.getInt(i));
+                totalSize += fileInfos_.get(i).size;
                 queue.add(fss);
                 fss.start();
             }
 
-            numFiles = queue.size();
+            //numFiles = queue.size();
 
             //Wait till everything is done
             while (true) {
 
-                double tempPercent = 0;
+                double finishedBytes = 0;
                 long tempSpeed = 0;
 
                 //Iterate through every task
                 for (int i = 0; i < queue.size(); ++i) {
 
-                    tempPercent += (queue.get(i).getProgress());
-                    tempSpeed += queue.get(i).getAverageSpeedInKbps();
+                    FileSendStreamer task = queue.get(i);
+
+                    finishedBytes += task.getNumBytesSent();
+                    tempSpeed += task.getAverageSpeedInKbps();
 
                 }
 
-                percentDone = tempPercent / numFiles;
+                percentDone = finishedBytes / totalSize;
                 speedInKilobytesPerSec = tempSpeed;
 
                 SAL.print("Speed: " + tempSpeed + "\tPercent done: " + percentDone);
@@ -176,7 +181,6 @@ public class FileSender extends ParallelTask {
 
         return new int[]{good, bad};
     }
-
 
     public NetStatus getNetStatus() {
         return netStatus;

@@ -69,21 +69,26 @@ public class Visualizer {
 
             int notificationId = Utils.getUniqueInt();
 
+            long totalSize = 0;
+            for(FileRecvStreamer i : streams) {
+                totalSize += i.getFileSize();
+            }
+
             //Progress update
             while (true) {
 
-                double tempPercent = 0;
+                double finishedBytes = 0;
                 long tempSpeed = 0;
 
                 //Iterate through every task
                 for (int i = 0; i < streams.size(); ++i) {
 
-                    tempPercent += (streams.get(i).getProgress());
+                    finishedBytes += streams.get(i).getNumBytesRead();
                     tempSpeed += streams.get(i).getAverageSpeedInKbps();
 
                 }
 
-                percentDone = tempPercent / numFiles;
+                percentDone = finishedBytes / totalSize;
                 speedInKilobytesPerSec = tempSpeed;
 
                 String info;
