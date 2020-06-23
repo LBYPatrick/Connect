@@ -18,6 +18,7 @@ import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.core.SystemManager;
 import com.lbynet.connect.backend.networking.FileReceiver;
+import com.lbynet.connect.backend.networking.Pairing;
 import com.lbynet.connect.frontend.TargetLoader;
 import com.lbynet.connect.frontend.Visualizer;
 
@@ -117,9 +118,20 @@ public class SendActivity extends AppCompatActivity {
             uris.add(uri);
         }
 
-        targetLoader = new TargetLoader(findViewById(R.id.fl_select),this);
-        targetLoader.setUris(uris);
-        targetLoader.start();
+        if(targetLoader == null) {
+            targetLoader = new TargetLoader(findViewById(R.id.fl_select),this);
+            targetLoader.setUris(uris);
+            targetLoader.start();
+        }
+        else {
+            targetLoader.setUris(uris);
+        }
+
+        try {
+            Pairing.start();
+        } catch (Exception e) {
+            SAL.print(e);
+        }
         targetLoader.requestForceUpdate();
 
         String titleText = String.format(getString(R.string.sendto_main_title),uris.size());

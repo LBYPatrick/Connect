@@ -246,8 +246,10 @@ public class TargetLoader extends ParallelTask {
             int nTotalDevices = 0;
 
             //Accept force update request ONCE
-            if(isForceUpdateNeeded_ && devices.size() > 0) {
-                isForceUpdateNeeded_ = false;
+            if(isForceUpdateNeeded_) {
+                if(devices.size() > 0) {
+                    isForceUpdateNeeded_ = false;
+                }
             }
             else if(!isChanged) {
                 continue;
