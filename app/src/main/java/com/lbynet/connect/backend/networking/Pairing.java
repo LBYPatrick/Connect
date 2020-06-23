@@ -349,42 +349,60 @@ public class Pairing {
 
         if(isListChanged) {
 
-            //SAL.print("List changed!");
+            SAL.print(SAL.MsgType.VERBOSE,TAG,"List changed!");
             isUpdateNeeded = true;
 
-            buffer.clear();
+            filteredDevices_.clear();
 
             for(Device i : pairedDevices_) {
                 if((!i.isDead()) && i.getFreshness() < freshnessInMs) {
-                    buffer.add(i);
+                    SAL.print(SAL.MsgType.VERBOSE,TAG,i.deviceName + " added.");
+                    filteredDevices_.add(i);
                 }
             }
-
-            filteredDevices_ = buffer;
         }
 
         //If there has been no update to the list of devices, filter out the old devices
         else {
 
-            //SAL.print("On else");
+            SAL.print(SAL.MsgType.VERBOSE,TAG,"On else");
 
             for (Device i : filteredDevices_) {
                 if (i.getFreshness() > freshnessInMs) {
+                    SAL.print(SAL.MsgType.VERBOSE,TAG,i.deviceName + " removed.");
                     filteredDevices_.remove(i);
                     isUpdateNeeded = true;
                 }
             }
 
-            if(isUpdateNeeded) {
-                buffer.clear();
-                buffer.addAll(filteredDevices_);
+        }
+
+        //Detect difference
+        if(filteredDevices_.size() != buffer.size()) {
+            isUpdateNeeded = true;
+        }
+        else {
+            for(int i = 0; i < filteredDevices_.size(); ++i) {
+                if(filteredDevices_.get(i) != buffer.get(i)) {
+                    isUpdateNeeded = true;
+                    break;
+                }
             }
+        }
+
+        if(isUpdateNeeded) {
+            buffer.clear();
+            buffer.addAll(filteredDevices_);
         }
 
         //Resets the change notification flag
         isListChanged = false;
 
         return isUpdateNeeded;
+    }
+
+    public static void requestForceUpdate() {
+        isListChanged = true;
     }
 
     /**

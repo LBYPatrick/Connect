@@ -134,7 +134,7 @@ public class LauncherActivity extends AppCompatActivity {
             }
 
         }).start();
-         */
+        */
 
         //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
