@@ -333,24 +333,29 @@ public class Pairing {
         return pairedDevices_;
     }
 
+
+    public static boolean getFilteredDevices(ArrayList<Device> buffer) {
+        return getFilteredDevices(buffer,2500);
+    }
+
     /**
      * Get a filtered list of paired devices (i.e. Alive and fresh enough)
      * @param buffer the list buffer for us to write in
      * @return Whether the list written is new
      *         (Allowing user to optimize their code as needed. For example: RecyclerView)
      */
-    public static boolean getFilteredDevices(ArrayList<Device> buffer) {
+    public static boolean getFilteredDevices(ArrayList<Device> buffer, int freshnessInMs) {
         boolean isUpdateNeeded = false;
 
         if(isListChanged) {
 
-            SAL.print("List changed!");
+            //SAL.print("List changed!");
             isUpdateNeeded = true;
 
             buffer.clear();
 
             for(Device i : pairedDevices_) {
-                if((!i.isDead()) && i.getFreshness() < 2500) {
+                if((!i.isDead()) && i.getFreshness() < freshnessInMs) {
                     buffer.add(i);
                 }
             }
@@ -361,10 +366,10 @@ public class Pairing {
         //If there has been no update to the list of devices, filter out the old devices
         else {
 
-            SAL.print("On else");
+            //SAL.print("On else");
 
             for (Device i : filteredDevices_) {
-                if (i.getFreshness() > 2500) {
+                if (i.getFreshness() > freshnessInMs) {
                     filteredDevices_.remove(i);
                     isUpdateNeeded = true;
                 }

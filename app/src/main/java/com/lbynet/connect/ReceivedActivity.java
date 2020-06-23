@@ -84,12 +84,6 @@ public class ReceivedActivity extends AppCompatActivity {
         try {
             Uri uri = FileProvider.getUriForFile(this,  "com.lbynet.connect.fileprovider", file);
 
-            /*
-            String name = file.getName(),
-                    path = file.getPath();
-            SAL.print(name + ", " + path);
-             */
-
             ArrayList<Uri> uris = new ArrayList<>();
 
             uris.add(uri);

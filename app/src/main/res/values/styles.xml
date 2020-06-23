@@ -18,9 +18,10 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
 
-        <item name="colorPrimary">#000000</item>
+        <item name="colorPrimary">#0092FF</item>
         <item name="colorPrimaryDark">#005CA1</item>
         <item name="colorAccent">#0092FF</item>
+        <item name="colorItemBackground">#80808080</item>
     </style>
 
     <style name="AppTheme.Splash">
@@ -32,7 +33,7 @@
         <item name="colorMask">#4D000000</item>
         <item name="dmAlpha">0</item>
         <item name="colorText">@color/white_100</item>
-        <item name="colorItemBackground">@color/white_25</item>
+
     </style>
 
     <style name="AppTheme.Dark">
@@ -40,7 +41,6 @@
         <item name="colorMask">#CC000000</item>
         <item name="dmAlpha">1</item>
         <item name="colorText">@color/white_100</item>
-        <item name="colorItemBackground">@color/white_25</item>
     </style>
 
 </resources>

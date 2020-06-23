@@ -141,6 +141,9 @@ public class LauncherActivity extends AppCompatActivity {
 
         setPairingCallback();
 
+        //Force update the status in case the view is re-created
+        Visualizer.updateFsnStatusOnLauncher(this);
+
         SAL.print("LaunchActivity took " + renderTimer.getElaspedTimeInMs() + "ms to render interface.");
 
         Utils.showView(main, 200);

@@ -117,14 +117,10 @@ public class SendActivity extends AppCompatActivity {
             uris.add(uri);
         }
 
-        if(targetLoader == null) {
-            targetLoader = new TargetLoader(findViewById(R.id.fl_select),this);
-            targetLoader.setUris(uris);
-            targetLoader.start();
-        }
-        else {
-            targetLoader.setUris(uris);
-        }
+        targetLoader = new TargetLoader(findViewById(R.id.fl_select),this);
+        targetLoader.setUris(uris);
+        targetLoader.start();
+        targetLoader.requestForceUpdate();
 
         String titleText = String.format(getString(R.string.sendto_main_title),uris.size());
         String subtitle = getString(R.string.sendto_subtitle);

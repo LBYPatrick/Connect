@@ -34,10 +34,16 @@ public class TargetLoader extends ParallelTask {
     FrameLayout rootView_;
     AppCompatActivity activity_;
     boolean isPaused_ = false;
+    boolean isForceUpdateNeeded_ = false;
 
     public TargetLoader(FrameLayout rootView, AppCompatActivity activity) {
         rootView_ = rootView;
         activity_ = activity;
+    }
+
+    public void requestForceUpdate() {
+        SAL.print("Force update requested");
+        isForceUpdateNeeded_ = true;
     }
 
     public void setUris(ArrayList<Uri> uris) {
@@ -233,13 +239,25 @@ public class TargetLoader extends ParallelTask {
                 continue;
             }
 
-            devices = Pairing.getPairedDevices();
+            Utils.sleepFor(200);
+
+            boolean isChanged = Pairing.getFilteredDevices(devices,1000);
 
             int nTotalDevices = 0;
 
+            //Accept force update request ONCE
+            if(isForceUpdateNeeded_ && devices.size() > 0) {
+                isForceUpdateNeeded_ = false;
+            }
+            else if(!isChanged) {
+                continue;
+            }
+
+            SAL.print("Changed! size " + devices.size());
+
             for(Pairing.Device i : devices) {
 
-                if(!i.isDead() && i.getFreshness() < 2500 && nTotalDevices < DataPool.NUM_TARGET_PLACEHOLDERS) {
+                if(nTotalDevices < DataPool.NUM_TARGET_PLACEHOLDERS) {
 
                     FrameLayout parent = deviceHolders.get(nTotalDevices);
                     TextView uid = parent.findViewById(R.id.tv_uid);
@@ -250,6 +268,7 @@ public class TargetLoader extends ParallelTask {
                     //Busy targets -- skip them
                     if(speedView.getVisibility() == View.VISIBLE) {
                         nTotalDevices += 1;
+                        continue;
                     }
 
                     activity_.runOnUiThread(() -> {
@@ -286,8 +305,6 @@ public class TargetLoader extends ParallelTask {
             else {
                 Utils.hideView(activity_,pb,false,100);
             }
-
-            Utils.sleepFor(200);
         }
     }
 }

@@ -14,7 +14,8 @@ import jp.wasabeef.blurry.Blurry;
 
 public class DataPool {
 
-    final public static int NUM_TARGET_PLACEHOLDERS = 10;
+    final public static int NUM_TARGET_PLACEHOLDERS = 10,
+                            DEVICE_LIST_REFRESH_INTERVAL = 1000;
 
     public static boolean isPairingReady = false,
                           isWifiConnected = false,

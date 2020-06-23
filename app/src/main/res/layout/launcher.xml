@@ -74,7 +74,7 @@
             android:outlineAmbientShadowColor="@color/clear"
             android:outlineSpotShadowColor="@color/clear"
             app:cardBackgroundColor="@color/negative_75"
-            app:cardCornerRadius="10dp">
+            app:cardCornerRadius="15dp">
 
             <TextView
                 android:id="@+id/tv_fsn_status"
@@ -85,7 +85,7 @@
                 android:gravity="center"
                 android:maxLines="1"
                 android:text="@string/launcher_fsn_bad"
-                android:textColor="@color/white_75" />
+                android:textColor="@color/white_75"/>
 
         </androidx.cardview.widget.CardView>
 
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:foreground="@color/clear"
             android:background="@color/clear"
-            app:cardCornerRadius="10dp"
+            app:cardCornerRadius="15dp"
             app:cardBackgroundColor="@color/clear"
             android:outlineSpotShadowColor="@color/clear"
             android:outlineAmbientShadowColor="@color/clear"

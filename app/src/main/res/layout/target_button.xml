@@ -7,10 +7,9 @@
     android:background="@color/clear"
     android:outlineAmbientShadowColor="@color/clear"
     android:outlineSpotShadowColor="@color/clear"
-    app:cardCornerRadius="10dp"
+    app:cardCornerRadius="15dp"
     app:cardBackgroundColor="?attr/colorItemBackground"
     >
-
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -23,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:progress="100"
-        android:progressTint="#73FFFFFF"
+        android:progressTint="?attr/colorPrimary"
         android:progressBackgroundTint="@color/clear"
         android:scaleY="100"
         android:visibility="invisible" />
@@ -46,7 +45,7 @@
             android:gravity="center"
             android:text="target_placeholder"
             android:textColor="?attr/colorText"
-            android:textStyle="normal" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_speed"
