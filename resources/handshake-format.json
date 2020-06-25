@@ -1,0 +1,19 @@
+//Sender
+
+{
+    "device" : "device_name",
+    "method" : "encryption_method",
+    "key": "possibly_encrpytion_key",
+    "files" : [
+        "filename_1",
+        "filename_2"
+    ],
+    "sizes" : [
+        "size1",
+        "size2"
+    ] 
+}
+
+//Receiver
+
+["port1","port2"]

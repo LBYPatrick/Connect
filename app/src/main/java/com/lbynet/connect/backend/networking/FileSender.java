@@ -1,21 +1,21 @@
 package com.lbynet.connect.backend.networking;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.lbynet.connect.backend.frames.FileInfo;
 import com.lbynet.connect.backend.frames.ParallelTask;
 import com.lbynet.connect.backend.*;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class FileSender extends ParallelTask {
 
+    final public static String TAG = FileSender.class.getSimpleName();
     private String ip_ = "";
     private ArrayList<FileInfo> fileInfos_;
     private ArrayList<InputStream> fileStreams_;
@@ -54,12 +54,23 @@ public class FileSender extends ParallelTask {
         try {
 
             //Build file info in JSON
-            JSONObject json = new JSONObject();
+            JsonObject json = new JsonObject();
+            JsonArray files = new JsonArray();
+            JsonArray sizes = new JsonArray();
+
+            json.addProperty("device", SAL.getDeviceName());
+            json.addProperty("method", "plain");
+
 
             for (FileInfo file : fileInfos_) {
-                json.put(file.name, file.size);
+                files.add(file.name);
+                sizes.add(file.size);
             }
 
+            json.add("files",files);
+            json.add("sizes",sizes);
+
+            SAL.print(SAL.MsgType.VERBOSE,TAG,json.toString());
 
             //Send file info to target
             Socket socket = new Socket(ip_, Utils.getTargetPort(ip_));
@@ -70,8 +81,7 @@ public class FileSender extends ParallelTask {
             String receivedData = IO.getDataFromRemote(socket, 5000);
 
             if (receivedData != null) {
-                SAL.print(receivedData);
-                SAL.print(SAL.MsgType.VERBOSE, "FileSender", "File Transfer Ports: " + receivedData);
+                SAL.print(SAL.MsgType.VERBOSE, TAG, "File Transfer Ports: " + receivedData);
             }
             else {
                 netStatus = NetStatus.HANDSHAKE_TIMEOUT;
@@ -80,19 +90,17 @@ public class FileSender extends ParallelTask {
 
             netStatus = NetStatus.TRANSFERRING;
 
-            //Utils.sleepFor(200);
             socket.close();
 
             //Parse Response (Which contains an array of ports)
-            JSONArray ports = new JSONArray(receivedData);
-
+            JsonArray ports = JsonParser.parseString(receivedData).getAsJsonArray();
 
             long totalSize = 0;
 
             //Start file receive streamers
-            for (int i = 0; i < ports.length(); ++i) {
+            for (int i = 0; i < ports.size(); ++i) {
 
-                FileSendStreamer fss = new FileSendStreamer(fileStreams_.get(i), fileInfos_.get(i).size, ip_, ports.getInt(i));
+                FileSendStreamer fss = new FileSendStreamer(fileStreams_.get(i), fileInfos_.get(i).size, ip_, ports.get(i).getAsInt());
                 totalSize += fileInfos_.get(i).size;
                 queue.add(fss);
                 fss.start();
@@ -119,10 +127,7 @@ public class FileSender extends ParallelTask {
                 percentDone = finishedBytes / totalSize;
                 speedInKilobytesPerSec = tempSpeed;
 
-                SAL.print("Speed: " + tempSpeed + "\tPercent done: " + percentDone);
-
                 if (percentDone >= 1) {
-                    SAL.print("Getting out...");
                     break;
                 }
 
@@ -145,7 +150,6 @@ public class FileSender extends ParallelTask {
             return;
         }
 
-        SAL.print("All Done");
         netStatus = NetStatus.DONE;
         return;
     }

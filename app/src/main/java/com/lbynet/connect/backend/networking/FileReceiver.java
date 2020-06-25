@@ -1,13 +1,13 @@
 package com.lbynet.connect.backend.networking;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.lbynet.connect.backend.IO;
 import com.lbynet.connect.backend.core.DataPool;
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.Utils;
 import com.lbynet.connect.backend.frames.FileReceiveListener;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -47,14 +47,11 @@ public class FileReceiver {
 
         mainTask = () -> {
 
-            SAL.print("I am ALIVE!");
-
             try {
                 String selfIp = null;
 
                 //Fetch IP address from Pairing
                 while(selfIp == null) {
-                    SAL.print("Fetching IP");
                     selfIp = Pairing.getSelfAddress();
                     Utils.sleepFor(50);
                 }
@@ -73,58 +70,49 @@ public class FileReceiver {
 
                     String data = "";
                     String senderName = "";
-                    String senderIp = "";
 
                     if(DataPool.isInvisibleMode) {
                         Thread.sleep(5000);
                         continue;
                     }
 
-                    SAL.print("Listening...");
+                    SAL.print(SAL.MsgType.VERBOSE,TAG,"Listening");
 
                     s_ = ss_.accept();
 
                     isBusy_ = true;
 
-                    SAL.print("Incoming Connection...");
+                    SAL.print(SAL.MsgType.VERBOSE,TAG,"Incoming Connection");
 
                     data = IO.getDataFromRemote(s_,500);
 
-                    //Get sender name
-                    ArrayList<Pairing.Device> devices = Pairing.getPairedDevices();
-                    senderIp = s_.getInetAddress().toString().substring(1);
-
-                    for(Pairing.Device d : devices) {
-                        if(d.ip.equals(senderIp)) {
-                            senderName = d.deviceName;
-                            SAL.print("Address from Pairing: " + d.ip);
-                            break;
-                        }
-                    }
-
-                    SAL.print("Address from socket: " + senderIp);
-                    SAL.print("SenderName: " + senderName);
-
-                    JSONObject receivedData  = new JSONObject(data);
-                    JSONArray portList = new JSONArray();
-
-                    SAL.print(data);
-
-                    ArrayList<String> fileList = new ArrayList<>();
-                    receivedData.keys().forEachRemaining(fileList::add);
                     ArrayList<FileRecvStreamer> streams = new ArrayList<>();
 
-                    for (String file : fileList) {
+
+                    JsonObject received = JsonParser.parseString(data).getAsJsonObject();
+                    JsonArray files = received.getAsJsonArray("files");
+                    JsonArray sizes = received.getAsJsonArray("sizes");
+
+                    senderName = received.get("device").getAsString();
+
+                    JsonArray portList = new JsonArray();
+
+                    for (int i = 0; i < files.size(); ++i) {
 
                         int port = Utils.getTransferPort();
 
-                        SAL.print(SAL.MsgType.VERBOSE,"FileListener", "Filename: " + file + "\t" + "Port: " + port);
+                        SAL.print(SAL.MsgType.VERBOSE,"FileListener", "Filename: "
+                                + files.get(i).getAsString()
+                                + "\n\t"
+                                + "Port: " + port
+                                + "\n\t"
+                                + "Size: " + sizes.get(i).getAsLong() + " bytes");
 
-                        FileRecvStreamer stream = new FileRecvStreamer(file, Utils.getOutputPath(), port,receivedData.getLong(file));
+                        FileRecvStreamer stream = new FileRecvStreamer(files.get(i).getAsString(), Utils.getOutputPath(), port,sizes.get(i).getAsLong());
                         streams.add(stream);
                         stream.start();
 
-                        portList.put(port);
+                        portList.add(port);
                     }
 
                     IO.sendDataToRemote(s_,portList.toString());
