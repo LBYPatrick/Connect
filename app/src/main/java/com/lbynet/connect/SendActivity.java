@@ -153,6 +153,8 @@ public class SendActivity extends AppCompatActivity {
         SAL.print("onResume");
 
         targetLoader.setPause(false);
+
+        DataPool.isAppHiberated = false;
     }
 
     @Override
@@ -162,6 +164,7 @@ public class SendActivity extends AppCompatActivity {
         SAL.print("onPause");
 
         targetLoader.setPause(true);
+        DataPool.isAppHiberated = true;
     }
 
     public void onSettingsButtonClicked(View view) {

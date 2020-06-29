@@ -192,7 +192,13 @@ public class TargetLoader extends ParallelTask {
                     }
 
                     //After file transfer, hide speed view
+
+
                     Utils.hideView(activity_,speedView,true,100);
+
+                    activity_.runOnUiThread( () -> {
+                        speedView.setText(activity_.getString(R.string.sendto_pending));
+                    });
 
                 } catch (Exception e) {
                     SAL.print(e);
@@ -241,7 +247,7 @@ public class TargetLoader extends ParallelTask {
 
             Utils.sleepFor(200);
 
-            boolean isChanged = Pairing.getFilteredDevices(devices,1000);
+            boolean isChanged = Pairing.getFilteredDevices(devices);
 
             int nTotalDevices = 0;
 

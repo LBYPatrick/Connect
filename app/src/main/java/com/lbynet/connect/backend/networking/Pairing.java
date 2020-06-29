@@ -101,6 +101,12 @@ public class Pairing {
 
             while (true) {
 
+                //Pause sending if the app is hibernated (this variable is manually set in code)
+                if(DataPool.isAppHiberated) {
+                    Utils.sleepFor(10);
+                    continue;
+                }
+
                 if (!isInvisible_) {
                     try {
                         socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
@@ -114,11 +120,7 @@ public class Pairing {
                         }
                     }
                 }
-                if (DataPool.isPowerSavingMode) {
-                    Utils.sleepFor(2000);
-                } else {
-                    Utils.sleepFor(300);
-                }
+                Utils.sleepFor(300);
             }
         };
 
@@ -130,8 +132,14 @@ public class Pairing {
 
             while (true) {
 
-                boolean isPackageGood = true;
+                //Pause receiving if the app is hibernated (this variable is manually set in code)
+                if(DataPool.isAppHiberated) {
+                    Utils.sleepFor(10);
+                    continue;
+                }
 
+
+                boolean isPackageGood = true;
                 DatagramPacket dp = new DatagramPacket(new byte[BUFFER_LENGTH], BUFFER_LENGTH);
 
                 try {
@@ -168,15 +176,28 @@ public class Pairing {
                             if (i.uid.equals(d.uid)) {
                                 isExistingDevice = true;
                                 i.ip = d.ip;
+
+                                //If this device "aged" before and "revived" now, notify getFilteredDevices()
+                                if(i.getFreshness() > 2500) {
+                                    isListChanged = true;
+                                }
+
                                 i.refresh();
                                 break;
                             }
                         }
 
                         if (isExistingDevice) {
-                            //If the device happens to be the same one but changed
+                            /**
+                             * If the device happens to be the same one but changed UID
+                             * Which means that the app has been restarted
+                             */
+
                             for (Device i : pairedDevices_) {
                                 if (d.ip.equals(i.ip) && !i.uid.equals(d.uid)) {
+
+                                    SAL.print(TAG,d.deviceName + " reconnected.");
+
                                     i.kill();
                                     pairedDevices_.remove(i);
                                     isListChanged = true;
@@ -192,6 +213,8 @@ public class Pairing {
                                     + "\tUID: " + d.uid + "\n"
                                     + "\tIP Address: " + d.ip + "\n");
 
+                            pairedDevices_.add(d);
+                            /*
                             boolean isDeviceAdded = false;
                             //Put the device in the right spot of the queue
                             for (int i = 1; i < pairedDevices_.size(); ++i) {
@@ -206,6 +229,7 @@ public class Pairing {
                             if (!isDeviceAdded) {
                                 pairedDevices_.add(d);
                             }
+                             */
 
                             isListChanged = true;
                         }
@@ -369,7 +393,7 @@ public class Pairing {
 
             for (Device i : filteredDevices_) {
                 if (i.getFreshness() > freshnessInMs) {
-                    SAL.print(SAL.MsgType.VERBOSE,TAG,i.deviceName + " removed.");
+                    SAL.print(SAL.MsgType.VERBOSE,TAG,i.deviceName + " removed because of aging.");
                     filteredDevices_.remove(i);
                     isUpdateNeeded = true;
                 }
@@ -443,6 +467,10 @@ public class Pairing {
             return subnet_;
         }
 
+    }
+
+    public static boolean isSocketAlive() {
+        return !socket_.isClosed();
     }
 
     public static String getSelfUid() {

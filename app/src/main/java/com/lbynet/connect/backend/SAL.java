@@ -55,6 +55,10 @@ public class SAL {
         }
     }
 
+    public static void print(String tag, String msg) {
+        print(MsgType.VERBOSE,tag,msg);
+    }
+
     public static String getDeviceName() {
 
         String name = Settings.Secure.getString(DataPool.activity.getContentResolver(),"bluetooth_name");

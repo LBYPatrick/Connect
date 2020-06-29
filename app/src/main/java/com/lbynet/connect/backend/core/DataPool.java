@@ -21,7 +21,8 @@ public class DataPool {
                           isWifiConnected = false,
 
                           isPowerSavingMode = false,
-                          isInvisibleMode = false;
+                          isInvisibleMode = false,
+                          isAppHiberated = false;
 
     public static Bitmap wallpaper;
 

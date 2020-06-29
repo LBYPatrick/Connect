@@ -157,6 +157,16 @@ public class LauncherActivity extends AppCompatActivity {
 
         SAL.print(SAL.MsgType.VERBOSE,TAG,"onResume");
         setPairingCallback();
+
+        DataPool.isAppHiberated = false;
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        DataPool.isAppHiberated = true;
     }
 
     public void setPairingCallback() {

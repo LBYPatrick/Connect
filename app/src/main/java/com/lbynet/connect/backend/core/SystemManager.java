@@ -17,6 +17,7 @@ import com.lbynet.connect.backend.networking.Pairing;
 
 public class SystemManager {
 
+    final public static String TAG = SystemManager.class.getSimpleName();
     private static SystemManager instance = new SystemManager();
     private static boolean isReceiverGood = false;
 
@@ -38,6 +39,7 @@ public class SystemManager {
                 .registerNetworkCallback(request,new ConnectivityManager.NetworkCallback() {
                     @Override
                     public void onAvailable(@NonNull Network network) {
+                        SAL.print(SAL.MsgType.VERBOSE,TAG,"Wi-Fi Connected");
                         super.onAvailable(network);
                         DataPool.isWifiConnected = true;
                         FileReceiver.restartLater();
@@ -57,6 +59,7 @@ public class SystemManager {
 
                     @Override
                     public void onLost(@NonNull Network network) {
+                        SAL.print(SAL.MsgType.VERBOSE,TAG,"Wi-Fi Lost");
                         DataPool.isWifiConnected = false;
                         Pairing.onLost();
                     }
@@ -81,14 +84,6 @@ public class SystemManager {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                 StrictMode.setVmPolicy(builder.build());
         }
-    }
-
-    public static void setPowerSavingMode(boolean isTrue) {
-        DataPool.isPowerSavingMode = isTrue;
-    }
-
-    public static void setInvisibleMode(boolean isTrue) {
-        DataPool.isInvisibleMode = isTrue;
     }
 
 }

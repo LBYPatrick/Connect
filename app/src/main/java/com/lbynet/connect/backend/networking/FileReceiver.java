@@ -76,18 +76,15 @@ public class FileReceiver {
                         continue;
                     }
 
-                    SAL.print(SAL.MsgType.VERBOSE,TAG,"Listening");
+                    SAL.print(TAG,"Listening");
 
                     s_ = ss_.accept();
-
                     isBusy_ = true;
 
-                    SAL.print(SAL.MsgType.VERBOSE,TAG,"Incoming Connection");
+                    SAL.print(TAG,"Incoming Connection");
 
                     data = IO.getDataFromRemote(s_,500);
-
                     ArrayList<FileRecvStreamer> streams = new ArrayList<>();
-
 
                     JsonObject received = JsonParser.parseString(data).getAsJsonObject();
                     JsonArray files = received.getAsJsonArray("files");

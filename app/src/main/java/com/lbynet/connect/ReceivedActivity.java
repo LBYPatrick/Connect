@@ -76,6 +76,16 @@ public class ReceivedActivity extends AppCompatActivity {
         else {
             isFirstOnResume = false;
         }
+
+        DataPool.isAppHiberated = false;
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        DataPool.isAppHiberated = true;
     }
 
     public boolean onFileClick(File file) {
