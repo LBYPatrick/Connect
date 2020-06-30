@@ -11,28 +11,26 @@
         android:id="@+id/iv_background_clear"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"/>
+        android:visibility="visible" />
 
     <ImageView
         android:id="@+id/iv_background_blur"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
-        />
+        android:visibility="invisible" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:foreground="@drawable/edge_top"
-        android:visibility="visible"
-        />
+        android:visibility="visible" />
 
     <!-- Dark mode (Darken) layer -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="@color/dark_overlay"
-        android:alpha="?attr/dmAlpha"/>
+        android:alpha="?attr/dmAlpha"
+        android:foreground="@color/dark_overlay" />
 
     <!-- The REAL layout -->
     <LinearLayout
@@ -42,7 +40,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <!-- Title bar -->
         <LinearLayout
@@ -69,11 +67,11 @@
                 android:id="@+id/tv_send_subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
+                android:alpha="0.5"
                 android:autoSizeTextType="uniform"
                 android:maxLines="1"
                 android:text="@string/sendto_subtitle"
                 android:textColor="?attr/colorText"
-                android:alpha="0.5"
                 android:textStyle="normal" />
 
 
@@ -99,12 +97,40 @@
                     android:showDividers="middle" />
             </ScrollView>
 
-            <ProgressBar
-                android:id="@+id/pb_targets"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <LinearLayout
+
+                android:id="@+id/ll_waiting_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
                 android:layout_gravity="center"
-                android:visibility="invisible" />
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="50dp"
+                android:visibility="invisible"
+                >
+
+                <ProgressBar
+                    android:id="@+id/pb_targets"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="0dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:alpha="0.7"
+                    android:maxLines="1"
+                    android:text="@string/sendto_no_targets"
+                    android:textColor="@color/white_100"
+                    android:gravity="center_vertical"
+                    android:autoSizeTextType="uniform" />
+
+            </LinearLayout>
 
         </FrameLayout>
     </LinearLayout>

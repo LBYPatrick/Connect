@@ -200,6 +200,9 @@ public class TargetLoader extends ParallelTask {
                         speedView.setText(activity_.getString(R.string.sendto_pending));
                     });
 
+                    //Request a force update upon completion
+                    isForceUpdateNeeded_ = true;
+
                 } catch (Exception e) {
                     SAL.print(e);
                 }
@@ -233,7 +236,7 @@ public class TargetLoader extends ParallelTask {
     @Override
     public void run() throws Exception {
 
-        ProgressBar pb = rootView_.findViewById(R.id.pb_targets);
+        LinearLayout waitingPrompt = rootView_.findViewById(R.id.ll_waiting_prompt);
 
         inflateList();
 
@@ -260,8 +263,6 @@ public class TargetLoader extends ParallelTask {
                 continue;
             }
 
-            SAL.print("Changed! size " + devices.size());
-
             for(Pairing.Device i : devices) {
 
                 if(nTotalDevices < DataPool.NUM_TARGET_PLACEHOLDERS) {
@@ -270,13 +271,7 @@ public class TargetLoader extends ParallelTask {
                     TextView uid = parent.findViewById(R.id.tv_uid);
                     TextView ip = parent.findViewById(R.id.hidden_ip);
                     ProgressBar pbar = parent.findViewById(R.id.pb_status);
-                    TextView speedView = parent.findViewById(R.id.tv_speed);
 
-                    //Busy targets -- skip them
-                    if(speedView.getVisibility() == View.VISIBLE) {
-                        nTotalDevices += 1;
-                        continue;
-                    }
 
                     activity_.runOnUiThread(() -> {
                         uid.setText(i.deviceName);
@@ -293,24 +288,26 @@ public class TargetLoader extends ParallelTask {
             for(int i = nTotalDevices; i < DataPool.NUM_TARGET_PLACEHOLDERS; ++i) {
 
                 FrameLayout parent = deviceHolders.get(i);
-                ProgressBar pbar = parent.findViewById(R.id.pb_status);
+                TextView speedView = parent.findViewById(R.id.tv_speed);
 
-                if(pbar.getProgress() != 0 && pbar.getProgress() != 100) {
+                //Busy targets -- skip them
+                if(speedView.getVisibility() == View.VISIBLE) {
+                    nTotalDevices += 1;
                     continue;
                 }
+
                 else if(parent.getAlpha() != 0) {
-                    Utils.hideView(activity_,pbar,false,100);
                     Utils.hideView(activity_,parent,true,100);
                 }
             }
 
-            //SAL.print("Active Devices: " + nTotalDevices);
+            SAL.print("Active Devices: " + nTotalDevices);
 
             if(nTotalDevices == 0) {
-                Utils.showView(activity_,pb,100);
+                Utils.showView(activity_,waitingPrompt,200);
             }
             else {
-                Utils.hideView(activity_,pb,false,100);
+                Utils.hideView(activity_,waitingPrompt,false,200);
             }
         }
     }

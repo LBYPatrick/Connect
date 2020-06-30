@@ -9,6 +9,7 @@
     <string name="sendto_pending">少女祈祷中...</string>
     <string name="sendto_snackbar_fail_text">发生错误，文件无法发送至%s</string>
     <string name="sendto_snackbar_success_text">文件成功发送至%s</string>
+    <string name="sendto_no_targets">寻找设备中...</string>
 
     <!-- Notification -->
     <string name="notif_recv_working_title">正在接收%d个文件...</string>

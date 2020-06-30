@@ -196,7 +196,7 @@ public class Pairing {
                             for (Device i : pairedDevices_) {
                                 if (d.ip.equals(i.ip) && !i.uid.equals(d.uid)) {
 
-                                    SAL.print(TAG,d.deviceName + " reconnected.");
+                                    SAL.print(TAG,d.deviceName + " rejoined.");
 
                                     i.kill();
                                     pairedDevices_.remove(i);
@@ -250,7 +250,7 @@ public class Pairing {
     }
 
     /**
-     * Start the pairing service, device list can be obtained by getPairedDevices()s
+     * Start the pairing service, device list can be obtained by getPairedDevices()
      * @throws Exception
      */
     public static void start() throws Exception {

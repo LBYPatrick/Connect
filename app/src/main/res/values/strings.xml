@@ -9,6 +9,7 @@
     <string name="sendto_snackbar_fail_text">Failed to send file(s) to %s due to unknown error</string>
     <string name="sendto_snackbar_success_text">File(s) successfully sent to %s</string>
     <string name="sendto_pending">Pending...</string>
+    <string name="sendto_no_targets">Finding Devices...</string>
 
     <!-- Notification -->
     <string name="notif_recv_working_title">Receiving %d file(s)...</string>
@@ -29,5 +30,5 @@
     <!-- Received Activity -->
     <string name="recvd_main_title">Received Files</string>
     <string name="recvd_subtitle">Click item to share</string>
-    <string name="recvd_directory_note">For advanced operations, please access directory\n%s</string>
+    <string name="recvd_directory_note">For advanced operations, please visit directory\n%s</string>
 </resources>
