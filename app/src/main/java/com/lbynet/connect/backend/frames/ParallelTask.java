@@ -2,7 +2,7 @@ package com.lbynet.connect.backend.frames;
 
 import com.lbynet.connect.backend.SAL;
 
-public class ParallelTask {
+public class ParallelTask implements Runnable {
 
     public enum ThreadStatus {
         IDLE,
@@ -51,7 +51,7 @@ public class ParallelTask {
         return threadStatus;
     }
 
-    public void run() throws Exception {
+    public void run() {
 
     };
 

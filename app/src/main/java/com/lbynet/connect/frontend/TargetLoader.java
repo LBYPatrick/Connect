@@ -54,7 +54,7 @@ public class TargetLoader extends ParallelTask {
         isPaused_ = value;
     }
 
-    public void inflateList() throws Exception{
+    public void inflateList(){
 
         AtomicBoolean isListReady = new AtomicBoolean(false);
 
@@ -77,7 +77,7 @@ public class TargetLoader extends ParallelTask {
         });
 
         while(!isListReady.get()) {
-            Thread.sleep(50);
+            Utils.sleepFor(50);
         }
 
     }
@@ -185,7 +185,7 @@ public class TargetLoader extends ParallelTask {
                         }
 
                         //Don't update UI too fast
-                        Thread.sleep(30);
+                        Utils.sleepFor(200);
                     }
 
                     //After file transfer, hide speed view
@@ -195,9 +195,6 @@ public class TargetLoader extends ParallelTask {
                     activity_.runOnUiThread( () -> {
                         speedView.setText(activity_.getString(R.string.sendto_pending));
                     });
-
-                    //Request a force update upon completion
-                    isForceUpdateNeeded_ = true;
 
                 } catch (Exception e) {
                     SAL.print(e);
@@ -219,6 +216,17 @@ public class TargetLoader extends ParallelTask {
                     v.setClickable(true);
                 });
 
+
+                /**
+                 * Request a force update upon completion.
+                 *
+                 * And we need to wait for the speedView to be actually gone before requesting the force update.
+                 * Since this is how it detects whether the task is busy.
+                 */
+
+                Utils.sleepFor(100);
+                isForceUpdateNeeded_ = true;
+
             }).start();
 
         } catch (Exception e) {
@@ -230,7 +238,7 @@ public class TargetLoader extends ParallelTask {
 
 
     @Override
-    public void run() throws Exception {
+    public void run() {
 
         LinearLayout waitingPrompt = rootView_.findViewById(R.id.ll_waiting_prompt);
 

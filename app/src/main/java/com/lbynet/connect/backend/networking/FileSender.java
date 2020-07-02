@@ -55,8 +55,8 @@ public class FileSender extends ParallelTask {
 
             //Build file info in JSON
             JsonObject json = new JsonObject();
-            JsonArray files = new JsonArray();
-            JsonArray sizes = new JsonArray();
+            JsonArray files = new JsonArray(),
+                      sizes = new JsonArray();
 
             json.addProperty("device", SAL.getDeviceName());
             json.addProperty("method", "plain");
@@ -131,17 +131,23 @@ public class FileSender extends ParallelTask {
                     break;
                 }
 
-                Thread.sleep(300);
+                Utils.sleepFor(10);
             }
+
+            netStatus = NetStatus.DONE;
 
         } catch (Exception e) {
             SAL.print(e);
 
+            percentDone = 1;
+
             if (e instanceof SecurityException) {
                 netStatus = NetStatus.INIT_FAIL;
-            } else if (e instanceof UnknownHostException || e instanceof IOException) {
+            }
+            else if (e instanceof UnknownHostException || e instanceof IOException) {
                 netStatus = NetStatus.HANDSHAKE_TIMEOUT;
-            } else {
+            }
+            else {
                 netStatus = NetStatus.INTERRUPTED;
             }
 
@@ -149,8 +155,6 @@ public class FileSender extends ParallelTask {
 
             return;
         }
-
-        netStatus = NetStatus.DONE;
         return;
     }
 
