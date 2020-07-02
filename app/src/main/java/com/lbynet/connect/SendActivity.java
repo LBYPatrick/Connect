@@ -28,6 +28,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class SendActivity extends AppCompatActivity {
 
+    final public String TAG = this.getClass().getSimpleName();
 
     TargetLoader targetLoader;
 
@@ -55,6 +56,7 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        SAL.print("onCreate");
 
         SAL.print("Intent info: \n"
                 + "\tAction: "  + getIntent().getAction() + "\n"
@@ -77,19 +79,13 @@ public class SendActivity extends AppCompatActivity {
 
         setContentView(R.layout.send);
 
-        configureDarkMode();
-
         //Setup clear background
         ((ImageView) findViewById(R.id.iv_background_clear)).setImageBitmap(Utils.getWallpaper(this));
         //Setup blur background
         Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background_blur));
 
         DataPool.activity = this;
-
-        SAL.print("onCreate");
         try {
-            //Pairing.start();
-           //FileReceiver.start();
 
             //Register listener for notification
             FileReceiver.setOnReceiveListener((senderName,streams) -> {
@@ -161,23 +157,10 @@ public class SendActivity extends AppCompatActivity {
     protected void onPause() {
 
         super.onPause();
-        SAL.print("onPause");
+        SAL.print(TAG,"onPause");
 
         targetLoader.setPause(true);
         DataPool.isAppHiberated = true;
-    }
-
-    public void onSettingsButtonClicked(View view) {
-
-    }
-
-    public boolean onFEClicked(View view) {
-
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setDataAndType(Uri.parse(Utils.getOutputPath()),"*/*");
-
-        startActivity(intent);
-        return true;
     }
 
 }

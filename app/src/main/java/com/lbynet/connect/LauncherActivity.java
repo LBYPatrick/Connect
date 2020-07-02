@@ -48,12 +48,12 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        SAL.print("Got result");
+        SAL.print(TAG,"Got result");
 
         for (int i = 0; i < grantResults.length; ++i) {
 
             boolean isGranted = (grantResults[i] == android.content.pm.PackageManager.PERMISSION_GRANTED);
-            SAL.print("Permission: " + permissions[i] + "\tGrant status: " + isGranted);
+            SAL.print(TAG,"Permission: " + permissions[i] + "\tGrant status: " + isGranted);
 
             if (!isGranted) {
                 Utils.printToast(this, "Failed to obtain necessary permissions, please try again.", true);
@@ -144,7 +144,7 @@ public class LauncherActivity extends AppCompatActivity {
         //Force update the status in case the view is re-created
         Visualizer.updateFsnStatusOnLauncher(this);
 
-        SAL.print("LaunchActivity took " + renderTimer.getElaspedTimeInMs() + "ms to render interface.");
+        SAL.print(TAG,"LaunchActivity took " + renderTimer.getElaspedTimeInMs() + "ms to render interface.");
 
         Utils.showView(main, 200);
         Utils.showView(findViewById(R.id.iv_background_blur),300);

@@ -20,6 +20,7 @@ public class Pairing {
         public String ip, deviceName, uid;
         private Timer t;
         private boolean isDead = false;
+        public boolean isAged = false;
 
         public Device() {
             t = new Timer();
@@ -113,7 +114,6 @@ public class Pairing {
                     } catch (Exception e) {
 
                         if (e instanceof IOException) {
-                            //SAL.print(SAL.MsgType.VERBOSE,"Pairing","Send thread hibernating...");
                             Utils.sleepFor(1000);
                         } else {
                             SAL.print(e);
@@ -178,8 +178,9 @@ public class Pairing {
                                 i.ip = d.ip;
 
                                 //If this device "aged" before and "revived" now, notify getFilteredDevices()
-                                if(i.getFreshness() > 2500) {
+                                if(i.isAged) {
                                     isListChanged = true;
+                                    i.isAged = false;
                                 }
 
                                 i.refresh();
@@ -214,23 +215,6 @@ public class Pairing {
                                     + "\tIP Address: " + d.ip + "\n");
 
                             pairedDevices_.add(d);
-                            /*
-                            boolean isDeviceAdded = false;
-                            //Put the device in the right spot of the queue
-                            for (int i = 1; i < pairedDevices_.size(); ++i) {
-                                if (d.uid.compareTo(pairedDevices_.get(i).uid) <= 0) {
-                                    pairedDevices_.add(i - 1, d);
-                                    isDeviceAdded = true;
-                                    break;
-                                }
-                            }
-
-                            //If the device belongs to the bottom of the queue...
-                            if (!isDeviceAdded) {
-                                pairedDevices_.add(d);
-                            }
-                             */
-
                             isListChanged = true;
                         }
                     } else if (selfIp_ == null) {
@@ -393,6 +377,7 @@ public class Pairing {
 
             for (Device i : filteredDevices_) {
                 if (i.getFreshness() > freshnessInMs) {
+                    i.isAged = true;
                     SAL.print(SAL.MsgType.VERBOSE,TAG,i.deviceName + " removed because of aging.");
                     filteredDevices_.remove(i);
                     isUpdateNeeded = true;

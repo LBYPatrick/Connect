@@ -27,6 +27,7 @@ public class FolderViewAdapter extends RecyclerView.Adapter<FolderViewAdapter.Fi
 
     ArrayList<File> filelist = new ArrayList<>();
 
+    final public String TAG = this.getClass().getSimpleName();
     private String folderPath_;
     private boolean isFolderExist = true;
     private FileClickListener listener_;
@@ -56,17 +57,14 @@ public class FolderViewAdapter extends RecyclerView.Adapter<FolderViewAdapter.Fi
             Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
 
             filelist = new ArrayList<>(Arrays.asList(files));
-
-
             isFolderExist = true;
         } catch (SecurityException e) {
             isFolderExist = false;
-            //Folder does not exist, skip reading
         }
 
         notifyDataSetChanged();
 
-        SAL.print("Refreshed");
+        SAL.print(TAG, "File list refreshed.");
     }
 
     public void setNumFilesReceived(int num) {
@@ -152,8 +150,6 @@ public class FolderViewAdapter extends RecyclerView.Adapter<FolderViewAdapter.Fi
 
         @Override
         public void onClick(View v) {
-            SAL.print("Clicked");
-
             int pos = getAdapterPosition();
 
             if(listener_ != null) {

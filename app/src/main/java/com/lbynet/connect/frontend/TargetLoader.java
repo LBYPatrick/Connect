@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TargetLoader extends ParallelTask {
 
+    final public String TAG = this.getClass().getSimpleName();
     ArrayList<FrameLayout> deviceHolders = new ArrayList<>();
     ArrayList<Pairing.Device> devices = new ArrayList<>();
     ArrayList<Uri> uris_;
@@ -42,7 +43,6 @@ public class TargetLoader extends ParallelTask {
     }
 
     public void requestForceUpdate() {
-        SAL.print("Force update requested");
         isForceUpdateNeeded_ = true;
     }
 
@@ -55,8 +55,6 @@ public class TargetLoader extends ParallelTask {
     }
 
     public void inflateList() throws Exception{
-
-        SAL.print("INFLATING");
 
         AtomicBoolean isListReady = new AtomicBoolean(false);
 
@@ -96,7 +94,6 @@ public class TargetLoader extends ParallelTask {
             String trimmedUid;
 
             if (!v.isClickable()) {
-                SAL.print("Button is busy");
                 return true;
             }
 
@@ -173,7 +170,7 @@ public class TargetLoader extends ParallelTask {
                             });
 
                             if (status == FileSender.NetStatus.DONE) {
-                                SAL.print("File transfer complete.");
+                                SAL.print(TAG,"File transfer complete.");
                                 Utils.playDoubleClickAnimation(activity_);
                                 isSuccessful = true;
                                 break;
@@ -183,7 +180,7 @@ public class TargetLoader extends ParallelTask {
                         //Failure
                         else if (status != FileSender.NetStatus.IDLE) {
                             //TODO: Do something to notify user
-                            SAL.print("File transfer failed.");
+                            SAL.print(TAG,"File transfer failed.");
                             break;
                         }
 
@@ -192,7 +189,6 @@ public class TargetLoader extends ParallelTask {
                     }
 
                     //After file transfer, hide speed view
-
 
                     Utils.hideView(activity_,speedView,true,100);
 
@@ -244,13 +240,12 @@ public class TargetLoader extends ParallelTask {
 
             if(isPaused_) {
                 Utils.sleepFor(500);
-                //SAL.print("Target Loader is currently paused...");
                 continue;
             }
 
             Utils.sleepFor(200);
 
-            boolean isChanged = Pairing.getFilteredDevices(devices);
+            boolean isChanged = Pairing.getFilteredDevices(devices,1000);
 
             int nTotalDevices = 0;
 

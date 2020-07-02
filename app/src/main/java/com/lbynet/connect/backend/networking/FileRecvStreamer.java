@@ -17,13 +17,7 @@ public class FileRecvStreamer extends FileStreamer {
 
     private String filename_,
             targetDirectory_;
-    private Socket socket_;
-    private long totalBytesRead = 0,
-                 lastBytesRead = 0,
-                 lastSpeed = 0;
-    private int port_;
-    private long fileSize_;
-    private Timer timer = new Timer("FileRecvStreamer");
+    Timer timer = new Timer(this.getClass().getSimpleName());
 
     /**
      * Constructor for creating a FileRecvStream instance
@@ -66,10 +60,12 @@ public class FileRecvStreamer extends FileStreamer {
 
             //Create parent folder if needed.
             try {
+
                 tempDir.mkdir();
-                SAL.print("target directory created.");
+                SAL.print(TAG,"target directory created.");
             } catch (Exception e) {
-                SAL.print("Failed to create target directory.");
+
+                SAL.print(TAG,"Failed to create target directory.");
                 SAL.print(e);
             }
 
@@ -90,7 +86,7 @@ public class FileRecvStreamer extends FileStreamer {
                 if(bytesRead == -1) {
                     //Closed prematurely
                     if(totalBytesRead != fileSize_) {
-                        SAL.print("Stream closed prematurely, " + totalBytesRead + "/" + fileSize_);
+                        SAL.print(TAG,"Stream closed prematurely, " + totalBytesRead + "/" + fileSize_);
                         break;
                     }
                     isSuccess = true;
@@ -147,58 +143,10 @@ public class FileRecvStreamer extends FileStreamer {
         return targetDirectory_;
     }
 
-    /**
-     * Get filesize in bytes.
-     * @return filesize
-     */
-    public long getFileSize() {
-        return fileSize_;
-    }
 
     public String getFullPath() {
         return getTargetDirectory() + '/' + getFilename();
     }
 
-    /**
-     * Get percentage of the file received (number ranging from 0 to 1)
-     * @return percentage
-     */
-    public double getProgress() {
-        if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
-            return 1;
-        } else if (netStatus == NetStatus.SUCCESS) {
-            return 1;
-        } else {
-            double bottom = (fileSize_ == 0) ? 1 : fileSize_;
-            double top = totalBytesRead;
-            double result = top / bottom;
-            return result;
-        }
-    }
-
-    public long getNumBytesRead() {
-        return totalBytesRead;
-    }
-
-    /**
-     * Calculate transfer speed in kilobytes per second
-     * @return the average transfer speed for the pass 300 milliseconds
-     *         (See the first if statement, can be changed when needed).
-     */
-    public long getAverageSpeedInKbps() {
-
-        if(timer.getElaspedTimeInMs() < 300 && getProgress() > 0.10) {
-            return lastSpeed;
-        }
-
-        float speedRate = ((float)(totalBytesRead - lastBytesRead)) / 1024 / timer.getElaspedTimeInMs() * 1000;
-
-        timer.start();
-        lastBytesRead = totalBytesRead;
-
-        lastSpeed = ((long) speedRate + lastSpeed) / 2;
-
-        return lastSpeed;
-    }
 }
 

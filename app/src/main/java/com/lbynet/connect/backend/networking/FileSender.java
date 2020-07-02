@@ -145,7 +145,7 @@ public class FileSender extends ParallelTask {
                 netStatus = NetStatus.INTERRUPTED;
             }
 
-            SAL.print("Failed to transfer files, reason: " + netStatus.toString());
+            SAL.print(TAG,"Failed to transfer files, reason: " + netStatus.toString());
 
             return;
         }

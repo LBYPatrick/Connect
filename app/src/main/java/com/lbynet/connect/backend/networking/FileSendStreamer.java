@@ -5,21 +5,15 @@ import com.lbynet.connect.backend.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class FileSendStreamer extends FileStreamer {
 
     private String path_, ip_;
-    private int port_;
-    private long totalBytesRead = 0,
-            lastBytesRead = 0,
-            lastSpeed = 0;
-    private long fileSize_ = 0;
     private InputStream in_;
     private OutputStream out_;
 
-    //For showing speed
-    Timer timer = new Timer("FileSendStreamer");
-    private long lastCycleCount = 0;
+    Timer timer = new Timer(this.getClass().getSimpleName());
 
     public FileSendStreamer(String path, String ip, int port) {
         path_ = path;
@@ -70,21 +64,21 @@ public class FileSendStreamer extends FileStreamer {
 
                 int bytesRead = in_.read(buffer);
 
-                //Connection closed prematurely
-                if (bytesRead == -1 && totalBytesRead < fileSize_) {
-                    break;
-                } else if (bytesRead == -1 && totalBytesRead == fileSize_) {
-                    isSuccess = true;
-                    break;
-                } else if (bytesRead < RW_BUFFER_SIZE) {
-                    totalBytesRead += bytesRead;
-                    out_.write(Utils.getTrimedData(buffer, bytesRead));
-                    isSuccess = true;
-                    break;
-                } else {
+                boolean isDone  = false;
+
+                if(bytesRead == -1) {
+                    isDone = true;
+                }
+                else {
                     totalBytesRead += bytesRead;
                     out_.write(Utils.getTrimedData(buffer, bytesRead));
                 }
+
+                if(totalBytesRead == fileSize_) {
+                    isSuccess = true;
+                }
+
+                if(isDone || isSuccess) {break;}
             }
 
             socket_.shutdownOutput();
@@ -101,57 +95,21 @@ public class FileSendStreamer extends FileStreamer {
             else { netStatus = NetStatus.BAD_NETWORK; }
 
         } catch (Exception e) {
-            netStatus = NetStatus.BAD_GENERAL;
+
+            if(e instanceof SocketException) {
+                netStatus = NetStatus.BAD_NETWORK;
+            }
+            else {
+                netStatus = NetStatus.BAD_GENERAL;
+            }
             SAL.print(e);
         }
     }
 
-    public double getProgress() {
-        if (netStatus != NetStatus.WORKING && netStatus != NetStatus.IDLE) {
-            return 1;
-        }
-        else if(netStatus == NetStatus.SUCCESS) {
-            return 1;
-        }
-        else {
-
-            long bottom = (fileSize_ == 0) ? 1 : fileSize_;
-            double top = totalBytesRead;
-            double result = top / bottom;
-
-            //SAL.print("Top:" + top + "\tBottom:" + bottom);
-
-            return result;
-        }
-    }
-
     public long getNumBytesSent() {
-        return totalBytesRead;
+        return getNumBytesRead();
     }
 
-    public long getFileSize() {
-        return fileSize_;
-    }
-
-    /**
-     * Calculate transfer speed in kilobytes per second
-     * @return
-     */
-    public long getAverageSpeedInKbps() {
-
-        if(timer.getElaspedTimeInMs() < 300 && getProgress() > 0.10) {
-            return lastSpeed;
-        }
-
-        float speedRate = ((float)(totalBytesRead - lastBytesRead)) / 1024 / timer.getElaspedTimeInMs() * 1000;
-
-        timer.start();
-        lastBytesRead = totalBytesRead;
-
-        lastSpeed = ((long) speedRate + lastSpeed) / 2;
-
-        return lastSpeed;
-    }
 }
 
 
