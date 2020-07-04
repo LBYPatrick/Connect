@@ -12,14 +12,21 @@
     <string name="sendto_no_targets">Finding Devices...</string>
 
     <!-- Notification -->
+    <string name="notif_transfer_channel_name">Status Display</string>
+    <string name="notif_transfer_channel_description">Notifications for displaying file transfer status</string>
+
+    <string name="notif_finished_percent">Done</string>
+
     <string name="notif_recv_working_title">Receiving %d file(s)...</string>
     <string name="notif_recv_working_subtitle">From %s</string>
     <string name="notif_recv_finished_title">%d file(s) received</string>
-    <string name="notif_recv_finished_subtitle">Tap to open or share</string>
-    <string name="notif_recv_finished_percent">Done</string>
+    <string name="notif_recv_finished_subtitle">Tap to share</string>
     <string name="notif_recv_finished_partial_success">%d files received, while %d files failed to receive</string>
-    <string name="notif_recv_channel_name">Receive status</string>
-    <string name="notif_recv_channel_description">Notifications for showing file receive status</string>
+
+    <string name="notif_send_working_title">Sending %d file(s)...</string>
+    <string name="notif_send_working_subtitle">To %s</string>
+    <string name="notif_send_finished_title">%d file(s) sent</string>
+    <string name="notif_send_finished_partial_success">%d files sent, while %d files failed to send</string>
 
     <!-- Launcher -->
     <string name="launcher_fsn">File sharing network</string>

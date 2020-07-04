@@ -9,11 +9,13 @@ import android.os.Build;
 import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.lbynet.connect.backend.SAL;
 import com.lbynet.connect.backend.frames.NetCallback;
 import com.lbynet.connect.backend.networking.FileReceiver;
 import com.lbynet.connect.backend.networking.Pairing;
+import com.lbynet.connect.frontend.Visualizer;
 
 public class SystemManager {
 
@@ -26,12 +28,19 @@ public class SystemManager {
     }
 
     public static void registerReceivers (Context context) {
+
         if(isReceiverGood) {
             return;
         }
         isReceiverGood = true;
 
         NetworkRequest request = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build();
+
+        try {
+            Pairing.start();
+        } catch (Exception e) {
+            SAL.print(e);
+        }
 
         //Wi-Fi State
         ((ConnectivityManager)context
@@ -42,26 +51,14 @@ public class SystemManager {
                         SAL.print(SAL.MsgType.VERBOSE,TAG,"Wi-Fi Connected");
                         super.onAvailable(network);
                         DataPool.isWifiConnected = true;
-                        FileReceiver.restartLater();
-                        try {
-
-                            if(!Pairing.isStarted()) {
-                                Pairing.start();
-                            }
-                            else {
-                                Pairing.onRecover();
-                            }
-
-                        } catch (Exception e) {
-                            SAL.print(e);
-                        }
+                        Visualizer.updateFsnStatusOnLauncher((AppCompatActivity) context);
                     }
 
                     @Override
                     public void onLost(@NonNull Network network) {
                         SAL.print(SAL.MsgType.VERBOSE,TAG,"Wi-Fi Lost");
                         DataPool.isWifiConnected = false;
-                        Pairing.onLost();
+                        Visualizer.updateFsnStatusOnLauncher((AppCompatActivity) context);
                     }
                 });
 

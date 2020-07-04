@@ -71,11 +71,6 @@ public class FileReceiver {
                     String data = "";
                     String senderName = "";
 
-                    if(DataPool.isInvisibleMode) {
-                        Thread.sleep(5000);
-                        continue;
-                    }
-
                     SAL.print(TAG,"Listening");
 
                     s_ = ss_.accept();

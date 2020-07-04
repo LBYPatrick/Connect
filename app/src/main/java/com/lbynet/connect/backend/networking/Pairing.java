@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -67,8 +68,8 @@ public class Pairing {
 
     private static boolean isStarted = false,
             isBusy = false,
-            isInvisible_ = false,
-            isListChanged = true;
+            isListChanged = true,
+            isPairingGood = false;
 
     private static Thread listenThread,
             sendThread;
@@ -91,14 +92,11 @@ public class Pairing {
             GROUP_ADDR = InetAddress.getByName(MCAST_ADDR);
             selfUid_ = Utils.getRandomString(4);
 
-        } catch (Exception e) {
-            SAL.print(e);
-        }
+        } catch (Exception e) { SAL.print(e); }
 
         sendTask = () -> {
-            while (!isStarted) {
-                Utils.sleepFor(200);
-            }
+
+            while (!isStarted) { Utils.sleepFor(200); }
 
             while (true) {
 
@@ -108,25 +106,42 @@ public class Pairing {
                     continue;
                 }
 
-                if (!isInvisible_) {
-                    try {
-                        socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
-                    } catch (Exception e) {
+                if(!isPairingGood) { joinGroup(); }
 
-                        if (e instanceof IOException) {
-                            Utils.sleepFor(1000);
-                        } else {
-                            SAL.print(e);
-                        }
+                try {
+                    socket_.send(new DatagramPacket(msg_, msg_.length, GROUP_ADDR, MCAST_PORT));
+
+                    if (!isPairingGood) {
+                        isPairingGood = true;
+                        DataPool.isPairingReady = true;
+                        statusCallback_.onConnect();
+                        //Restart file receiver
+                        FileReceiver.restartLater();
                     }
                 }
+                catch (Exception e) {
+
+                    //Occurs when internet is bad
+                    if (e instanceof IOException) {
+
+                        if (isPairingGood) { statusCallback_.onLost(); }
+
+                        isPairingGood = false;
+                        DataPool.isPairingReady = false;
+
+                    } else {
+                        SAL.print(e);
+                    }
+                }
+
+                //send beacon every 300ms
                 Utils.sleepFor(300);
             }
         };
 
         listenTask = () -> {
 
-            while (!isStarted) {
+            while (!isStarted || !isPairingGood) {
                 Utils.sleepFor(200);
             }
 
@@ -247,8 +262,6 @@ public class Pairing {
 
         SAL.print(SAL.MsgType.VERBOSE,TAG,"Started with name " + SAL.getDeviceName() + " and uid " + selfUid_);
 
-        joinGroup();
-
         isStarted = true;
 
         listenThread = new Thread(listenTask);
@@ -294,6 +307,7 @@ public class Pairing {
      * called when recovering from network disconnection (manually called by user)
      * (Called by SystemManager in this app)
      */
+    @Deprecated
     public static void onRecover() {
 
         selfUid_ = Utils.getRandomString(4);
@@ -422,7 +436,11 @@ public class Pairing {
             socket_ = new MulticastSocket(MCAST_PORT);
             socket_.joinGroup(GROUP_ADDR);
         } catch (Exception e) {
-            SAL.print(e);
+
+            //Swallow the exception if it is SocketException
+            if(!(e instanceof SocketException)) {
+                SAL.print(e);
+            }
         }
     }
 
@@ -464,10 +482,6 @@ public class Pairing {
 
     public static boolean isStarted() {
         return isStarted;
-    }
-
-    public static void setInvisible(boolean isInvisible) {
-        isInvisible_ = isInvisible;
     }
 
     public static void setStatusCallback(NetCallback statusCallback) {

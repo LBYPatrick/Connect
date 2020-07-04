@@ -21,8 +21,9 @@ public class DataPool {
                           isWifiConnected = false,
 
                           isPowerSavingMode = false,
-                          isInvisibleMode = false,
                           isAppHiberated = false;
+
+    final public static String NOTIF_TRANSFER_ID = "connect_transfer";
 
     public static Bitmap wallpaper;
 

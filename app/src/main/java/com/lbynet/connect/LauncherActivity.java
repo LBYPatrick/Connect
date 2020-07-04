@@ -175,12 +175,23 @@ public class LauncherActivity extends AppCompatActivity {
         Pairing.setStatusCallback(new NetCallback() {
             @Override
             public void onConnect() {
-                Visualizer.updateFsnStatusOnLauncher(activity);
+                SAL.print("Pairing Possible");
+                new Thread( () -> {
+                    //Wait for Wi-Fi stuff
+                    //Utils.sleepFor(500);
+                    Visualizer.updateFsnStatusOnLauncher(activity);
+                }).start();
             }
 
             @Override
             public void onLost() {
-                Visualizer.updateFsnStatusOnLauncher(activity);
+                SAL.print("Pairing bad");
+
+                new Thread( () -> {
+                    //Wait for Wi-Fi stuff
+                    //Utils.sleepFor(500);
+                    Visualizer.updateFsnStatusOnLauncher(activity);
+                }).start();
             }
         });
     }

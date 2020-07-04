@@ -14,9 +14,9 @@
     <!-- Notification -->
     <string name="notif_recv_working_title">正在接收%d個檔案...</string>
     <string name="notif_recv_working_subtitle">來自%s</string>
-    <string name="notif_recv_finished_percent">完成</string>
-    <string name="notif_recv_channel_name">檔案接收狀態顯示</string>
-    <string name="notif_recv_channel_description">顯示檔案接收進度及完成接收的通知</string>
+    <string name="notif_finished_percent">完成</string>
+    <string name="notif_transfer_channel_name">狀態顯示</string>
+    <string name="notif_transfer_channel_description">顯示檔案傳輸進度的通知</string>
     <string name="notif_recv_finished_title">成功接收%d個檔案</string>
     <string name="notif_recv_finished_subtitle">點按來打開或分享</string>
     <string name="notif_recv_finished_partial_success">%d個檔案接收成功，但%d个檔案接收失败</string>

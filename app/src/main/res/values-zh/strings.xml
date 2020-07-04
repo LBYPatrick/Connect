@@ -12,14 +12,23 @@
     <string name="sendto_no_targets">寻找设备中...</string>
 
     <!-- Notification -->
+
+    <string name="notif_transfer_channel_name">状态显示</string>
+    <string name="notif_transfer_channel_description">显示文件传输进度的通知</string>
+
+    <string name="notif_finished_percent">完成</string>
+
     <string name="notif_recv_working_title">正在接收%d个文件...</string>
     <string name="notif_recv_working_subtitle">来自%s</string>
-    <string name="notif_recv_finished_percent">完成</string>
-    <string name="notif_recv_channel_name">文件接收状态显示</string>
-    <string name="notif_recv_channel_description">显示文件接收进度和完成接收的通知</string>
     <string name="notif_recv_finished_title">成功接收%d个文件</string>
     <string name="notif_recv_finished_subtitle">点击来打开或分享</string>
     <string name="notif_recv_finished_partial_success">%d个文件接收成功，但%d个文件接收失败</string>
+
+    <string name="notif_send_working_title">正在发送 %d 个文件...</string>
+    <string name="notif_send_working_subtitle">至 %s</string>
+    <string name="notif_send_finished_title">成功发送%d个文件</string>
+    <string name="notif_send_finished_partial_success">%d个文件发送成功, 但%d个文件发送失败</string>
+
 
     <!-- Launcher -->
     <string name="launcher_fsn">文件分享网络</string>
