@@ -21,7 +21,8 @@ public class DataPool {
                           isWifiConnected = false,
 
                           isPowerSavingMode = false,
-                          isAppHiberated = false;
+                          isAppHiberated = false,
+                          isLauncherActvitiy = false;
 
     final public static String NOTIF_TRANSFER_ID = "connect_transfer";
 

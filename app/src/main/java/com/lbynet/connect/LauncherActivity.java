@@ -139,8 +139,6 @@ public class LauncherActivity extends AppCompatActivity {
         //Register Wi-Fi receivers for restarting services when need
         SystemManager.registerReceivers(this);
 
-        setPairingCallback();
-
         //Force update the status in case the view is re-created
         Visualizer.updateFsnStatusOnLauncher(this);
 
@@ -156,8 +154,9 @@ public class LauncherActivity extends AppCompatActivity {
         super.onResume();
 
         SAL.print(SAL.MsgType.VERBOSE,TAG,"onResume");
-        setPairingCallback();
 
+        DataPool.activity = this;
+        DataPool.isLauncherActvitiy = true;
         DataPool.isAppHiberated = false;
 
     }
@@ -167,33 +166,6 @@ public class LauncherActivity extends AppCompatActivity {
         super.onPause();
 
         DataPool.isAppHiberated = true;
-    }
-
-    public void setPairingCallback() {
-
-        AppCompatActivity activity = this;
-        Pairing.setStatusCallback(new NetCallback() {
-            @Override
-            public void onConnect() {
-                SAL.print("Pairing Possible");
-                new Thread( () -> {
-                    //Wait for Wi-Fi stuff
-                    //Utils.sleepFor(500);
-                    Visualizer.updateFsnStatusOnLauncher(activity);
-                }).start();
-            }
-
-            @Override
-            public void onLost() {
-                SAL.print("Pairing bad");
-
-                new Thread( () -> {
-                    //Wait for Wi-Fi stuff
-                    //Utils.sleepFor(500);
-                    Visualizer.updateFsnStatusOnLauncher(activity);
-                }).start();
-            }
-        });
     }
 
     public void onTriButtonClicked(View view) {

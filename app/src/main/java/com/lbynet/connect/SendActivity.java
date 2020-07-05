@@ -56,6 +56,8 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        DataPool.activity = this;
+
         SAL.print("onCreate");
 
         SAL.print("Intent info: \n"
@@ -84,7 +86,6 @@ public class SendActivity extends AppCompatActivity {
         //Setup blur background
         Blurry.with(this).sampling(5).radius(30).from(Utils.getWallpaper(this)).into(findViewById(R.id.iv_background_blur));
 
-        DataPool.activity = this;
         try {
 
             //Register listener for notification
@@ -150,6 +151,8 @@ public class SendActivity extends AppCompatActivity {
 
         targetLoader.setPause(false);
 
+        DataPool.activity = this;
+        DataPool.isLauncherActvitiy = false;
         DataPool.isAppHiberated = false;
     }
 

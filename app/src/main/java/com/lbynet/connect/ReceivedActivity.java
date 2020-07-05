@@ -77,7 +77,9 @@ public class ReceivedActivity extends AppCompatActivity {
             isFirstOnResume = false;
         }
 
+        DataPool.activity = this;
         DataPool.isAppHiberated = false;
+        DataPool.isLauncherActvitiy = false;
 
     }
 

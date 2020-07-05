@@ -51,14 +51,14 @@ public class SystemManager {
                         SAL.print(SAL.MsgType.VERBOSE,TAG,"Wi-Fi Connected");
                         super.onAvailable(network);
                         DataPool.isWifiConnected = true;
-                        Visualizer.updateFsnStatusOnLauncher((AppCompatActivity) context);
+                        if(DataPool.isLauncherActvitiy) Visualizer.updateFsnStatusOnLauncher((AppCompatActivity) context);
                     }
 
                     @Override
                     public void onLost(@NonNull Network network) {
                         SAL.print(SAL.MsgType.VERBOSE,TAG,"Wi-Fi Lost");
                         DataPool.isWifiConnected = false;
-                        Visualizer.updateFsnStatusOnLauncher((AppCompatActivity) context);
+                        if(DataPool.isLauncherActvitiy) Visualizer.updateFsnStatusOnLauncher((AppCompatActivity) context);
                     }
                 });
 
@@ -67,11 +67,18 @@ public class SystemManager {
             @Override
             public void onConnect() {
                 SAL.print("Pairing Possible");
+                new Thread( () -> {
+                    if(DataPool.isLauncherActvitiy) Visualizer.updateFsnStatusOnLauncher(DataPool.activity);
+                }).start();
             }
 
             @Override
             public void onLost() {
-                SAL.print("Pairing Bad");
+                SAL.print("Pairing bad");
+
+                new Thread( () -> {
+                    if(DataPool.isLauncherActvitiy)Visualizer.updateFsnStatusOnLauncher(DataPool.activity);
+                }).start();
             }
         });
     }
